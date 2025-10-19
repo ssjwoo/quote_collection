@@ -93,9 +93,9 @@ export const MemberInfo = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <div className="self-end ml-2">
+          <div className="self-end ml-4">
             <button
-              className=" p-0.5 text-xs border rounded-sm border-main-green hover:bg-main-pink"
+              className=" p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green"
               onClick={onIdCheck}
             >
               중복 확인

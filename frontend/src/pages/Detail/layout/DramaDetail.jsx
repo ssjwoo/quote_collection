@@ -6,11 +6,14 @@ import { useEffect, useState } from 'react';
 export const DramaDetail =({quote})=>{
 
  const navigation = useNavigate();
- const [isLogin, setIsLogin] = useState(false);
+ const [isLogin, setIsLogin] = useState(true);
  const [bookmark, setBookMarked] = useState(false);
+ const [user,setUser] = useState({});
 
  useEffect(()=>{
     if(isLogin){
+         /**dummy */
+        setUser({id:'user1',bookmark:{'book':[1,2,3], 'funny':[1,2]}})
         /**로그인한 사용자가 이 글에 북마크를 했는지 데이터 불러오기 */
         setBookMarked(true);
     }
@@ -30,14 +33,28 @@ export const DramaDetail =({quote})=>{
     navigation('/searchlist/'+input);
   }
 
+   const onModify =()=>{
+    navigation('/detail/'+quote.id+'/modi');
+  }
+  const onDelete=()=>{
+    
+  }
+
     return(
         <>
          <div className="flex flex-col mt-10">
-                  <div className="text-3xl mb-5">DRAMA MARKY</div>
-                    <div className="flex items-end mt-3">
-                        <label className="w-/12 text-end text-sm pb-3">드라마 제목 </label>
-                        <div className="w-4/6 text-xl text-start cursor-pointer rounded-lg p-2 pl-4 ml-3" onClick={()=>onSearchList(quote.title)}>{quote.title}</div>
-                     </div>
+                  <div className="text-3xl mb-5">DRAMA MOMENT</div>
+                   {/* 글 작성자에게만 보이도록 */}
+                  {(user.id == quote.writer) &&
+                    <div className='text-end'> 
+                        <button className='px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2' onClick={onModify}>수정</button> 
+                        <button className='px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs' onClick={onDelete}>삭제 </button>
+                    </div>}
+                       <div className="flex items-end mt-3">
+                        <label className="w-1/12 text-sm text-end pb-3 ">드라마제목</label>
+                        <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
+                            <span className='cursor-pointer' onClick={()=>onSearchList(quote.title)}>{quote.title}</span></div>
+                    </div>
                      <div className="flex justify-center mt-3">  
                         <div className="w-4/5 text-main-white pt-12 pb-12 bg-main-green rounded-lg p-2 pl-4 ml-3 shadow-lg shadow-gray-400">{quote.content}</div>
                      </div>
@@ -47,8 +64,9 @@ export const DramaDetail =({quote})=>{
                         </div>
                      </div>
                      <div className="flex items-end mt-3">
-                        <label className="text-sm w-1/12 text-end pb-3">프로듀서</label>
-                        <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3 cursor-pointer" onClick={()=>onSearchList(quote.creater)}>{quote.creater}</div>
+                        <label className="w-1/12 text-end pb-3 text-sm">프로듀서 </label>
+                        <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3" >
+                            <span className='cursor-pointer' onClick={()=>onSearchList(quote.creater)}>{quote.creater}</span></div>
                     </div>
         
                     {quote.subData && (<>

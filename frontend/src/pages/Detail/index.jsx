@@ -18,7 +18,7 @@ export const Detail=()=>{
             'title':'title','creater':'author book','subData':'',
             'content':'content contentcontentcontentcontentcontent',
             'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
+            'writer':'user1', 'createdAt':'2013-10-23'
         }
         setQuote(q);
         setMode('book');

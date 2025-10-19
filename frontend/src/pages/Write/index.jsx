@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { BookWrite } from "./layout/bookwrite";
+
 import { MovieWrite } from "./layout/MovieWrite";
 import { DramaWrite } from "./layout/DramaWrite";
+import { BookWrite } from "./layout/BookWrite";
 
 export const Write = () =>{
 

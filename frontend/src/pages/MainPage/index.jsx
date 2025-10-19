@@ -10,6 +10,7 @@ export const MainPage = ({ mode }) => {
   const [newQuote, setNewQuote] = useState([]);
   const [recomQuote, setRecomQuote]=useState([]);
 
+  /** mode에 맞게 데이터 불러오기 */
     /** dummy data */
     useEffect(()=>{
         const p = {'id':0,'category':0,'title':'title','creater':'author book','subData':'pub3030',
@@ -60,14 +61,9 @@ export const MainPage = ({ mode }) => {
         <Search/>
       </div>
       <div className="mt-12">
-        {mode}     
-        {/* popular */}
+        
         <Popular popularQuote={popularQuote} />
-
-        {/* new */}
         <New newQuote={newQuote} />
-
-        {/* recommend */}
         <Recommend recomQuote={recomQuote}/>
 
       </div>

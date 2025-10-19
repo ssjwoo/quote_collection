@@ -20,8 +20,8 @@ export function BookMark() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-medium mb-4">Bookmark</h1>
+    <div className="p-6 max-w-2xl mt-4 mx-auto">
+      <h1 className="text-3xl font-medium mb-5">Bookmark</h1>
       <FolderNode node={tree} addAtId={addAtId} onRequestCreateAt={openModalAt} />
       <NameModal open={modalOpen} onClose={() => setModalOpen(false)} onConfirm={confirmCreate} />
     </div>

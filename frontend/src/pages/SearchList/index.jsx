@@ -3,8 +3,6 @@ import { useParams } from "react-router-dom";
 
 export const SearchList =()=>{
 
-    // const location = useLocation();
-    // const prevInput=location.state?.key;
     const {input} = useParams();
 
     return(

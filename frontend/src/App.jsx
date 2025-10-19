@@ -16,6 +16,7 @@ import { Logo } from "./components/Logo/index";
 import { Detail } from "./pages/Detail";
 import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
+import { Modify } from "./pages/Modify";
 
 const RootLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,6 +71,7 @@ const router = createBrowserRouter([
           { path: "/detail/:id", element: <Detail /> },
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
+          { path: "/detail/:id/modi", element: <Modify /> },
         ],
       },
     ],
