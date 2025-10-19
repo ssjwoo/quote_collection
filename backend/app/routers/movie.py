@@ -5,13 +5,11 @@ from app.database import get_db
 from app.repositories.movie import movie_repo
 from app.schemas import movie as movie_schema
 
-router = APIRouter()
+router = APIRouter(prefix="/movies", tags=["movies"])
+
 
 @router.post("/", response_model=movie_schema.MovieRead, status_code=201)
-def create_new_movie(
-    movie: movie_schema.MovieCreate,
-    db: Session = Depends(get_db)
-):
+def create_new_movie(movie: movie_schema.MovieCreate, db: Session = Depends(get_db)):
     """
     새로운 영화 기록을 생성합니다.
     """

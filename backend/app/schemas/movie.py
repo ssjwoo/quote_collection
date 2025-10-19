@@ -19,4 +19,4 @@ class MovieRead(MovieBase):
     id: int
 
     class Config:
-        orm_mode = True # SQLAlchemy 모델을 Pydantic 모델로 변환
+        from_attributes = True # SQLAlchemy 모델을 Pydantic 모델로 변환

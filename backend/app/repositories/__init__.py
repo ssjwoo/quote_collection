@@ -2,7 +2,6 @@ from .user import user_repository
 from .book import book_repository
 from .quote import quote_repository
 from .tag import tag_repository
-# from .quote_tag import quote_tag_repository 임시 비활성화
 from .publisher import publisher_repository
 from .bookmark import bookmark_repository
 from .producer import producer_repository
