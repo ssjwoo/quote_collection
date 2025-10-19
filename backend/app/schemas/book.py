@@ -16,7 +16,7 @@ class BookUpdate(BaseModel):
     publisher: Optional[str] = None
 
 class BookInDB(BookBase):
-    book_id: int
+    id: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:

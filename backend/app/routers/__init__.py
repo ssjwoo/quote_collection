@@ -11,6 +11,8 @@ from . import (
     tag,
     user,
     movie,
+    drama,
+    search,
 )  ### Movie추가 ### quote_tag 임시 비활성화
 
 router = APIRouter()
@@ -26,3 +28,5 @@ router.include_router(source.router)
 router.include_router(tag.router)
 router.include_router(user.router)
 router.include_router(movie.router)
+router.include_router(drama.router)
+router.include_router(search.router)

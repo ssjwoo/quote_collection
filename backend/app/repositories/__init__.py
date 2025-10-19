@@ -6,3 +6,5 @@ from .publisher import publisher_repository
 from .bookmark import bookmark_repository
 from .producer import producer_repository
 from .source import source_repository
+from .movie import movie_repo
+from .drama import drama_repo

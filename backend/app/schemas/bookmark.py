@@ -5,7 +5,7 @@ class BookmarkBase(BaseModel):
     user_id: int
     quote_id: int
 
-class BookmakrCreate(BookmarkBase):
+class BookmarkCreate(BookmarkBase):
     pass
 
 class BookmarkInDB(BookmarkBase):

@@ -18,9 +18,6 @@ class Movie(Base):
     director = Column(String(50), nullable=False)
     release_date = Column(Date)
 
-    # Movie와 Quote는 일대다 관계 (하나의 영화에 여러 명대사)
-    quotes = relationship("Quote", back_populates="movie")
-    
     # Movie와 Tag는 다대다 관계
     tags = relationship(
         "Tag",

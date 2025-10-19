@@ -1,11 +1,16 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
+
+from .book import BookRead
+from .movie import MovieRead
+from .drama import DramaRead
 
 class SourceBase(BaseModel):
     title: str
     source_type: str
     creator: str
+    details_id: Optional[int] = None
     producer_id: Optional[int] = None
     publisher_id: Optional[int] = None
     release_year: Optional[int] = None
@@ -15,7 +20,14 @@ class SourceCreate(SourceBase):
     pass
 
 class SourceUpdate(BaseModel):
-    data: Optional[Dict[str, Any]] = None
+    title: Optional[str] = None
+    source_type: Optional[str] = None
+    creator: Optional[str] = None
+    details_id: Optional[int] = None
+    producer_id: Optional[int] = None
+    publisher_id: Optional[int] = None
+    release_year: Optional[int] = None
+    isbn: Optional[str] = None
 
 class SourceInDB(SourceBase):
     id: int
@@ -25,4 +37,4 @@ class SourceInDB(SourceBase):
         from_attributes = True
 
 class SourceRead(SourceInDB):
-    pass
+    details: Union[BookRead, MovieRead, DramaRead, None] = None

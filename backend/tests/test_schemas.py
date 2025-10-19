@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime, timezone
 from pydantic import ValidationError
-from app.schemas import UserCreate, UserUpdate, UserResponse, Token, BookCreate, BookUpdate, BookRead, BookmarkRead, BookmakrCreate
+from app.schemas import UserCreate, UserUpdate, UserResponse, Token, BookCreate, BookUpdate, BookRead, BookmarkRead, BookmarkCreate
 
 def test_user_create_schema():
     user_data = {
@@ -88,14 +88,14 @@ def test_book_update_schema():
 def test_book_read_schema():
     now = datetime.now(timezone.utc)
     book_read_data = {
-        "book_id": 1,
+        "id": 1,
         "title": "Read Book",
         "author": "Read Author",
         "publisher": "Read Publisher",
         "created_at": now,
     }
     book_read = BookRead(**book_read_data)
-    assert book_read.book_id == 1
+    assert book_read.id == 1
     assert book_read.title == "Read Book"
     assert book_read.author == "Read Author"
     assert book_read.publisher == "Read Publisher"
@@ -103,7 +103,7 @@ def test_book_read_schema():
 
 def test_bookmark_create_schema():
     bookmark_data = {"user_id": 1, "quote_id": 1}
-    bookmark = BookmakrCreate(**bookmark_data)
+    bookmark = BookmarkCreate(**bookmark_data)
     assert bookmark.user_id == 1
     assert bookmark.quote_id == 1
 

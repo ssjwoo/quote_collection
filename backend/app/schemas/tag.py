@@ -15,7 +15,7 @@ class TagUpdate(BaseModel):
 
 # DB에서 관리되는 모델
 class TagInDB(TagBase):
-    tag_id: int
+    id: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:

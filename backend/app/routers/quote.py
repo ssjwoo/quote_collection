@@ -2,30 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_db
-from app.schemas import QuoteCreate, QuoteRead, QuoteUpdate, QuoteCreateWithSource
+from app.schemas import QuoteCreate, QuoteRead, QuoteUpdate
 from app.services import quote_service, user_service, source_service
 
 router = APIRouter(prefix="/quote", tags=["Quote"])
 
-@router.post("/with_source", response_model=QuoteRead)
-async def create_quote_with_source(quote_data: QuoteCreateWithSource, db: AsyncSession = Depends(get_async_db)):
-    user = await user_service.repository.get(db, id=quote_data.user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    source = await source_service.repository.get_by_title_and_creator(
-        db, title=quote_data.source.title, creator=quote_data.source.creator
-    )
-    if not source:
-        source = await source_service.repository.create(db, obj_in=quote_data.source)
-
-    quote_create = QuoteCreate(
-        content=quote_data.content,
-        page=quote_data.page,
-        user_id=quote_data.user_id,
-        source_id=source.id,
-    )
-    return await quote_service.repository.create(db, obj_in=quote_create)
+@router.get("/popular", response_model=list[QuoteRead])
+async def get_popular_quotes(db: AsyncSession = Depends(get_async_db)):
+    return await quote_service.get_most_bookmarked(db)
 
 @router.post("/", response_model=QuoteRead)
 async def create_quote(quote: QuoteCreate, db: AsyncSession = Depends(get_async_db)):

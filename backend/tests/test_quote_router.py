@@ -1,30 +1,50 @@
 import pytest
 import httpx
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import User, Source, Quote, Bookmark
+from app.core.auth import hash_password
 
 @pytest.mark.asyncio
-async def test_create_quote_with_new_source(client: httpx.AsyncClient):
-    # First, create a user
-    user_data = {"email": "test@example.com", "username": "testuser", "password": "password"}
-    response = await client.post("/auth/register", json=user_data)
-    assert response.status_code == 200
-    user_id = response.json()["user"]["id"]
+async def test_get_popular_quotes(client: httpx.AsyncClient, db_session: AsyncSession):
+    # 1. Setup: Create users, sources, quotes, and bookmarks
+    user1 = User(email="popuser1@example.com", username="popuser1", hashed_password=hash_password("pw"))
+    user2 = User(email="popuser2@example.com", username="popuser2", hashed_password=hash_password("pw"))
+    source = Source(title="Test Book", source_type="book", creator="Test Author")
+    db_session.add_all([user1, user2, source])
+    await db_session.commit()
 
-    # Then, create a quote with a new source
-    quote_data = {
-        "content": "This is a test quote.",
-        "user_id": user_id,
-        "source": {
-            "title": "Test Book",
-            "source_type": "book",
-            "creator": "Test Author",
-        },
-    }
-    response = await client.post("/quote/with_source", json=quote_data)
+    quote1 = Quote(user_id=user1.id, source_id=source.id, content="Quote 1") # Less popular
+    quote2 = Quote(user_id=user1.id, source_id=source.id, content="Quote 2") # Most popular
+    quote3 = Quote(user_id=user1.id, source_id=source.id, content="Quote 3") # No bookmarks
+    db_session.add_all([quote1, quote2, quote3])
+    await db_session.commit()
+
+    # Bookmark quote2 three times, quote1 once
+    bm1 = Bookmark(user_id=user1.id, quote_id=quote2.id)
+    bm2 = Bookmark(user_id=user2.id, quote_id=quote2.id)
+    bm3 = Bookmark(user_id=user1.id, quote_id=quote1.id)
+    # Simulating a third bookmark for quote2 from a different user
+    user3 = User(email="popuser3@example.com", username="popuser3", hashed_password=hash_password("pw"))
+    db_session.add(user3)
+    await db_session.commit()
+    bm4 = Bookmark(user_id=user3.id, quote_id=quote2.id)
+
+    db_session.add_all([bm1, bm2, bm3, bm4])
+    await db_session.commit()
+
+    # 2. Act: Call the popular quotes endpoint
+    response = await client.get("/quote/popular")
+
+    # 3. Assert
     assert response.status_code == 200
     data = response.json()
-    assert data["content"] == quote_data["content"]
-    assert data["user_id"] == quote_data["user_id"]
-    assert data["source_id"] is not None
+    assert isinstance(data, list)
+    assert len(data) == 2 # Only bookmarked quotes should be returned
+
+    # Check the order
+    assert data[0]["id"] == quote2.id
+    assert data[1]["id"] == quote1.id
 
 @pytest.mark.asyncio
 async def test_create_quote_with_existing_source(client: httpx.AsyncClient):

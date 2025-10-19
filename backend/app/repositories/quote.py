@@ -1,9 +1,31 @@
-from app.models import Quote
+from sqlalchemy import func, desc
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import Quote, Bookmark
 from app.repositories.base import BaseRepository
 
 
 class QuoteRepository(BaseRepository[Quote]):
-    pass
+    async def get_most_bookmarked(self, db: AsyncSession, limit: int = 10) -> list[Quote]:
+        statement = (
+            select(self.model)
+            .join(Bookmark, self.model.id == Bookmark.quote_id)
+            .group_by(self.model.id)
+            .order_by(func.count(Bookmark.quote_id).desc())
+            .limit(limit)
+        )
+        result = await db.execute(statement)
+        return result.scalars().all()
+
+    async def search(self, db: AsyncSession, query: str, limit: int = 10) -> list[Quote]:
+        statement = (
+            select(self.model)
+            .filter(self.model.content.ilike(f"%{query}%"))
+            .limit(limit)
+        )
+        result = await db.execute(statement)
+        return result.scalars().all()
 
 
 quote_repository = QuoteRepository(Quote)
