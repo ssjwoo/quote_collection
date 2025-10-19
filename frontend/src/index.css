@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* 배경 진녹색 */
   --color-main-green: #39452d;
   --color-first-menu-dim: #d6b8ad;
   --color-first-menu-thick: #c29a8d;
@@ -10,4 +11,22 @@
   --color-third-menu-thick: #aec18e;
   --color-main-white: #fdfdfb;
   --color-main-beige :#E3E0CF;
+  --color-popular-bg: #ECEEE9;
+  --color-new-bg:#E2E8C9;
+  --color-main-beige: #e3e0cf;
+
+  /* 연한 녹색 */
+  --color-custom-div: #e5e8e1;
+
+  /* 강조 주황색 */
+  --color-custom-bold-font: #ff9500;
+
+  /* 검정에 가까운 녹색 */
+  --color-custom-basic-font: #39452d;
+
+  /* 검색창 바탕 베이지 */
+  --color-custom-search: #e3e0cf;
+
+  /* 채도 낮은 분홍색 */
+  --color-custom-pink: #d6b8ad;
 }

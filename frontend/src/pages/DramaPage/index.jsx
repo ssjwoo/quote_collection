@@ -1,6 +1,0 @@
-export const DramaPage =()=>{
-    return(
-        <>
-        </>
-    );
-}

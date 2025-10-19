@@ -33,7 +33,8 @@ async def register(user_create: UserCreate, db: AsyncSession = Depends(get_async
 # 로그인
 @router.post("/login", response_model=Token)
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_async_db)
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_async_db),
 ):
     # 사용자 찾기
     user = await user_service.repository.get_by_email(db, email=form_data.username)
