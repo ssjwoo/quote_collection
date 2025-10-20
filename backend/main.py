@@ -1,54 +1,46 @@
 from fastapi import FastAPI
+from app.routers import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
+import subprocess
 import uvicorn
-from app.routers import auth, tag
-from app.database import Base, engine
-from app.models import (
-    user,
-    book,
-    like,
-    producer,
-    publisher,
-    quote_tag,
-    quote,
-    source,
-    tag as tag_model,
-)
+from contextlib import asynccontextmanager
+from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy import create_engine
+from app.core.config import settings
 
 
-def create_tables():
-    Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create database if it doesn't exist
+    engine = create_engine(settings.sync_database_url)
+    if not database_exists(engine.url):
+        create_database(engine.url)
+
+    # Run alembic migrations
+    subprocess.run(["alembic", "upgrade", "head"])
+    yield
 
 
-# FastAPI 앱 생성
-app = FastAPI(title="Quote Collection API", version="1.0.0")
+app = FastAPI(lifespan=lifespan)
 
 
-@app.on_event("startup")
-def on_startup():
-    create_tables()
-
-
-# CORS 설정 (프론트엔드와 통신용)
+# 허용할 출처 목록
+origins = [
+    "http://localhost:5173",  # React 개발 서버 주소
+    "null",  # 로컬에서 직접 연 html 파일 (test.html)
+]
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+    # allow_origins=origins,  # ["*"] 대신 위에서 만든 origins 리스트를 사용
+    allow_origins=["*"],  # frontend IP 로 추후 바꾸기
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # 모든 method 허용
+    allow_headers=["*"],  # 모든 header 허용
 )
 
 
-# 라우터 등록
-app.include_router(auth.router)
-app.include_router(tag.router)
-# app.include_router(book.router)
-# app.include_router(publisher.router)
-
-
-@app.get("/")
-def root():
-    return {"API": "Quote Collection"}
+app.include_router(api_router)
 
 
 if __name__ == "__main__":
