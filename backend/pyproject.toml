@@ -5,12 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiomysql>=0.2.0",
     "alembic>=1.16.5",
     "asyncmy>=0.2.10",
-    "bcrypt>=4.3.0",
+    "bcrypt==3.2.2",
     "cryptography>=46.0.1",
     "email-validator>=2.3.0",
     "fastapi>=0.116.2",
+    "greenlet>=3.2.4",
     "jose>=1.0.0",
     "passlib>=1.7.4",
     "pydantic>=2.11.9",
@@ -21,4 +23,12 @@ dependencies = [
     "python-multipart>=0.0.20",
     "sqlalchemy>=2.0.43",
     "uvicorn>=0.35.0",
+    "pytest>=7.4.0",
+    "httpx>=0.24.1",
+    "sqlalchemy-utils>=0.41.1",
+    "pytest-asyncio",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]

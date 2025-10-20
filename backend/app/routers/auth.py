@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models.user import User
-from app.schemas.user import UserCreate, Token, UserResponse
+from app.database import get_async_db
+from app.schemas import UserCreate, Token, UserResponse
+from app.services import user_service
 from app.core.auth import (
-    hash_password,
     verify_password,
     create_access_token,
     verify_token,
@@ -19,30 +17,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # 회원가입
 @router.post("/register", response_model=Token)
-def register(user_create: UserCreate, db: Session = Depends(get_db)):
+async def register(user_create: UserCreate, db: AsyncSession = Depends(get_async_db)):
     # 이메일 중복 확인
-    if db.query(User).filter(User.email == user_create.email).first():
+    if await user_service.repository.get_by_email(db, email=user_create.email):
         raise HTTPException(status_code=400, detail="이미 가입된 이메일입니다.")
 
-    # 사용자명 중복 확인
-    if db.query(User).filter(User.username == user_create.username).first():
-        raise HTTPException(status_code=400, detail="이미 존재하는 아이디입니다.")
-
     # 새 사용자 생성
-    hashed_pw = hash_password(user_create.password)
-    db_user = User(
-        email=user_create.email,
-        username=user_create.username,
-        hashed_password=hashed_pw,
-    )
-
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="계정등록이 실패했습니다.")
+    db_user = await user_service.repository.create(db, obj_in=user_create)
 
     # 토큰 생성
     access_token = create_access_token(db_user.id)
@@ -51,11 +32,12 @@ def register(user_create: UserCreate, db: Session = Depends(get_db)):
 
 # 로그인
 @router.post("/login", response_model=Token)
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_async_db),
 ):
     # 사용자 찾기
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = await user_service.repository.get_by_email(db, email=form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="메일 또는 비번이 틀립니다.")
 
@@ -69,11 +51,11 @@ def login(
 
 # 현재 사용자 정보
 @router.get("/me", response_model=UserResponse)
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_async_db)
 ):
     user_id = verify_token(token)
-    user = db.query(User).filter(User.id == user_id).first()
+    user = await user_service.repository.get(db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="없는 사용자입니다.")
     return UserResponse.model_validate(user)
