@@ -66,8 +66,8 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
             </form>
 
             <div className="flex mb-5">
-              <div className="mr-3 text-white">아직 회원이 아니시라면?</div>
-              <div className="text-custom-bold-font underline">
+              <div className="mr-3 text-white text-sm">아직 회원이 아니시라면?</div>
+              <div className="text-custom-bold-font underline text-sm">
                 <Link to="/signup">join us</Link>
               </div>
             </div>

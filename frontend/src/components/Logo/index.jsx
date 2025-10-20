@@ -1,8 +1,14 @@
+import { useNavigate } from "react-router-dom";
+
 export const Logo=()=>{
+
+    const navigator = useNavigate();
 
     return(
         <>
-        <div className="flex justify-center mt-4 text-5xl border-b-2 " >WEB NAME</div>
+        <hr className="border-1"></hr>
+        <div className="flex justify-center mt-5 mb-5 text-5xl cursor-pointer" onClick={()=>navigator('/')}>MOMENTARY</div>
+        <hr className="border-1"></hr>
         </>
     );
 }

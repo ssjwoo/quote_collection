@@ -6,14 +6,17 @@ import {
 } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import { MainPage } from "./pages/MainPage";
-import { Bookmark } from "./pages/Bookmark";
 import { Write } from "./pages/Write";
 import { Mypage } from "./pages/Mypage";
 import LoginModal from "./components/Modal/LoginModal";
 import { useEffect, useState } from "react";
 import { Signup } from "./pages/Signup";
 import { MyNavBar } from "./components/MyNavBar";
-import { Logo } from './components/Logo/index';
+import { Logo } from "./components/Logo/index";
+import { Detail } from "./pages/Detail";
+import { SearchList } from "./pages/SearchList";
+import { BookMark } from "./pages/Mypage/layout/BookMark";
+import { Modify } from "./pages/Modify";
 
 const RootLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,20 +32,19 @@ const RootLayout = () => {
       <div className="min-h-screen relative justify-center justify-items-center bg-main-green">
         <div className="relative">
           <NavBar />
-          <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-white shadow-2xl rounded-lg">
+          <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
             {isOpen && (
               <div className=" fixed inset-0 flex justify-center items-center">
                 <LoginModal setIsOpen={setIsOpen} setIsLogin={setIsLogin} />
               </div>
             )}
-
             <MyNavBar
               setIsLogin={setIsLogin}
               isLogIn={isLogIn}
               setIsOpen={setIsOpen}
             />
             <main className="p-8 md:p-12 text-center text-black">
-              <Logo/>
+              <Logo />
               <Outlet />
             </main>
           </div>
@@ -63,10 +65,13 @@ const router = createBrowserRouter([
         children: [
           { path: "/movie", element: <MainPage mode={"movie"} /> },
           { path: "/drama", element: <MainPage mode={"drama"} /> },
-          { path: "/bookmark", element: <Bookmark /> },
           { path: "/write", element: <Write /> },
-          { path: "/mypage", element: <Mypage /> },
+          { path: "/mypage/:tab", element: <Mypage /> },
           { path: "/signup", element: <Signup /> },
+          { path: "/detail/:id", element: <Detail /> },
+          { path: "/searchlist/:input", element: <SearchList /> },
+          { path: "/bookmark", element: <BookMark /> },
+          { path: "/detail/:id/modi", element: <Modify /> },
         ],
       },
     ],
