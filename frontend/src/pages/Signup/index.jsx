@@ -18,6 +18,7 @@ export const Signup = () => {
     setForm({ ...form, [name]: value });
   };
 
+  // TODO: API call here
   //테스트용 이름들, 연결시 삭제해주세요
   const existingNames = ["연서", "가현", "예원"];
   //테스트용 이름들, 연결시 삭제해주세요

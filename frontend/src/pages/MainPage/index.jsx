@@ -11,6 +11,7 @@ export const MainPage = ({ mode }) => {
   const [recomQuote, setRecomQuote]=useState([]);
 
   /** mode에 맞게 데이터 불러오기 */
+    // TODO: API call here
     /** dummy data */
     useEffect(()=>{
         const p = {'id':0,'category':0,'title':'title','creater':'author book','subData':'pub3030',

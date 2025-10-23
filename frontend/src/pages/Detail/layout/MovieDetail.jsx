@@ -12,6 +12,7 @@ export const MovieDetail =({quote})=>{
 
  useEffect(()=>{
     if(isLogin){
+        // TODO: API call here
         /**dummy */
         setUser({id:'user1',bookmark:{'book':[1,2,3], 'funny':[1,2]}})
         /** 사용자 정보의 bookmark에 이 글이 있는지 확인*/
@@ -25,6 +26,7 @@ export const MovieDetail =({quote})=>{
         alert('로그인이 필요한 기능입니다.');
         return;
     }
+    // TODO: API call here
     /** DB 사용자 북마크 데이터 업데이트 필요 */
     setBookMarked(!bookmark);
  }

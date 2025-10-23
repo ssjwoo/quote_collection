@@ -9,6 +9,7 @@ export const MyNavBar = ({ setIsOpen, isLogIn, setIsLogin }) => {
   };
 
   const onBookmark = () => {
+    // TODO: Re-enable login check
     // if (!isLogIn) {
     //   alert("로그인이 필요한 기능입니다.");
     // } else {
@@ -17,6 +18,7 @@ export const MyNavBar = ({ setIsOpen, isLogIn, setIsLogin }) => {
   };
 
   const onWrite = () => {
+    // TODO: Re-enable login check
     // if (!isLogIn) {
     //   alert("로그인이 필요한 기능입니다.");
     // } else {

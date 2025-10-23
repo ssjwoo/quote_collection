@@ -12,6 +12,7 @@ export const DramaDetail =({quote})=>{
 
  useEffect(()=>{
     if(isLogin){
+        // TODO: API call here
          /**dummy */
         setUser({id:'user1',bookmark:{'book':[1,2,3], 'funny':[1,2]}})
         /**로그인한 사용자가 이 글에 북마크를 했는지 데이터 불러오기 */
@@ -25,6 +26,7 @@ export const DramaDetail =({quote})=>{
         alert('로그인이 필요한 기능입니다.');
         return;
     }
+    // TODO: API call here
     /** DB 사용자 북마트 데이터 업데이트 필요 */
     setBookMarked(!bookmark);
  }

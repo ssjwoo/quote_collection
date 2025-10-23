@@ -10,6 +10,7 @@ export const SearchList =()=>{
     const [result, setResult]=useState([]);
 
     useEffect(()=>{
+        // TODO: API call here
         /**dummy */
         setResult([{id:0,title:'little princess',content:'once upon a time~'},
                     {id:32,title:'princess and the frog',content:'almot there'}

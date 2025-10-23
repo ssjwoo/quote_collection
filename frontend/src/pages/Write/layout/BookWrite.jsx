@@ -42,6 +42,7 @@ export const BookWrite = () =>{
             alert('필수항목을 입력해주세요');
             return;
         }
+        // TODO: API call here
         /** 새로운 책, quote 객체 생성 후 db 업데이트 */
 
         const today = new Date();
