@@ -40,3 +40,11 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+class UserCheckName(BaseModel):
+    username: str
+
+
+class CheckNameResponse(BaseModel):
+    is_available: bool
