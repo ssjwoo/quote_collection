@@ -17,6 +17,7 @@ import { Detail } from "./pages/Detail";
 import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
 import { Modify } from "./pages/Modify";
+import BookmarkGroup from "./pages/Mypage/layout/BookmarkGroup";
 
 const RootLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
           { path: "/detail/:id/modi", element: <Modify /> },
+          {path:"/mypage/bookmark/group/:folderId", element: <BookmarkGroup />}
         ],
       },
     ],

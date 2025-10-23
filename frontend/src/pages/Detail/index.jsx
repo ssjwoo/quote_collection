@@ -7,8 +7,7 @@ import { RecommendDetail } from "./layout/RecommendDetail";
 
 export const Detail=()=>{
     /** id로 해당 data 불러오기  */
-    const {id} = useParams();
-    
+    const {id} = useParams();    
     const [mode, setMode]=useState('');
     const [quote,setQuote]=useState('');
 
@@ -22,7 +21,7 @@ export const Detail=()=>{
         }
         setQuote(q);
         setMode('book');
-    },[]);
+    },[id]);
 
     return(
         <>

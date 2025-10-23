@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
-import { Signup } from "../../../pages/Signup";
 
 const LoginModal = ({ setIsLogin, setIsOpen }) => {
   const navigation = useNavigate();
