@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
 import { Signup } from "../../../pages/Signup";
+import axios from "../../../api/axios";
 
 const LoginModal = ({ setIsLogin, setIsOpen }) => {
   const navigation = useNavigate();
@@ -12,27 +13,21 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
     const password = form.password.value;
 
     try {
-      const response = await fetch("http://localhost:8081/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
+      // TODO: /api/auth/login - need testing
+      const response = await axios.post(
+        "/api/auth/login",
+        new URLSearchParams({
           username: email,
           password: password,
         }),
-      });
-
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
-
-      if (!response.ok) {
-        const errorData = JSON.parse(responseText);
-        throw new Error(errorData.detail || "Login failed");
-      }
-
-      const data = JSON.parse(responseText);
-      localStorage.setItem("accessToken", data.access_token);
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+      console.log("/api/auth/login", response);
+      localStorage.setItem("accessToken", response.data.access_token);
       alert("로그인 완료");
       setIsLogin(true);
       setIsOpen(false);
@@ -66,7 +61,9 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
             </form>
 
             <div className="flex mb-5">
-              <div className="mr-3 text-white text-sm">아직 회원이 아니시라면?</div>
+              <div className="mr-3 text-white text-sm">
+                아직 회원이 아니시라면?
+              </div>
               <div className="text-custom-bold-font underline text-sm">
                 <Link to="/signup">join us</Link>
               </div>

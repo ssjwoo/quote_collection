@@ -1,60 +1,113 @@
 import { useEffect, useState } from "react";
-import { Form } from 'react-router-dom';
+import { Form, useParams, useNavigate } from "react-router-dom";
+import axios from "../../../api/axios";
 
-export const DramaModi = ({quote}) =>{
-    
-    const [modiQuote,setModiQuote] = useState({
-        title:quote.title,
-        producer : quote.creater,
-        release :quote.subdata,
-        content:quote.content,
-    })
+export const DramaModi = ({ quote }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const tags = ['로맨스','공포','판타지','액션','스릴러','공상/SF','코미디','철학','드라마','다큐멘터리','예능','시리즈','논픽션','애니메이션','뮤지컬','히어로','TV시리즈','누아르','사회','국내','해외'];
-    const [selectedTags,setSelectedTags]=useState(quote.tags);
-    const [error, setError]=useState('');
-    const [charNum,setCharNum]=useState(quote.content.length);
-    
-    /** tag 선택, 미선택 스타일 변경 */
-    const style = ["rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
-        "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border"]
+  const [modiQuote, setModiQuote] = useState({
+    title: quote.title,
+    producer: quote.creater,
+    release: quote.subdata,
+    content: quote.content,
+  });
 
-    useEffect(()=>{
-        if(selectedTags.length <3)
-            setError('')
-    },[selectedTags]);
+  const tags = [
+    "로맨스",
+    "공포",
+    "판타지",
+    "액션",
+    "스릴러",
+    "공상/SF",
+    "코미디",
+    "철학",
+    "드라마",
+    "다큐멘터리",
+    "예능",
+    "시리즈",
+    "논픽션",
+    "애니메이션",
+    "뮤지컬",
+    "히어로",
+    "TV시리즈",
+    "누아르",
+    "사회",
+    "국내",
+    "해외",
+  ];
+  const [selectedTags, setSelectedTags] = useState(quote.tags);
+  const [error, setError] = useState("");
+  const [charNum, setCharNum] = useState(quote.content.length);
 
-    const onSelected=(id)=>{
-        setSelectedTags((prevSelected)=>{
-            if (prevSelected.includes(id)) {
-                return prevSelected.filter((tid) => tid !== id);
-            }else{
-                if(selectedTags.length==3){
-                    setError('태그 선택은 최대 3개까지만 가능합니다.');
-                    return[...prevSelected];                
-                }
-                return [...prevSelected, id];
-            }
-        })
-    }
+  /** tag 선택, 미선택 스타일 변경 */
+  const style = [
+    "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
+    "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
+  ];
 
-    const onSubmit=(e)=>{
-        e.preventDefault();
+  useEffect(() => {
+    if (selectedTags.length < 3) setError("");
+  }, [selectedTags]);
 
-        if(!modiQuote.title.trim()||!modiQuote.producer.trim()||!modiQuote.content.trim()){
-            alert('필수항목을 입력해주세요');
-            return;
+  const onSelected = (id) => {
+    setSelectedTags((prevSelected) => {
+      if (prevSelected.includes(id)) {
+        return prevSelected.filter((tid) => tid !== id);
+      } else {
+        if (selectedTags.length == 3) {
+          setError("태그 선택은 최대 3개까지만 가능합니다.");
+          return [...prevSelected];
         }
+        return [...prevSelected, id];
+      }
+    });
+  };
 
-        // TODO: API call here
-        /**새 객체 생성 후 업데이트 */
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !modiQuote.title.trim() ||
+      !modiQuote.producer.trim() ||
+      !modiQuote.content.trim()
+    ) {
+      alert("필수항목을 입력해주세요");
+      return;
     }
 
-    const onDelete=()=>{
-        // TODO: API call here
-        /** id로 db에서 삭제 */
-    }
+    try {
+      // TODO: /api/drama/${id}, navigate to `/detail/${id}`
+      const response = await axios.put(`/api/drama/${id}`, {
+        title: modiQuote.title,
+        producer: modiQuote.producer,
+        release_date: modiQuote.release,
+        content: modiQuote.content,
+        tags: selectedTags,
+      });
+      console.log(`/api/drama/${id}`, response);
 
+      alert("Drama updated successfully!");
+      navigate(`/detail/${id}`);
+    } catch (error) {
+      console.error("Error updating drama:", error);
+      alert("Failed to update drama.");
+    }
+  };
+
+  const onDelete = async () => {
+    try {
+      // TODO: /api/drama/${id}, navigate to "/"
+      const response = await axios.delete(`/api/drama/${id}`);
+      console.log(`/api/drama/${id}`, response);
+
+      alert("Drama deleted successfully!");
+      navigate("/"); // Redirect to home or a suitable page after deletion
+    } catch (error) {
+      console.error("Error deleting drama:", error);
+      alert("Failed to delete drama.");
+    }
+  };
     return(
         <>
         <Form className="flex flex-col mt-10">

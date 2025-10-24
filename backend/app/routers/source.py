@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_async_db
 from app.schemas import SourceCreate, SourceRead, SourceUpdate
@@ -10,8 +11,11 @@ router = APIRouter(prefix="/source", tags=["Source"])
 
 @router.post("/", response_model=SourceRead)
 async def create_source(source: SourceCreate, db: AsyncSession = Depends(get_async_db)):
-    created_source = await source_service.repository.create(db, obj_in=source)
-    return await source_service.get_with_details(db, source_id=created_source.id)
+    try:
+        created_source = await source_service.repository.create(db, obj_in=source)
+        return await source_service.get_with_details(db, source_id=created_source.id)
+    except IntegrityError as e:
+        raise HTTPException(status_code=400, detail=f"Database integrity issue: {e}")
 
 
 @router.get("/", response_model=list[SourceRead])

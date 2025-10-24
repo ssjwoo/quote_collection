@@ -1,24 +1,44 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "../../../api/axios";
 
-export const Upload =()=>{
+export const Upload = () => {
+  const navigation = useNavigate();
+  const [quotes, setQuotes] = useState([]);
 
-    const navigation = useNavigate();
-    const [quotes,setQuotes]=useState([]);
-    
-        useEffect(()=>{
-            // TODO: API call here
-            /**사용자가 upload 한 quote 모두 불러오기 */
-            /**dummy */
-            setQuotes([{id:0,title:'little princess',content:'once upon a time~',creater:'b111',createdAt:'2000-10-22'},
-                        {id:32,title:'princess and the frog',content:'almot there',creater:'abab',createdAt:'2025-10-11'}
-            ])
-        },[]);
-    
-         const onDetail=(id)=>{
-            navigation('/detail/'+id);
+  useEffect(() => {
+    const fetchUserAndQuotes = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          // TODO: /api/auth/me
+          const userResponse = await axios.get("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("/api/auth/me", userResponse);
+          const userData = userResponse.data;
+          // TODO: /api/users/${userData.id}/quotes
+          const quotesResponse = await axios.get(
+            `/api/users/${userData.id}/quotes`
+          );
+          console.log(`/api/users/${userData.id}/quotes`, quotesResponse);
+          setQuotes(quotesResponse.data);
+        } else {
+          // Handle case where user is not logged in
         }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
 
+    fetchUserAndQuotes();
+  }, []);
+
+  const onDetail = (id) => {
+    navigation("/detail/" + id);
+  };
     return(
         <>
         <div className="flex flex-col justify-items-center m-3">

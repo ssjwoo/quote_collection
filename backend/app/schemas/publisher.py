@@ -4,14 +4,12 @@ from typing import Optional
 
 class PublisherBase(BaseModel):
     name: str
-    address: Optional[str] = None
 
 class PublisherCreate(PublisherBase):
     pass
 
 class PublisherUpdate(BaseModel):
     name: Optional[str] = None
-    address: Optional[str] = None
 
 class PublisherInDB(PublisherBase):
     publisher_id: int

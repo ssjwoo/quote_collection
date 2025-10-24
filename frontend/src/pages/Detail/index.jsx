@@ -4,33 +4,44 @@ import { BookDetail } from "./layout/BookDetail";
 import { MovieDetail } from "./layout/MovieDetail";
 import { DramaDetail } from "./layout/DramaDetail";
 import { RecommendDetail } from "./layout/RecommendDetail";
+import axios from "../../api/axios";
 
-export const Detail=()=>{
-    /** id로 해당 data 불러오기  */
-    const {id} = useParams();
-    
-    const [mode, setMode]=useState('');
-    const [quote,setQuote]=useState('');
+export const Detail = () => {
+  /** id로 해당 data 불러오기  */
+  const { id } = useParams();
 
-    // TODO: API call here
-    /** dummy data */
-    useEffect(()=>{
-        const q = {'id':0,'category':0,
-            'title':'title','creater':'author book','subData':'',
-            'content':'content contentcontentcontentcontentcontent',
-            'tags':['warm','hope'],
-            'writer':'user1', 'createdAt':'2013-10-23'
+  const [mode, setMode] = useState("");
+  const [quote, setQuote] = useState("");
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        // TODO: /api/quote/${id} - need testing
+        const response = await axios.get(`/api/quote/${id}`);
+        console.log(`/api/quote/${id}`, response);
+        const data = response.data;
+        setQuote(data);
+        // Assuming the API response has a 'category' field that determines the mode
+        if (data.source.book) {
+          setMode("book");
+        } else if (data.source.movie) {
+          setMode("movie");
+        } else if (data.source.drama) {
+          setMode("drama");
         }
-        setQuote(q);
-        setMode('book');
-    },[]);
+      } catch (error) {
+        console.error("Failed to fetch quote:", error);
+      }
+    };
 
-    return(
-        <>
-        {mode=='book'&& <BookDetail quote={quote}/>}
-        {mode=='movie'&& <MovieDetail quote={quote}/>}
-        {mode=='drama'&& <DramaDetail quote={quote}/>}
-        <RecommendDetail quote={quote}/>
-        </>
-    );
-}
+    fetchQuote();
+  }, [id]);
+  return (
+    <>
+      {mode == "book" && <BookDetail quote={quote} />}
+      {mode == "movie" && <MovieDetail quote={quote} />}
+      {mode == "drama" && <DramaDetail quote={quote} />}
+      <RecommendDetail quote={quote} />
+    </>
+  );
+};

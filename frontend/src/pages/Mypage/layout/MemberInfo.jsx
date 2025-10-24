@@ -1,37 +1,66 @@
 import { useEffect, useState } from "react";
 import { Form } from "react-router-dom";
+import axios from "../../../api/axios";
 
 export const MemberInfo = () => {
-  // TODO: API call here
-  /** dummy data */
-  const [user, setUser] = useState({
-    id: "username",
-    pw: "prePassword",
-    email: "user123@momentary.com",
-  });
-
-  const [name, setName] = useState(user.id);
+  const [user, setUser] = useState(null);
+  const [name, setName] = useState("");
   const [pw, setPw] = useState("");
   const [confirmedPw, setConfirmedPw] = useState("");
   const [error, setError] = useState({ nameE: "", pwE: "", confirmedPwE: "" });
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (user.id === name.trim()) setChecked(true);
-    else setChecked(false);
-  }, [name]);
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          // TODO: /api/auth/me
+          const response = await axios.get("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("/api/auth/me", response);
+          const userData = response.data;
+          setUser(userData);
+          setName(userData.username);
+        } else {
+          // Handle error
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
-  const onIdCheck = () => {
-    // TODO: API call here
-    /** db에 존재하는 username인지 중복체크한 데이터 조회 후 비교 */
-    // setChecked(true);
+  useEffect(() => {
+    if (user && user.username === name.trim()) setChecked(true);
+    else setChecked(false);
+  }, [name, user]);
+
+  const onIdCheck = async () => {
+    try {
+      // TODO: /api/users/check-name
+      const response = await axios.post("/api/users/check-name", {
+        username: name,
+      });
+      console.log("/api/users/check-name", response);
+      const data = response.data;
+      setChecked(data.is_available);
+      if (!data.is_available) {
+        alert("이미 사용중인 아이디입니다.");
+      }
+    } catch (error) {
+      console.error("Failed to check name:", error);
+    }
   };
 
-  const onsubmit = (e) => {
+  const onsubmit = async (e) => {
     e.preventDefault();
 
-    /** 아무것도 변경되지 않은 경우 */
-    if (user.id === name.trim() && !pw && !confirmedPw) {
+    if (user.username === name.trim() && !pw && !confirmedPw) {
       return;
     }
 
@@ -44,41 +73,48 @@ export const MemberInfo = () => {
       return;
     }
 
-    if (pw === user.pw) {
-      alert("이전과 동일한 비밀번호로는 변경이 불가합니다.");
-      return;
-    }
-
     const newError = { nameE: "", pwE: "", confirmedPwE: "" };
-    /** 회원정보 수정 충족조건 */
     if (name.length < 3) {
       newError.nameE = "이름은 3자 이상으로 설정해주세요.";
-    } else newError.nameE = "";
+    }
 
     if (pw || confirmedPw) {
       if (pw.length < 9) {
         newError.pwE = "비밀번호는 9자 이상으로 설정해주세요.";
       } else if (pw !== confirmedPw) {
         newError.confirmedPwE = "입력한 비밀번호와 동일하지 않습니다.";
-      } else {
-        newError.pw = "";
-        newError.confirmedPwE = "";
       }
     }
 
     setError(newError);
     if (newError.nameE || newError.pwE || newError.confirmedPwE) return;
-    else {
-      setUser((prev) => ({ //setUser가 쓰이지 않아 여기서 사용했습니다
-        ...prev,
-        id: name.trim(),
-        pw: pw ? pw : prev.pw, // 비밀번호 입력했을 때만 업데이트
-      }));
 
-      setChecked(false);
+    try {
+      const token = localStorage.getItem("token");
+      const updatedUser = {
+        username: name.trim(),
+      };
+      if (pw) {
+        updatedUser.password = pw;
+      }
+
+      // TODO: /api/users/${user.id}, no navigation
+      const response = await axios.put(`/api/users/${user.id}`, updatedUser, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(`/api/users/${user.id}`, response);
+
+      const updatedUserData = response.data;
+      setUser(updatedUserData);
+      setName(updatedUserData.username);
       setPw("");
       setConfirmedPw("");
       alert("회원정보 수정 완료");
+    } catch (error) {
+      console.error("Failed to update user:", error);
     }
   };
 
@@ -109,15 +145,17 @@ export const MemberInfo = () => {
             {error.nameE}
           </div>
         )}
-        <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-2 pr-2">email</label>
-          <input
-            type="text"
-            className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 bg-gray-300 text-gray-600 shadow-gray-400 outline-main-green"
-            value={user.email}
-            disabled
-          />
-        </div>
+        {user && (
+          <div className="flex items-end mt-3">
+            <label className="w-1/5 text-end pb-2 pr-2">email</label>
+            <input
+              type="text"
+              className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 bg-gray-300 text-gray-600 shadow-gray-400 outline-main-green"
+              value={user.email}
+              disabled
+            />
+          </div>
+        )}
         <div className="flex items-end mt-3">
           <label className="w-1/5 text-end pr-2 pb-2">비밀번호</label>
           <input

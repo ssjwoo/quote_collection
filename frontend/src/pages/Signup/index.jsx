@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import SigninInput from "../SigninInput";
 import { useState } from "react";
+import axios from "../../api/axios";
 
 export const Signup = () => {
   const navigation = useNavigate();
@@ -18,16 +19,21 @@ export const Signup = () => {
     setForm({ ...form, [name]: value });
   };
 
-  // TODO: API call here
-  //테스트용 이름들, 연결시 삭제해주세요
-  const existingNames = ["연서", "가현", "예원"];
-  //테스트용 이름들, 연결시 삭제해주세요
-
-  const validate = () => {
+  const validate = async () => {
     const newErrors = {};
 
-    if (existingNames.includes(form.name)) {
-      newErrors.name = "이미 사용중인 이름입니다.";
+    // name check api
+    // TODO: /api/users/check-name, no navigation
+    try {
+      const response = await axios.post("/api/users/check-name", {
+        username: form.name,
+      });
+      console.log("/api/users/check-name", response);
+      if (!response.data.is_available) {
+        newErrors.name = "이미 사용중인 이름입니다.";
+      }
+    } catch (error) {
+      console.error("name check error", error);
     }
 
     if (
@@ -50,12 +56,23 @@ export const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlesubmit = (e) => {
+  const handlesubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      alert("회원가입이 완료되었습니다");
-      console.log("버튼누름");
-      navigation("/");
+    if (await validate()) {
+      try {
+        // TODO: /api/auth/register, navigate to "/"
+        const response = await axios.post("/api/auth/register", {
+          email: form.email,
+          username: form.name,
+          password: form.password,
+        });
+        console.log("/api/auth/register", response);
+        alert("회원가입이 완료되었습니다");
+        navigation("/");
+      } catch (error) {
+        console.error("API call error:", error);
+        alert("회원가입 중 오류가 발생했습니다.");
+      }
     }
   };
   return (

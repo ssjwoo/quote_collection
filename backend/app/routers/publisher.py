@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+import logging
 
 from app.database import get_async_db
 from app.schemas import PublisherCreate, PublisherRead, PublisherUpdate
@@ -7,10 +9,18 @@ from app.services import publisher_service
 
 router = APIRouter(prefix="/publisher", tags=["Publisher"])
 
+logger = logging.getLogger(__name__)
+
 # 출판사 등록
 @router.post("/", response_model=PublisherRead)
 async def create(publisher: PublisherCreate, db: AsyncSession = Depends(get_async_db)):
-    return await publisher_service.repository.create(db, obj_in=publisher)
+    try:
+        return await publisher_service.repository.create(db, obj_in=publisher)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Publisher with this name already exists")
+    except Exception as e:
+        logger.error(f"Error creating publisher: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 
 # 등록된 출판사 전체 조회
 @router.get("/", response_model=list[PublisherRead])

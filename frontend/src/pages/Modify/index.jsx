@@ -2,26 +2,47 @@ import { useEffect, useState } from "react";
 import { BookModi } from "./layout/BookModi";
 import { DramaModi } from "./layout/DramaModi";
 import { useParams } from "react-router-dom";
-import { MovieModi } from './layout/MovieModi';
+import { MovieModi } from "./layout/MovieModi";
+import axios from "../../api/axios";
 
-export const Modify =()=>{
-    const{id}=useParams();
+export const Modify = () => {
+  const { id } = useParams();
 
-    /**id 이용해서 quote 정보 가져오기 */
-    // TODO: API call here
-    /**dummy */
-    const [quote,setQuote] = useState({});
-    
-    useEffect(()=>{
-        // setQuote({'id':id,sourceType:'book',title:'HarryPotter',creater:'JK ROWling', subdata:'magic box', content:'shut up malfoy \n\n - Harry',tags:['용기','성장']});
-        setQuote({'id':id,sourceType:'movie',title:'HarryPotter',creater:'JK ROWling', subdata:'2011', content:'shut up malfoy \n\n - Harry',tags:['판타지','해외']});
-    },[]);
+  const [quote, setQuote] = useState(null);
 
-    return(
+  useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        // TODO: /api/quote/${id}, no navigation
+        const response = await axios.get(`/api/quote/${id}`);
+        console.log(`/api/quote/${id}`, response);
+        const data = response.data;
+        let sourceType = "";
+        if (data.source.book) {
+          sourceType = "book";
+        } else if (data.source.movie) {
+          sourceType = "movie";
+        } else if (data.source.drama) {
+          sourceType = "drama";
+        }
+        setQuote({ ...data, sourceType });
+      } catch (error) {
+        console.error("Failed to fetch quote:", error);
+      }
+    };
+
+    fetchQuote();
+  }, [id]);
+
+  return (
+    <>
+      {quote && (
         <>
-        {(quote.sourceType == 'book') && <BookModi quote = {quote} />}
-        {(quote.sourceType == 'drama') && <DramaModi quote = {quote} />}
-        {(quote.sourceType == 'movie') && <MovieModi quote = {quote} />}
+          {quote.sourceType === "book" && <BookModi quote={quote} />}
+          {quote.sourceType === "drama" && <DramaModi quote={quote} />}
+          {quote.sourceType === "movie" && <MovieModi quote={quote} />}
         </>
-    );
-}
+      )}
+    </>
+  );
+};

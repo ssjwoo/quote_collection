@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_async_db
 from app.schemas import QuoteCreate, QuoteRead, QuoteUpdate
@@ -19,7 +20,10 @@ async def create_quote(quote: QuoteCreate, db: AsyncSession = Depends(get_async_
     source = await source_service.repository.get(db, id=quote.source_id)
     if not source:
         raise HTTPException(status_code=404, detail="Source not found")
-    return await quote_service.repository.create(db, obj_in=quote)
+    try:
+        return await quote_service.repository.create(db, obj_in=quote)
+    except IntegrityError as e:
+        raise HTTPException(status_code=400, detail=f"Database integrity issue: {e}")
 
 @router.get("/", response_model=list[QuoteRead])
 async def list_quotes(db: AsyncSession = Depends(get_async_db)):

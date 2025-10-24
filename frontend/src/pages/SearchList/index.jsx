@@ -1,26 +1,41 @@
 import { useEffect, useState } from "react";
 import { Search } from "../../components/Search";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "../../api/axios";
 
-export const SearchList =()=>{
+export const SearchList = () => {
+  const navigation = useNavigate();
+  const { input } = useParams();
+  /** 검색어가 포함된 db 결과 조회 (quotes, book, drama, movie) */
+  const [result, setResult] = useState([]);
 
-    const navigation = useNavigate();
-    const {input} = useParams();
-    /** 검색어가 포함된 db 결과 조회 (quotes, book, drama, movie) */
-    const [result, setResult]=useState([]);
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      try {
+        // TODO: /api/search/?q=${input}, no navigation
+        const response = await axios.get(`/api/search/?q=${input}`);
+        console.log(`/api/search/?q=${input}`, response);
+        const data = response.data;
+        const combinedResults = [
+          ...data.quotes,
+          ...data.books,
+          ...data.movies,
+          ...data.dramas,
+        ];
+        setResult(combinedResults);
+      } catch (error) {
+        console.error("Failed to fetch search results:", error);
+      }
+    };
 
-    useEffect(()=>{
-        // TODO: API call here
-        /**dummy */
-        setResult([{id:0,title:'little princess',content:'once upon a time~'},
-                    {id:32,title:'princess and the frog',content:'almot there'}
-        ])
-    },[input]);
-
-     const onDetail=(id)=>{
-        navigation('/detail/'+id);
+    if (input) {
+      fetchSearchResults();
     }
+  }, [input]);
 
+  const onDetail = (id) => {
+    navigation("/detail/" + id);
+  };
     return(
         <>
         <div className="flex justify-center">

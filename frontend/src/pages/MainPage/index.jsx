@@ -3,70 +3,64 @@ import { Search } from "../../components/Search";
 import { Popular } from "./layout/Popular";
 import { New } from "./layout/New";
 import { Recommend } from "./layout/Recommend";
+import axios from "../../api/axios";
 
 export const MainPage = ({ mode }) => {
-
-  const [popularQuote,setPopularQuote]= useState({});
+  // TODO: check warning later
+  const [popularQuote, setPopularQuote] = useState({});
   const [newQuote, setNewQuote] = useState([]);
-  const [recomQuote, setRecomQuote]=useState([]);
+  const [recomQuote, setRecomQuote] = useState([]);
 
   /** mode에 맞게 데이터 불러오기 */
-    // TODO: API call here
-    /** dummy data */
-    useEffect(()=>{
-        const p = {'id':0,'category':0,'title':'title','creater':'author book','subData':'pub3030',
-            'content':'content contentcontentcontentcontentcontent',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        // Fetch popular quotes
+        // TODO: /api/quote/popular - need testing
+        const popularResponse = await axios.get("/api/quote/popular");
+        console.log("/api/quote/popular", popularResponse);
+        setPopularQuote(popularResponse.data[0]); // Assuming the first one is the most popular
+
+        // Fetch new quotes
+        // TODO: /api/quote/ - need testing
+        const newResponse = await axios.get("/api/quote/");
+        console.log("/api/quote/", newResponse);
+        const sortedNew = newResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setNewQuote(sortedNew.slice(0, 3)); // Get top 3
+
+        // Fetch recommended quotes
+        const token = localStorage.getItem("token");
+        if (token) {
+          // TODO: /api/recommendations/user-based - need testing
+          const recomResponse = await axios.get(
+            "/api/recommendations/user-based",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("/api/recommendations/user-based", recomResponse);
+          setRecomQuote(recomResponse.data.slice(0, 3)); // Get top 3
         }
-        setPopularQuote(p);
+      } catch (error) {
+        console.error("Failed to fetch quotes:", error);
+      }
+    };
 
-        const n = [{'id':1,'category':1,'title':'title','creater':'author book1','subData':'pub3030',
-            'content':'content ffffffffffffffff',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        },
-      {'id':2,'category':1,'title':'title','creater':'author book2','subData':'slkdc',
-            'content':'content skddkkdddkll',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        },
-      {'id':3,'category':1,'title':'title','creater':'author book3','subData':'sdfkdslk',
-            'content':'content newnqwlmkcwmclwmelmclmdkfnsdjclsdaklmlc',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        }]
-        setNewQuote(n);
-
-        const r = [{'id':4,'category':2,'title':'title','creater':'author book1','subData':'pub3030',
-            'content':'content recommend contentrecommend contentrecommend contentrecommend content',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        },
-      {'id':5,'category':2,'title':'title','creater':'author book2','subData':'slkdc',
-            'content':'content recommend contentkkrecommend contentkmfskdm',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        },
-      {'id':6,'category':2,'title':'title','creater':'author book3','subData':'sdfkdslk',
-            'content':'content merry christmas harry',
-            'tags':['warm','hope'],
-            'writer':'hana', 'createdAt':'2013-10-23'
-        }]
-        setRecomQuote(r);
-    },[]);
-
+    fetchQuotes();
+  }, []);
   return (
     <>
       <div className="flex justify-center">
-        <Search/>
+        <Search />
       </div>
       <div className="mt-12">
-        
         <Popular popularQuote={popularQuote} />
         <New newQuote={newQuote} />
-        <Recommend recomQuote={recomQuote}/>
-
+        <Recommend recomQuote={recomQuote} />
       </div>
     </>
   );
