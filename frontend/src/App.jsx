@@ -27,6 +27,14 @@ const RootLayout = () => {
     setIsOpen(false);
   }, [location]);
 
+  // 로그인 상태 확인
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      setIsLogin(true);
+    }
+  }, []);
+
   return (
     <div className="relative flex flex-nowrap">
       <div className="min-h-screen relative justify-center justify-items-center bg-main-green">

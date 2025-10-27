@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 from typing import Optional
+from app.schemas.publisher import PublisherRead
 
 class BookBase(BaseModel):
     title: str = Field(min_length=1)
     author: str
-    publisher: Optional[str] = None
+    publisher_id: Optional[int] = None
 
 class BookCreate(BookBase):
     pass
@@ -13,7 +14,7 @@ class BookCreate(BookBase):
 class BookUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1)
     author: Optional[str] = None
-    publisher: Optional[str] = None
+    publisher_id: Optional[int] = None
 
 class BookInDB(BookBase):
     id: int
@@ -23,4 +24,4 @@ class BookInDB(BookBase):
         from_attributes = True
 
 class BookRead(BookInDB):
-    pass
+    publisher: Optional[PublisherRead] = None

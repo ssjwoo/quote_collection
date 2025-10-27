@@ -12,7 +12,7 @@ class PublisherUpdate(BaseModel):
     name: Optional[str] = None
 
 class PublisherInDB(PublisherBase):
-    publisher_id: int
+    id: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:

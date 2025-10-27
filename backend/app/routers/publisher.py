@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 # 출판사 등록
 @router.post("/", response_model=PublisherRead)
 async def create(publisher: PublisherCreate, db: AsyncSession = Depends(get_async_db)):
+    existing_publisher = await publisher_service.repository.get_by_name(db, name=publisher.name)
+    if existing_publisher:
+        return existing_publisher
     try:
         return await publisher_service.repository.create(db, obj_in=publisher)
     except IntegrityError:

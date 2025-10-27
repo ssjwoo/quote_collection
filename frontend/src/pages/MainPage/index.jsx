@@ -19,12 +19,13 @@ export const MainPage = ({ mode }) => {
         // TODO: /api/quote/popular - need testing
         const popularResponse = await axios.get("/api/quote/popular");
         console.log("/api/quote/popular", popularResponse);
-        setPopularQuote(popularResponse.data[0]); // Assuming the first one is the most popular
+        setPopularQuote(popularResponse.data); // Assuming it returns a single object
 
         // Fetch new quotes
         // TODO: /api/quote/ - need testing
         const newResponse = await axios.get("/api/quote/");
         console.log("/api/quote/", newResponse);
+        console.log("newResponse.data:", newResponse.data);
         const sortedNew = newResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
