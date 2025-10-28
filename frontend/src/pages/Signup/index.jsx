@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import SigninInput from "../SigninInput";
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 
 export const Signup = () => {
   const navigation = useNavigate();
+  const { signup, sevError } = useAuth();
+  
   const [form, setForm] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     passwordConfirm: "",
@@ -18,16 +21,10 @@ export const Signup = () => {
     setForm({ ...form, [name]: value });
   };
 
-  //테스트용 이름들, 연결시 삭제해주세요
-  const existingNames = ["연서", "가현", "예원"];
-  //테스트용 이름들, 연결시 삭제해주세요
-
   const validate = () => {
     const newErrors = {};
 
-    if (existingNames.includes(form.name)) {
-      newErrors.name = "이미 사용중인 이름입니다.";
-    }
+    /** 사용중인 이름 중복 체크 필요 */
 
     if (
       !/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i.test(
@@ -49,14 +46,22 @@ export const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlesubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      alert("회원가입이 완료되었습니다");
-      console.log("버튼누름");
-      navigation("/");
-    }
-  };
+  const handlesubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validate()) return; 
+
+  const { email, username, password } = form;
+  const success = await signup({ email, username, password });
+
+  if (success) {
+    alert("회원가입이 완료되었습니다");
+    navigation("/");
+  }else{
+    alert(sevError);
+  }
+};
+
   return (
     <>
     <div className="min-h-screen flex justify-center items-start pt-12">
@@ -70,13 +75,13 @@ export const Signup = () => {
           <SigninInput
             title="name"
             type="text"
-            name="name"
+            name="username"
             placeholder="이름을 입력해주세요"
-            value={form.name}
+            value={form.username}
             onChange={handleChange}
           />
-          {error.name && (
-            <p className="text-red-500 text-sm mt-1">{error.name}</p>
+          {error.username && (
+            <p className="text-red-500 text-sm mt-1">{error.username}</p>
           )}
           <div className="">
             <SigninInput

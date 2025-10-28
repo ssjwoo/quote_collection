@@ -18,6 +18,8 @@ import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
 import { Modify } from "./pages/Modify";
 import BookmarkGroup from "./pages/Mypage/layout/BookmarkGroup";
+import { AuthProvider } from "./hooks/useAuth";
+import { UserProvider } from "./hooks/useUser";
 
 const RootLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +34,8 @@ const RootLayout = () => {
     <div className="relative flex flex-nowrap">
       <div className="min-h-screen relative justify-center justify-items-center bg-main-green">
         <div className="relative">
+        <AuthProvider>
+          <UserProvider>
           <NavBar />
           <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
             {isOpen && (
@@ -49,6 +53,8 @@ const RootLayout = () => {
               <Outlet />
             </main>
           </div>
+            </UserProvider>
+          </AuthProvider>
         </div>
       </div>
     </div>
