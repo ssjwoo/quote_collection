@@ -1,10 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
-<<<<<<< HEAD
-import { Signup } from "../../../pages/Signup";
-import axios from "../../../api/axios";
-=======
->>>>>>> frontend-style
 
 const LoginModal = ({ setIsLogin, setIsOpen }) => {
   const navigation = useNavigate();

@@ -1,16 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import SigninInput from "../SigninInput";
 import { useState } from "react";
-<<<<<<< HEAD
-import axios from "../../api/axios";
-=======
 import { useAuth } from "../../hooks/useAuth";
->>>>>>> frontend-style
+import axios from "../../api/axios";
 
 export const Signup = () => {
   const navigation = useNavigate();
   const { signup, sevError } = useAuth();
-  
+
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -28,23 +25,17 @@ export const Signup = () => {
   const validate = async () => {
     const newErrors = {};
 
-<<<<<<< HEAD
     // name check api
-    // TODO: /api/users/check-name, no navigation
     try {
       const response = await axios.post("/api/users/check-name", {
-        username: form.name,
+        username: form.username,
       });
-      console.log("/api/users/check-name", response);
       if (!response.data.is_available) {
-        newErrors.name = "이미 사용중인 이름입니다.";
+        newErrors.username = "이미 사용중인 이름입니다.";
       }
     } catch (error) {
       console.error("name check error", error);
     }
-=======
-    /** 사용중인 이름 중복 체크 필요 */
->>>>>>> frontend-style
 
     if (
       !/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i.test(
@@ -67,116 +58,95 @@ export const Signup = () => {
   };
 
   const handlesubmit = async (e) => {
-<<<<<<< HEAD
     e.preventDefault();
-    if (await validate()) {
-      try {
-        // TODO: /api/auth/register, navigate to "/"
-        const response = await axios.post("/api/auth/register", {
-          email: form.email,
-          username: form.name,
-          password: form.password,
-        });
-        console.log("/api/auth/register", response);
-        alert("회원가입이 완료되었습니다");
-        navigation("/");
-      } catch (error) {
-        console.error("API call error:", error);
-        alert("회원가입 중 오류가 발생했습니다.");
-      }
+
+    if (!(await validate())) return;
+
+    const { email, username, password } = form;
+    const success = await signup({ email, username, password });
+
+    if (success) {
+      alert("회원가입이 완료되었습니다");
+      navigation("/");
+    } else {
+      alert(sevError);
     }
   };
-=======
-  e.preventDefault();
 
-  if (!validate()) return; 
-
-  const { email, username, password } = form;
-  const success = await signup({ email, username, password });
-
-  if (success) {
-    alert("회원가입이 완료되었습니다");
-    navigation("/");
-  }else{
-    alert(sevError);
-  }
-};
-
->>>>>>> frontend-style
   return (
     <>
-    <div className="min-h-screen flex justify-center items-start pt-12">
-      <div className="w-full max-w-md rounded-xl p-8">
-        <div className="mb-10 text-custom-basic-font text-3xl">Signup</div>
+      <div className="min-h-screen flex justify-center items-start pt-12">
+        <div className="w-full max-w-md rounded-xl p-8">
+          <div className="mb-10 text-custom-basic-font text-3xl">Signup</div>
 
-        <form
-          className="flex-col items-center justify-center"
-          onSubmit={handlesubmit}
-        >
-          <SigninInput
-            title="name"
-            type="text"
-            name="username"
-            placeholder="이름을 입력해주세요"
-            value={form.username}
-            onChange={handleChange}
-          />
-          {error.username && (
-            <p className="text-red-500 text-sm mt-1">{error.username}</p>
-          )}
-          <div className="">
+          <form
+            className="flex-col items-center justify-center"
+            onSubmit={handlesubmit}
+          >
             <SigninInput
-              title="email"
-              type="email"
-              name="email"
-              placeholder="이메일을 입력해주세요"
-              value={form.email}
+              title="name"
+              type="text"
+              name="username"
+              placeholder="이름을 입력해주세요"
+              value={form.username}
               onChange={handleChange}
             />
-            {error.email && (
-              <p className="text-red-500 text-sm mt-1">{error.email}</p>
+            {error.username && (
+              <p className="text-red-500 text-sm mt-1">{error.username}</p>
             )}
-            <SigninInput
-              title="pw"
-              type="password"
-              name="password"
-              placeholder="비밀번호를 입력해주세요"
-              value={form.password}
-              onChange={handleChange}
-            />
-            {error.password && (
-              <p className="text-red-500 text-sm mt-1">{error.password}</p>
-            )}
-            <SigninInput
-              title="pw confirm"
-              type="password"
-              name="passwordConfirm"
-              placeholder="비밀번호를 다시 입력해주세요"
-              value={form.passwordConfirm}
-              onChange={handleChange}
-            />
-            {error.passwordConfirm && (
-              <p className="text-red-500 text-sm mt-1">
-                {error.passwordConfirm}
-              </p>
-            )}
-            <div className="mt-5">
-              <button
-                onClick={() => navigation("/")}
-                type="button"
-                className="bg-custom-search mr-3 w-[80px] h-[30px]"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-custom-pink w-[80px] h-[30px] mt-5"
-              >
-                Confirm
-              </button>
+            <div className="">
+              <SigninInput
+                title="email"
+                type="email"
+                name="email"
+                placeholder="이메일을 입력해주세요"
+                value={form.email}
+                onChange={handleChange}
+              />
+              {error.email && (
+                <p className="text-red-500 text-sm mt-1">{error.email}</p>
+              )}
+              <SigninInput
+                title="pw"
+                type="password"
+                name="password"
+                placeholder="비밀번호를 입력해주세요"
+                value={form.password}
+                onChange={handleChange}
+              />
+              {error.password && (
+                <p className="text-red-500 text-sm mt-1">{error.password}</p>
+              )}
+              <SigninInput
+                title="pw confirm"
+                type="password"
+                name="passwordConfirm"
+                placeholder="비밀번호를 다시 입력해주세요"
+                value={form.passwordConfirm}
+                onChange={handleChange}
+              />
+              {error.passwordConfirm && (
+                <p className="text-red-500 text-sm mt-1">
+                  {error.passwordConfirm}
+                </p>
+              )}
+              <div className="mt-5">
+                <button
+                  onClick={() => navigation("/")}
+                  type="button"
+                  className="bg-custom-search mr-3 w-[80px] h-[30px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-pink w-[80px] h-[30px] mt-5"
+                >
+                  Confirm
+                </button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
         </div>
       </div>
     </>

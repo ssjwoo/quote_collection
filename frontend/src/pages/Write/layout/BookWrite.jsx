@@ -4,12 +4,6 @@ import axios from "../../../api/axios";
 
 export const BookWrite = () => {
   const navigation = useNavigate();
-  // TODO: check warning
-  const [user, setUser] = useState({
-    id: "1",
-    email: "111@naber.com",
-    name: "user1",
-  });
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
