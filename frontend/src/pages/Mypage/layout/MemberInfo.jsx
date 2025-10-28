@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Form } from "react-router-dom";
 
 export const MemberInfo = () => {
+  // TODO: API call here
   /** dummy data */
   const [user, setUser] = useState({
     id: "username",
@@ -21,6 +22,7 @@ export const MemberInfo = () => {
   }, [name]);
 
   const onIdCheck = () => {
+    // TODO: API call here
     /** db에 존재하는 username인지 중복체크한 데이터 조회 후 비교 */
     // setChecked(true);
   };

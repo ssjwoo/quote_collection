@@ -46,10 +46,12 @@ export const DramaModi = ({quote}) =>{
             return;
         }
 
+        // TODO: API call here
         /**새 객체 생성 후 업데이트 */
     }
 
     const onDelete=()=>{
+        // TODO: API call here
         /** id로 db에서 삭제 */
     }
 

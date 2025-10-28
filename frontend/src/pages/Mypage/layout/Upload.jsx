@@ -7,6 +7,7 @@ export const Upload =()=>{
     const [quotes,setQuotes]=useState([]);
     
         useEffect(()=>{
+            // TODO: API call here
             /**사용자가 upload 한 quote 모두 불러오기 */
             /**dummy */
             setQuotes([{id:0,title:'little princess',content:'once upon a time~',creater:'b111',createdAt:'2000-10-22'},

@@ -45,11 +45,12 @@ export const BookModi = ({quote}) =>{
             alert('필수항목을 입력해주세요');
             return;
         }
+        // TODO: API call here
         /** 새 book 데이터 객체 업데이트 */
     }
 
     const onDelete=()=>{
-
+        // TODO: API call here
     }
 
     return(

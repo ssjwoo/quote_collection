@@ -1,4 +1,4 @@
-from .user import UserCreate, UserResponse, Token, UserUpdate
+from .user import UserCreate, UserResponse, Token, UserUpdate, UserCheckName, CheckNameResponse
 from .book import BookRead, BookCreate, BookUpdate
 from .quote import QuoteRead, QuoteCreate, QuoteUpdate, QuoteCreateWithSource
 from .tag import TagRead, TagCreate, TagUpdate

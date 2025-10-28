@@ -10,6 +10,7 @@ export const RecommendDetail =()=>{
         navigation('/detail/'+id);
     }
 
+    // TODO: API call here
     /**dummy data */
     useEffect(()=>{
       setQuotes([{'id':19,'content':'1'},{'id':12,'content':'2'},{'id':223,'content':'3'}]);

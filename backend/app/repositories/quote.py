@@ -27,5 +27,15 @@ class QuoteRepository(BaseRepository[Quote]):
         result = await db.execute(statement)
         return result.scalars().all()
 
+    async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> list[Quote]:
+        statement = select(self.model).filter(self.model.user_id == user_id)
+        result = await db.execute(statement)
+        return result.scalars().all()
+
+    async def get_by_source_id(self, db: AsyncSession, *, source_id: int) -> list[Quote]:
+        statement = select(self.model).filter(self.model.source_id == source_id)
+        result = await db.execute(statement)
+        return result.scalars().all()
+
 
 quote_repository = QuoteRepository(Quote)

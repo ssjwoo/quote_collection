@@ -4,26 +4,22 @@ import marked from '../../../assets/bookmark_marked.png';
 import { useEffect, useState } from 'react';
 import { useBookmarks } from '../../../hooks/useBookmarks';
 
-export const BookDetail = ({ quote }) => {
-  const navigation = useNavigate();
+export const BookDetail =({quote})=>{
 
-  const [isLogin, setIsLogin] = useState(true);
-  const [bookmark, setBookMarked] = useState(false);
-  const [user, setUser] = useState({});
-  const { isBookmarked, add, remove } = useBookmarks();
+ const navigation = useNavigate();
+ const [isLogin, setIsLogin] = useState(true);
+ const [bookmark, setBookMarked] = useState(false);
+ const [user,setUser] = useState({});
 
-  useEffect(() => {
-    const saved = localStorage.getItem('isLogin');
-    if (saved != null) setIsLogin(saved === '1');
-  }, []);
-
-  useEffect(() => {
-    if (quote?.id != null) {
-      // dummy 사용자
-      setUser({ id: 'user1', bookmark: { book: [1, 2, 3], funny: [1, 2] } });
-      setBookMarked(isBookmarked(quote.id));
-    }
-  }, [quote?.id, isBookmarked]);
+ useEffect(()=>{
+    if(isLogin){
+        // TODO: API call here
+        /**dummy */
+        setUser({id:'user1',bookmark:{'book':[1,2,3], 'funny':[1,2]}})
+        /** 사용자 정보의 bookmark에 이 글이 있는지 확인*/
+        setBookMarked(true);
+    }   
+ },[isLogin]);
 
   const onIsLogin = () => {
     if (!isLogin) {
@@ -32,22 +28,10 @@ export const BookDetail = ({ quote }) => {
       setIsLogin(true);
       localStorage.setItem('isLogin', '1');
     }
-
-    /** DB 사용자 북마크 데이터 업데이트는 나중 단계에서 */
-    setBookMarked((prev) => {
-      const next = !prev;
-      if (quote?.id != null) {
-        const mini = {
-          id: quote.id,
-          content: quote.content ?? '',
-          sourceTitle: quote?.source?.title ?? '',
-        };
-        next ? add(mini) : remove(quote.id);
-      }
-      return next;
-    });
-  };
-
+    // TODO: API call here
+    /** DB 사용자 북마트 데이터 업데이트 필요 */
+    setBookMarked(!bookmark);
+ }
 
   const onSearchList = (input) => {
     navigation('/searchlist/' + input);

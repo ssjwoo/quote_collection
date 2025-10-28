@@ -11,6 +11,7 @@ export const Detail=()=>{
     const [mode, setMode]=useState('');
     const [quote,setQuote]=useState('');
 
+    // TODO: API call here
     /** dummy data */
     useEffect(()=>{
         const q = {'id':0,'category':0,

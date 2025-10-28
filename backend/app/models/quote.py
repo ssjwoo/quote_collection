@@ -17,3 +17,6 @@ class Quote(Base):
 
     tags = relationship("Tag", secondary=quote_tags, back_populates="quotes")
     source = relationship("Source")
+    bookmarks = relationship("Bookmark")
+
+    
