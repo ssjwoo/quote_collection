@@ -1,5 +1,6 @@
 import asyncio
 import argparse
+import random
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import AsyncSessionLocal, Base, engine
@@ -8,7 +9,7 @@ from app.models.quote_tag import quote_tags
 from app.schemas import UserCreate, SourceCreate, QuoteCreate, TagCreate, BookmarkFolderCreate, BookmarkCreate, BookCreate, MovieCreate, DramaCreate, ProducerCreate
 from app.core.auth import hash_password
 
-async def wipe_database():
+async def wipe_database(db: AsyncSession):
     """Drops and recreates all tables in the database."""
     print("Wiping database...")
     async with engine.begin() as conn:
@@ -16,109 +17,121 @@ async def wipe_database():
         await conn.run_sync(Base.metadata.create_all)
     print("Database wiped.")
 
-async def seed_data():
+async def seed_data(db: AsyncSession):
     """Populates the database with a rich set of dummy data."""
-    async with AsyncSessionLocal() as db:
-        # --- Create Users ---
-        users_in = [UserCreate(email=f"user{i}@example.com", username=f"user{i}", password="password123") for i in range(1, 6)]
-        users = [User(email=u.email, username=u.username, hashed_password=hash_password(u.password)) for u in users_in]
-        db.add_all(users)
-        await db.flush()
-        user_ids = [user.id for user in users]
-        await db.commit()
-        print(f"Created {len(users)} users.")
+    # --- Create Users ---
+    users_in = [UserCreate(email=f"user{i}@example.com", username=f"user{i}", password="password123") for i in range(1, 21)] # 20 users
+    users = [User(email=u.email, username=u.username, hashed_password=hash_password(u.password)) for u in users_in]
+    db.add_all(users)
+    await db.flush()
+    user_ids = [user.id for user in users]
+    await db.commit()
+    print(f"Created {len(users)} users.")
 
-        # --- Create Producers (for Dramas) ---
-        producers_in = [ProducerCreate(name="HBO", pd_type="broadcast")]
-        producers = [Producer(**p.model_dump()) for p in producers_in]
-        db.add_all(producers)
-        await db.flush()
-        producer_ids = [p.id for p in producers]
-        await db.commit()
-        print(f"Created {len(producers)} producers.")
+    # --- Create Producers (for Dramas) ---
+    producer_names = ["HBO", "Netflix", "Amazon Prime", "Disney+", "Apple TV+", "BBC", "ITV", "Channel 4", "AMC", "FX"]
+    producers_in = [ProducerCreate(name=name, pd_type="broadcast") for name in producer_names]
+    producers = [Producer(**p.model_dump()) for p in producers_in]
+    db.add_all(producers)
+    await db.flush()
+    producer_ids = [p.id for p in producers]
+    await db.commit()
+    print(f"Created {len(producers)} producers.")
 
-        # --- Create Detailed Sources and Generic Sources ---
-        # Books
-        book1 = Book(title="Dune", author="Frank Herbert", isbn="978-0441013593")
-        db.add(book1)
-        await db.flush()
-        source1 = Source(title=book1.title, source_type="book", creator=book1.author, details_id=book1.id)
-        
-        # Movies
-        movie1 = Movie(title="The Matrix", director="The Wachowskis", release_date="1999-03-31")
-        db.add(movie1)
-        await db.flush()
-        source2 = Source(title=movie1.title, source_type="movie", creator=movie1.director, details_id=movie1.id)
+    # --- Create Detailed Sources and Generic Sources ---
+    all_sources = []
+    
+    # Books
+    books = []
+    for i in range(1, 11): # 10 books
+        book = Book(title=f"Book Title {i}", author=f"Author {i}", isbn=f"978-123456789{i:02d}")
+        books.append(book)
+    db.add_all(books)
+    await db.flush()
+    for book in books:
+        all_sources.append(Source(title=book.title, source_type="book", creator=book.author, details_id=book.id))
 
-        # Dramas
-        drama1 = Drama(title="Breaking Bad", producer_id=producer_ids[0], release_date="2008-01-20")
-        db.add(drama1)
-        await db.flush()
-        source3 = Source(title=drama1.title, source_type="tv", creator="Vince Gilligan", details_id=drama1.id)
+    # Movies
+    movies = []
+    for i in range(1, 11): # 10 movies
+        movie = Movie(title=f"Movie Title {i}", director=f"Director {i}", release_date=f"20{10 + i % 10}-01-01") # Corrected date generation
+        movies.append(movie)
+    db.add_all(movies)
+    await db.flush()
+    for movie in movies:
+        all_sources.append(Source(title=movie.title, source_type="movie", creator=movie.director, details_id=movie.id))
 
-        db.add_all([source1, source2, source3])
-        await db.flush()
-        source_ids = [source1.id, source2.id, source3.id]
-        await db.commit()
-        print(f"Created {len(source_ids)} sources with details.")
+    # Dramas
+    dramas = []
+    for i in range(1, 11): # 10 dramas
+        drama = Drama(title=f"Drama Title {i}", producer_id=random.choice(producer_ids), release_date=f"20{10 + i % 10}-01-01") # Corrected date generation
+        dramas.append(drama)
+    db.add_all(dramas)
+    await db.flush()
+    for drama in dramas:
+        all_sources.append(Source(title=drama.title, source_type="tv", creator=f"Creator {drama.id}", details_id=drama.id))
 
-        # --- Create Tags ---
-        tags_in = [TagCreate(name=name) for name in ["sci-fi", "fantasy", "dystopian", "action", "drama", "crime"]]
-        tags = [Tag(**t.model_dump()) for t in tags_in]
-        db.add_all(tags)
-        await db.flush()
-        tag_ids = [tag.id for tag in tags]
-        await db.commit()
-        print(f"Created {len(tags)} tags.")
+    db.add_all(all_sources)
+    await db.flush()
+    source_ids = [source.id for source in all_sources]
+    await db.commit()
+    print(f"Created {len(all_sources)} sources with details.")
 
-        # --- Create Quotes ---
-        quotes_in = [
-            QuoteCreate(user_id=user_ids[0], source_id=source_ids[0], content="I must not fear. Fear is the mind-killer."),
-            QuoteCreate(user_id=user_ids[2], source_id=source_ids[1], content="There is no spoon."),
-            QuoteCreate(user_id=user_ids[4], source_id=source_ids[2], content="I am the one who knocks."),
-        ]
-        quotes = [Quote(**q.model_dump()) for q in quotes_in]
-        db.add_all(quotes)
-        await db.flush()
-        quote_ids = [quote.id for quote in quotes]
-        await db.commit()
-        print(f"Created {len(quotes)} quotes.")
+    # --- Create Tags ---
+    tag_names = ["sci-fi", "fantasy", "dystopian", "action", "drama", "crime", "comedy", "thriller", "romance", "horror",
+                 "adventure", "mystery", "biography", "history", "philosophy", "self-help", "science", "technology", "art", "music"]
+    tags_in = [TagCreate(name=name) for name in tag_names]
+    tags = [Tag(**t.model_dump()) for t in tags_in]
+    db.add_all(tags)
+    await db.flush()
+    tag_ids = [tag.id for tag in tags]
+    await db.commit()
+    print(f"Created {len(tags)} tags.")
 
-        # --- Associate Tags with Quotes (Many-to-Many) ---
-        associations = [
-            {'quote_id': quote_ids[0], 'tag_id': tag_ids[0]},
-            {'quote_id': quote_ids[1], 'tag_id': tag_ids[0]},
-            {'quote_id': quote_ids[1], 'tag_id': tag_ids[3]},
-            {'quote_id': quote_ids[2], 'tag_id': tag_ids[4]},
-            {'quote_id': quote_ids[2], 'tag_id': tag_ids[5]},
-        ]
-        await db.execute(quote_tags.insert().values(associations))
-        await db.commit()
-        print("Created quote-tag associations.")
+    # --- Create Quotes ---
+    quotes_in = []
+    for i in range(50): # 50 quotes
+        quotes_in.append(QuoteCreate(user_id=random.choice(user_ids), source_id=random.choice(source_ids), content=f"This is a sample quote number {i+1}."))
+    quotes = [Quote(**q.model_dump()) for q in quotes_in]
+    db.add_all(quotes)
+    await db.flush()
+    quote_ids = [quote.id for quote in quotes]
+    await db.commit()
+    print(f"Created {len(quotes)} quotes.")
 
-        # --- Create Bookmark Folders ---
-        folders_in = [
-            BookmarkFolderCreate(name="Sci-Fi Favorites", user_id=user_ids[0]),
-            BookmarkFolderCreate(name="Must Watch", user_id=user_ids[4]),
-        ]
-        folders = [BookmarkFolder(**f.model_dump()) for f in folders_in]
-        db.add_all(folders)
-        await db.flush()
-        folder_ids = [folder.id for folder in folders]
-        await db.commit()
-        print(f"Created {len(folders)} bookmark folders.")
+    # --- Associate Tags with Quotes (Many-to-Many) ---
+    associations = []
+    for quote_id in quote_ids:
+        num_tags = random.randint(1, 3) # Each quote gets 1 to 3 tags
+        selected_tag_ids = random.sample(tag_ids, num_tags)
+        for tag_id in selected_tag_ids:
+            associations.append({'quote_id': quote_id, 'tag_id': tag_id})
+    await db.execute(quote_tags.insert().values(associations))
+    await db.commit()
+    print("Created quote-tag associations.")
 
-        # --- Create Bookmarks (Many-to-Many) ---
-        bookmarks_in = [
-            BookmarkCreate(user_id=user_ids[0], quote_id=quote_ids[0], folder_id=folder_ids[0]),
-            BookmarkCreate(user_id=user_ids[1], quote_id=quote_ids[0]),
-            BookmarkCreate(user_id=user_ids[2], quote_id=quote_ids[1]),
-            BookmarkCreate(user_id=user_ids[4], quote_id=quote_ids[2], folder_id=folder_ids[1]),
-        ]
-        bookmarks = [Bookmark(**b.model_dump()) for b in bookmarks_in]
-        db.add_all(bookmarks)
-        await db.commit()
-        print(f"Created {len(bookmarks)} bookmarks.")
+    # --- Create Bookmark Folders ---
+    folders_in = []
+    for i in range(10): # 10 folders
+        folders_in.append(BookmarkFolderCreate(name=f"Folder {i+1}", user_id=random.choice(user_ids)))
+    folders = [BookmarkFolder(**f.model_dump()) for f in folders_in]
+    db.add_all(folders)
+    await db.flush()
+    folder_ids = [folder.id for folder in folders]
+    await db.commit()
+    print(f"Created {len(folders)} bookmark folders.")
+
+    # --- Create Bookmarks (Many-to-Many) ---
+    bookmarks_in = []
+    for i in range(20): # 20 bookmarks
+        user_id = random.choice(user_ids)
+        quote_id = random.choice(quote_ids)
+        folder_id = random.choice(folder_ids) if random.random() > 0.3 else None # Some bookmarks without folders
+        bookmarks_in.append(BookmarkCreate(user_id=user_id, quote_id=quote_id, folder_id=folder_id))
+    bookmarks = [Bookmark(**b.model_dump()) for b in bookmarks_in]
+    db.add_all(bookmarks)
+    await db.commit()
+    print(f"Created {len(bookmarks)} bookmarks.")
 
 async def main():
     parser = argparse.ArgumentParser(description="Database seeding and wiping utility.")
@@ -126,22 +139,25 @@ async def main():
     parser.add_argument("--seed", action="store_true", help="Seed the database with dummy data.")
     args = parser.parse_args()
 
-    if args.wipe:
-        print("WARNING: This will permanently delete all data in the database.")
-        confirm = input("Type 'yes' to continue: ")
-        if confirm.lower() == 'yes':
-            await wipe_database()
-        else:
-            print("Wipe operation cancelled.")
-    
-    if args.seed:
-        # When seeding, we wipe first to ensure a clean state
-        await wipe_database()
-        await seed_data()
-        print("Data seeding complete.")
-    
-    if not args.wipe and not args.seed:
-        print("Please specify an action: --wipe or --seed")
+    async with AsyncSessionLocal() as db:
+        if args.wipe:
+            print("WARNING: This will permanently delete all data in the database.")
+            confirm = input("Type 'yes' to continue: ")
+            if confirm.lower() == 'yes':
+                await wipe_database(db)
+            else:
+                print("Wipe operation cancelled.")
+        
+        if args.seed:
+            # When seeding, we wipe first to ensure a clean state
+            await wipe_database(db)
+            await seed_data(db)
+            print("Data seeding complete.")
+        
+        if not args.wipe and not args.seed:
+            print("Please specify an action: --wipe or --seed")
+
+    await engine.dispose()
 
 if __name__ == "__main__":
     asyncio.run(main())

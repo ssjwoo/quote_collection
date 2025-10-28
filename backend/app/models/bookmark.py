@@ -10,6 +10,6 @@ class Bookmark(Base):
     folder_id = Column(Integer, ForeignKey("bookmark_folders.id"), nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    quote = relationship("Quote")
+    quote = relationship("Quote", back_populates="bookmarks")
     folder = relationship("BookmarkFolder", back_populates="bookmarks")
     
