@@ -6,9 +6,17 @@ import { DramaDetail } from "./layout/DramaDetail";
 import { RecommendDetail } from "./layout/RecommendDetail";
 import axios from "../../api/axios";
 
+<<<<<<< HEAD
 export const Detail = () => {
   /** id로 해당 data 불러오기  */
   const { id } = useParams();
+=======
+export const Detail=()=>{
+    /** id로 해당 data 불러오기  */
+    const {id} = useParams();    
+    const [mode, setMode]=useState('');
+    const [quote,setQuote]=useState('');
+>>>>>>> frontend-style
 
   const [mode, setMode] = useState("");
   const [quote, setQuote] = useState("");
@@ -29,10 +37,16 @@ export const Detail = () => {
         } else if (data.source.drama) {
           setMode("drama");
         }
+<<<<<<< HEAD
       } catch (error) {
         console.error("Failed to fetch quote:", error);
       }
     };
+=======
+        setQuote(q);
+        setMode('book');
+    },[id]);
+>>>>>>> frontend-style
 
     fetchQuote();
   }, [id]);

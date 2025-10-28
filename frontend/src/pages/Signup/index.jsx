@@ -1,12 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import SigninInput from "../SigninInput";
 import { useState } from "react";
+<<<<<<< HEAD
 import axios from "../../api/axios";
+=======
+import { useAuth } from "../../hooks/useAuth";
+>>>>>>> frontend-style
 
 export const Signup = () => {
   const navigation = useNavigate();
+  const { signup, sevError } = useAuth();
+  
   const [form, setForm] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     passwordConfirm: "",
@@ -22,6 +28,7 @@ export const Signup = () => {
   const validate = async () => {
     const newErrors = {};
 
+<<<<<<< HEAD
     // name check api
     // TODO: /api/users/check-name, no navigation
     try {
@@ -35,6 +42,9 @@ export const Signup = () => {
     } catch (error) {
       console.error("name check error", error);
     }
+=======
+    /** 사용중인 이름 중복 체크 필요 */
+>>>>>>> frontend-style
 
     if (
       !/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i.test(
@@ -57,6 +67,7 @@ export const Signup = () => {
   };
 
   const handlesubmit = async (e) => {
+<<<<<<< HEAD
     e.preventDefault();
     if (await validate()) {
       try {
@@ -75,6 +86,23 @@ export const Signup = () => {
       }
     }
   };
+=======
+  e.preventDefault();
+
+  if (!validate()) return; 
+
+  const { email, username, password } = form;
+  const success = await signup({ email, username, password });
+
+  if (success) {
+    alert("회원가입이 완료되었습니다");
+    navigation("/");
+  }else{
+    alert(sevError);
+  }
+};
+
+>>>>>>> frontend-style
   return (
     <>
     <div className="min-h-screen flex justify-center items-start pt-12">
@@ -88,13 +116,13 @@ export const Signup = () => {
           <SigninInput
             title="name"
             type="text"
-            name="name"
+            name="username"
             placeholder="이름을 입력해주세요"
-            value={form.name}
+            value={form.username}
             onChange={handleChange}
           />
-          {error.name && (
-            <p className="text-red-500 text-sm mt-1">{error.name}</p>
+          {error.username && (
+            <p className="text-red-500 text-sm mt-1">{error.username}</p>
           )}
           <div className="">
             <SigninInput
