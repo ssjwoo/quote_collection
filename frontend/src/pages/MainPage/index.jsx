@@ -59,9 +59,9 @@ export const MainPage = ({ mode }) => {
         <Search />
       </div>
       <div className="mt-12">
-        <Popular popularQuote={popularQuote} />
-        <New newQuote={newQuote} />
-        <Recommend recomQuote={recomQuote} />
+        <Popular mode={mode} popularQuote={popularQuote} />
+        <New mode={mode} newQuote={newQuote} />
+        <Recommend mode={mode} recomQuote={recomQuote} />
       </div>
     </>
   );

@@ -83,10 +83,10 @@ const router = createBrowserRouter([
           { path: "/write", element: <Write /> },
           { path: "/mypage/:tab", element: <Mypage /> },
           { path: "/signup", element: <Signup /> },
-          { path: "/detail/:id", element: <Detail /> },
+          { path: "/quote/:id", element: <Detail /> },
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
-          { path: "/detail/:id/modi", element: <Modify /> },
+          { path: "/quote/:id/modi", element: <Modify /> },
           {path:"/mypage/bookmark/group/:folderId", element: <BookmarkGroup />}
         ],
       },

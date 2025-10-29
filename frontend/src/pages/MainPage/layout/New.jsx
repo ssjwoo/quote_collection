@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 
-export const New =({newQuote})=>{
+export const New =({mode, newQuote})=>{
 
     const navigation = useNavigate();
     
     const onDetail=(id)=>{
-        navigation('/detail/'+id);
+        navigation('/quote/'+id);
     }
     
     return(

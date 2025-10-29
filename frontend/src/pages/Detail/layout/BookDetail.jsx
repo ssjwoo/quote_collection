@@ -14,7 +14,8 @@ export const BookDetail = ({ quote }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
+        console.log(token);
         if (token) {
           // TODO: /api/auth/me - need testing
           const response = await axios.get("/api/auth/me", {
@@ -25,6 +26,7 @@ export const BookDetail = ({ quote }) => {
           console.log("/api/auth/me", response);
           const userData = response.data;
           setUser(userData);
+          console.log(user);
           // Check if the current quote is bookmarked by the user
           const isBookmarked = userData.bookmarks.some(
             (b) => b.quote_id === quote.id

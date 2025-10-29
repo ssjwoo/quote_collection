@@ -5,7 +5,7 @@ export const Recommend =({recomQuote})=>{
     const navigation = useNavigate();
     
     const onDetail=(id)=>{
-        navigation('/detail/'+id);
+        navigation('/quote/'+id);
     }
     
     return(
