@@ -145,7 +145,7 @@ async def seed_data(db: AsyncSession):
         all_sources.append(
             Source(
                 title=drama.title,
-                source_type="tv",
+                source_type="drama",
                 creator=f"Creator {drama.id}",
                 details_id=drama.id,
             )
@@ -156,7 +156,7 @@ async def seed_data(db: AsyncSession):
 
     book_source_ids = [s.id for s in all_sources if s.source_type == "book"]
     movie_source_ids = [s.id for s in all_sources if s.source_type == "movie"]
-    drama_source_ids = [s.id for s in all_sources if s.source_type == "tv"]
+    drama_source_ids = [s.id for s in all_sources if s.source_type == "drama"]
 
     await db.commit()
     print(f"Created {len(all_sources)} sources with details.")
