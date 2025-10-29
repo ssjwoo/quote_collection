@@ -69,11 +69,11 @@ def test_token_schema():
     assert token.user.email == "token@example.com"
 
 def test_book_create_schema():
-    book_data = {"title": "Test Book", "author": "Test Author", "publisher": "Test Publisher"}
+    book_data = {"title": "Test Book", "author": "Test Author", "publisher_id": 1}
     book = BookCreate(**book_data)
     assert book.title == "Test Book"
     assert book.author == "Test Author"
-    assert book.publisher == "Test Publisher"
+    assert book.publisher_id == 1
 
     with pytest.raises(ValidationError):
         BookCreate(title="", author="Author")
@@ -83,22 +83,23 @@ def test_book_update_schema():
     book_update = BookUpdate(**book_update_data)
     assert book_update.title == "New Title"
     assert book_update.author == "New Author"
-    assert book_update.publisher is None
+    assert book_update.publisher_id is None
 
 def test_book_read_schema():
     now = datetime.now(timezone.utc)
+    publisher_data = {"id": 1, "name": "Read Publisher"}
     book_read_data = {
         "id": 1,
         "title": "Read Book",
         "author": "Read Author",
-        "publisher": "Read Publisher",
+        "publisher": publisher_data,
         "created_at": now,
     }
     book_read = BookRead(**book_read_data)
     assert book_read.id == 1
     assert book_read.title == "Read Book"
     assert book_read.author == "Read Author"
-    assert book_read.publisher == "Read Publisher"
+    assert book_read.publisher.name == "Read Publisher"
     assert book_read.created_at == now
 
 def test_bookmark_create_schema():
@@ -118,3 +119,4 @@ def test_bookmark_read_schema():
     assert bookmark_read.user_id == 1
     assert bookmark_read.quote_id == 1
     assert bookmark_read.created_at == now
+

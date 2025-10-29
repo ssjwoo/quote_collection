@@ -4,14 +4,22 @@ from sqlalchemy.exc import IntegrityError
 
 from app.database import get_async_db
 from app.schemas import QuoteCreate, QuoteRead, QuoteUpdate
+from app.schemas.popular import PopularQuoteResponse
 from app.services import quote_service, user_service, source_service
 
 router = APIRouter(prefix="/quote", tags=["Quote"])
 
 
-@router.get("/popular", response_model=list[QuoteRead])
-async def get_popular_quotes(db: AsyncSession = Depends(get_async_db)):
-    return await quote_service.get_most_bookmarked(db)
+@router.get("/popular/today/{source_type}", response_model=PopularQuoteResponse)
+async def get_todays_popular_quote(
+    source_type: str, db: AsyncSession = Depends(get_async_db)
+):
+    popular_quote = await quote_service.get_todays_most_popular_by_source_type(
+        db, source_type=source_type
+    )
+    if not popular_quote:
+        raise HTTPException(status_code=404, detail="No popular quote found for today")
+    return popular_quote
 
 
 @router.get("/latest", response_model=list[QuoteRead])
@@ -34,9 +42,11 @@ async def create_quote(quote: QuoteCreate, db: AsyncSession = Depends(get_async_
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=f"Database integrity issue: {e}")
 
+
 @router.get("/", response_model=list[QuoteRead])
 async def list_quotes(db: AsyncSession = Depends(get_async_db)):
     return await quote_service.repository.get_all(db)
+
 
 @router.get("/{quote_id}", response_model=QuoteRead)
 async def get_quote(quote_id: int, db: AsyncSession = Depends(get_async_db)):
@@ -45,13 +55,17 @@ async def get_quote(quote_id: int, db: AsyncSession = Depends(get_async_db)):
         raise HTTPException(status_code=404, detail="Quote not found")
     return quote
 
+
 @router.put("/{quote_id}", response_model=QuoteRead)
-async def update_quote(quote_id: int, quote_in: QuoteUpdate, db: AsyncSession = Depends(get_async_db)):
+async def update_quote(
+    quote_id: int, quote_in: QuoteUpdate, db: AsyncSession = Depends(get_async_db)
+):
     quote = await quote_service.repository.get(db, id=quote_id)
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     quote = await quote_service.repository.update(db, db_obj=quote, obj_in=quote_in)
     return quote
+
 
 @router.delete("/{quote_id}")
 async def delete_quote(quote_id: int, db: AsyncSession = Depends(get_async_db)):

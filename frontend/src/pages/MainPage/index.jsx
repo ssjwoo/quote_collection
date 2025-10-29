@@ -6,7 +6,6 @@ import { Recommend } from "./layout/Recommend";
 import axios from "../../api/axios";
 
 export const MainPage = ({ mode }) => {
-  // TODO: check warning later
   const [popularQuote, setPopularQuote] = useState({});
   const [newQuote, setNewQuote] = useState([]);
   const [recomQuote, setRecomQuote] = useState([]);
@@ -15,18 +14,19 @@ export const MainPage = ({ mode }) => {
   useEffect(() => {
     const fetchQuotes = async () => {
       try {
-        // Fetch popular quotes
-        // TODO: /api/quote/popular - need testing
-        const popularResponse = await axios.get("/api/quote/popular");
-        console.log("/api/quote/popular", popularResponse);
+        const popularResponse = await axios.get(
+          `/api/quote/popular/today/${mode}`
+        );
+        // console.log(`/api/quote/popular/today/${mode}`, popularResponse);
+        // console.log("popularResposnse.data:", popularResponse.data);
         setPopularQuote(popularResponse.data); // Assuming it returns a single object
 
         // Fetch new quotes
         const newResponse = await axios.get(
           `/api/quote/latest?source_type=${mode}`
         );
-        console.log(`/api/quote/latest?source_type=${mode}`, newResponse);
-        console.log("newResponse.data:", newResponse.data);
+        // console.log(`/api/quote/latest?source_type=${mode}`, newResponse);
+        // console.log("newResponse.data:", newResponse.data);
         const sortedNew = newResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -53,7 +53,7 @@ export const MainPage = ({ mode }) => {
     };
 
     fetchQuotes();
-  }, []);
+  }, [mode]);
   return (
     <>
       <div className="flex justify-center">

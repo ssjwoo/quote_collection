@@ -1,29 +1,37 @@
 import { useNavigate } from "react-router-dom";
 
-export const Popular =({popularQuote})=>{
+export const Popular = ({ popularQuote }) => {
+  const navigation = useNavigate();
 
-    const navigation = useNavigate();
-    
-    const onDetail=(id)=>{
-        navigation('/detail/'+id);
-    }
+  const onDetail = (id) => {
+    navigation("/detail/" + id);
+  };
 
-    return(
-        <>
-        <div className="flex-col flex items-center">
-          <div className="mt-9 mb-4 text-3xl">POPULAR</div>
-          {popularQuote && popularQuote.id ? (
-            <div className=" cursor-pointer h-56 bg-sub-darkbeidge rounded-xl shadow-xl w-4/5 " onClick={()=>onDetail(popularQuote.id)}>
-              <div className=" h-1/6 flex justify-start p-3">{popularQuote.title}</div>
-              <div className="h-4/6 flex justify-center p-3">{popularQuote.content}</div>
-              <div className="h-1/6 flex justify-end pb-3 pr-3">{popularQuote.creater}</div>
+  return (
+    <>
+      <div className="flex-col flex items-center">
+        <div className="mt-9 mb-4 text-3xl">POPULAR</div>
+        {popularQuote && popularQuote.title ? (
+          <div
+            className=" cursor-pointer h-56 bg-sub-darkbeidge rounded-xl shadow-xl w-4/5 "
+            onClick={() => onDetail(popularQuote.id)}
+          >
+            <div className=" h-1/6 flex justify-start p-3">
+              {popularQuote.title}
             </div>
-          ) : (
-            <div className="h-56 flex justify-center items-center bg-sub-darkbeidge rounded-xl shadow-xl w-4/5 ">
-              <p>Loading popular quote...</p>
+            <div className="h-4/6 flex justify-center p-3">
+              {popularQuote.content}
             </div>
-          )}
-        </div>
-        </>
-    );
-}
+            <div className="h-1/6 flex justify-end pb-3 pr-3">
+              {popularQuote.creator}
+            </div>
+          </div>
+        ) : (
+          <div className="h-56 flex justify-center items-center bg-sub-darkbeidge rounded-xl shadow-xl w-4/5 ">
+            <p>Loading popular quote...</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
