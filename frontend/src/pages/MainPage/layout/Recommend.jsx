@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
-export const Recommend =({recomQuote})=>{
+export const Recommend =({mode, recomQuote})=>{
 
     const navigation = useNavigate();
     
     const onDetail=(id)=>{
-        navigation('/quote/'+id);
+        navigation('/quote/'+id, {
+    state: {
+      mode:mode
+    }})
     }
     
     return(

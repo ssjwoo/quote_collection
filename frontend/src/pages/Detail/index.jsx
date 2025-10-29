@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { BookDetail } from "./layout/BookDetail";
 import { MovieDetail } from "./layout/MovieDetail";
 import { DramaDetail } from "./layout/DramaDetail";
@@ -9,7 +9,10 @@ import axios from "../../api/axios";
 export const Detail = () => {
   /** id로 해당 data 불러오기  */
   const { id } = useParams();
-  const [mode, setMode] = useState("");
+  const location = useLocation();
+  const mode = location.state?.mode;
+  console.log(mode);
+  
   const [quote, setQuote] = useState("");
 
   useEffect(() => {
@@ -20,14 +23,6 @@ export const Detail = () => {
         console.log(`/api/quote/${id}`, response);
         const data = response.data;
         setQuote(data);
-        // Assuming the API response has a 'category' field that determines the mode
-        if (data.source.book) {
-          setMode("book");
-        } else if (data.source.movie) {
-          setMode("movie");
-        } else if (data.source.drama) {
-          setMode("drama");
-        }
       } catch (error) {
         console.error("Failed to fetch quote:", error);
       }
@@ -40,7 +35,7 @@ export const Detail = () => {
       {mode == "book" && <BookDetail quote={quote} />}
       {mode == "movie" && <MovieDetail quote={quote} />}
       {mode == "drama" && <DramaDetail quote={quote} />}
-      <RecommendDetail quote={quote} />
+      <RecommendDetail mode={mode} quote={quote} />
     </>
   );
 };

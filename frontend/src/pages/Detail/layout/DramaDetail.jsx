@@ -6,14 +6,26 @@ import axios from "../../../api/axios";
 
 export const DramaDetail = ({ quote }) => {
   const navigation = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
+  const [source,setSource] = useState({});
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
+
+         try{
+          const id = quote.source_id;
+          console.log(id);
+          const sourceData = await axios.get(`/api/source/${id}`);
+          setSource(sourceData.data);
+          console.log(sourceData.data);
+        }catch(error){
+          console.log('Failed to get quotes_source_data',error);
+        }
+
         if (token) {
           // TODO: /api/auth/me - need testing
           const response = await axios.get("/api/auth/me", {
@@ -24,6 +36,8 @@ export const DramaDetail = ({ quote }) => {
           console.log("/api/auth/me", response);
           const userData = response.data;
           setUser(userData);
+          setIsLogin(true);
+
           // Check if the current quote is bookmarked by the user
           const isBookmarked = userData.bookmarks.some(
             (b) => b.quote_id === quote.id
@@ -48,7 +62,7 @@ export const DramaDetail = ({ quote }) => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       if (bookmark) {
         // Unbookmark
         // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
@@ -99,7 +113,7 @@ export const DramaDetail = ({ quote }) => {
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">DRAMA MOMENT</div>
         {/* 글 작성자에게만 보이도록 */}
-        {user.id == quote.writer && (
+        {(isLogin &&user.id == quote.writer) && (
           <div className="text-end">
             <button
               className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
@@ -120,9 +134,9 @@ export const DramaDetail = ({ quote }) => {
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
             <span
               className="cursor-pointer"
-              onClick={() => onSearchList(quote.title)}
+              onClick={() => onSearchList(source.title)}
             >
-              {quote.title}
+              {source.title}
             </span>
           </div>
         </div>
@@ -145,24 +159,26 @@ export const DramaDetail = ({ quote }) => {
           <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
             <span
               className="cursor-pointer"
-              onClick={() => onSearchList(quote.creater)}
+              onClick={() => onSearchList(source.creator)}
             >
-              {quote.creater}
+              {source.creator}
             </span>
           </div>
         </div>
 
-        {quote.subData && (
+        {source.producer_id && (
           <>
             <div className="flex items-end mt-3">
               <label className="text-sm w-1/12 text-end pb-3">개봉일 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
+                 {/* producer 정보 get */}
                 {quote.subData}
               </div>
             </div>
           </>
         )}
 
+        {/* tag 조회 */}
         {quote.tags && (
           <div className="flex items-end mt-3">
             <label className="text-sm w-1/12 text-end pb-3">TAGS </label>

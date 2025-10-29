@@ -5,7 +5,10 @@ export const New =({mode, newQuote})=>{
     const navigation = useNavigate();
     
     const onDetail=(id)=>{
-        navigation('/quote/'+id);
+        navigation('/quote/'+id, {
+    state: {
+      mode:mode
+    }})
     }
     
     return(

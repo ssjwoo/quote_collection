@@ -2,18 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
-export const RecommendDetail = () => {
+export const RecommendDetail = ({mode}) => {
   const navigation = useNavigate();
   const [quotes, setQuotes] = useState([]);
 
-  const onDetail = (id) => {
-    navigation("/detail/" + id);
-  };
+   const onDetail=(id)=>{
+        navigation('/quote/'+id, {
+    state: {
+      mode:mode
+    }})
+    }
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accesstoken");
         // TODO: /api/recommendations/user-based - need testing
         const response = await axios.get("/api/recommendations/user-based", {
           headers: {

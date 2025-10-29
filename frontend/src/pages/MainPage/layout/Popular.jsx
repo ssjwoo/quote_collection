@@ -1,11 +1,15 @@
 import { useNavigate } from "react-router-dom";
 
-export const Popular = ({ popularQuote }) => {
+export const Popular = ({ mode, popularQuote }) => {
   const navigation = useNavigate();
-
-  const onDetail = (id) => {
-    navigation("/quote/" + id);
-  };
+  // console.log(popularQuote);
+  //TODO:popular quote 에 id가 없어서 detail page로 넘어가는 것이 불가
+   const onDetail=(id)=>{
+        navigation('/quote/'+id, {
+    state: {
+      mode: mode
+    }})
+    }
 
   return (
     <>
