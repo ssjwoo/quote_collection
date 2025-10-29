@@ -8,9 +8,18 @@ from app.services import quote_service, user_service, source_service
 
 router = APIRouter(prefix="/quote", tags=["Quote"])
 
+
 @router.get("/popular", response_model=list[QuoteRead])
 async def get_popular_quotes(db: AsyncSession = Depends(get_async_db)):
     return await quote_service.get_most_bookmarked(db)
+
+
+@router.get("/latest", response_model=list[QuoteRead])
+async def get_latest_quotes(
+    source_type: str = "book", db: AsyncSession = Depends(get_async_db)
+):
+    return await quote_service.get_latest_by_source_type(db, source_type=source_type)
+
 
 @router.post("/", response_model=QuoteRead)
 async def create_quote(quote: QuoteCreate, db: AsyncSession = Depends(get_async_db)):

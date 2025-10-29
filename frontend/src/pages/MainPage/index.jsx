@@ -16,6 +16,10 @@ export const MainPage = ({ mode }) => {
     const fetchQuotes = async () => {
       try {
         // Fetch popular quotes
+        let currentType = mode;
+        if (currentType == "drama") {
+          currentType = "tv";
+        }
         // TODO: /api/quote/popular - need testing
         const popularResponse = await axios.get("/api/quote/popular");
         console.log("/api/quote/popular", popularResponse);
@@ -23,8 +27,13 @@ export const MainPage = ({ mode }) => {
 
         // Fetch new quotes
         // TODO: /api/quote/ - need testing
-        const newResponse = await axios.get("/api/quote/");
-        console.log("/api/quote/", newResponse);
+        const newResponse = await axios.get(
+          `/api/quote/latest?source_type=${currentType}`
+        );
+        console.log(
+          `/api/quote/latest?source_type=${currentType}`,
+          newResponse
+        );
         console.log("newResponse.data:", newResponse.data);
         const sortedNew = newResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
