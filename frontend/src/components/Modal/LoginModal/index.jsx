@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
+import axios from "../../../api/axios";
 
 const LoginModal = ({ setIsLogin, setIsOpen }) => {
   const navigation = useNavigate();
