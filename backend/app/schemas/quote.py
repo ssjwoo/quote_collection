@@ -9,9 +9,11 @@ class QuoteBase(BaseModel):
     source_id: int
     user_id: int
 
+
 # 문장 등록
 class QuoteCreate(QuoteBase):
     pass
+
 
 class SourceCreateForQuote(BaseModel):
     title: str
@@ -22,11 +24,13 @@ class SourceCreateForQuote(BaseModel):
     release_year: Optional[int] = None
     isbn: Optional[str] = None
 
+
 class QuoteCreateWithSource(BaseModel):
     content: str
     page: Optional[str] = None
     user_id: int
     source: SourceCreateForQuote
+
 
 # 문장 수정
 class QuoteUpdate(BaseModel):
@@ -34,7 +38,8 @@ class QuoteUpdate(BaseModel):
     page: Optional[str] = None
     source_id: Optional[int] = None
 
-# DB에서 관리되는 모델
+
+# DB 모델
 class QuoteInDB(QuoteBase):
     id: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -42,6 +47,10 @@ class QuoteInDB(QuoteBase):
     class Config:
         from_attributes = True
 
-#클라이언트에게 반환할 모델 -> QuoteInDB 그대로
+
+# 클라이언트에게 반환할 모델 수정
 class QuoteRead(QuoteInDB):
-    pass
+    source_type: Optional[str] = None
+
+    class Config:
+        from_attributes = True 
