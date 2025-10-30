@@ -13,7 +13,7 @@ export const MainPage = ({ mode }) => {
   /** mode에 맞게 데이터 불러오기 */
   useEffect(() => {
     const fetchQuotes = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
 
       const promises = [
         axios.get(`/api/quote/popular/today/${mode}`),
@@ -50,10 +50,7 @@ export const MainPage = ({ mode }) => {
       if (token && results[2] && results[2].status === "fulfilled") {
         setRecomQuote(results[2].value.data.slice(0, 3));
       } else if (token && results[2]) {
-        console.error(
-          "Failed to fetch recommended quotes:",
-          results[2].reason
-        );
+        console.error("Failed to fetch recommended quotes:", results[2].reason);
       }
     };
 
