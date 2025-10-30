@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-export const Search = ({prevInput}) => {
+export const Search = ({prevInput, source_type}) => {
 
   const navigation = useNavigate();
   const [input,setInput]=useState(prevInput||'');
@@ -15,7 +15,11 @@ export const Search = ({prevInput}) => {
       alert('검색어를 입력해주세요');
       return;
     }
-    navigation('/searchlist/'+input);
+    let path = '/searchlist/'+input;
+    if (source_type) {
+      path += `?source_type=${source_type}`;
+    }
+    navigation(path);
   }
 
   return (

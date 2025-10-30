@@ -19,12 +19,11 @@ class QuoteRepository(BaseRepository[Quote]):
         result = await db.execute(statement)
         return result.scalars().all()
 
-    async def search(self, db: AsyncSession, query: str, limit: int = 10) -> list[Quote]:
-        statement = (
-            select(self.model)
-            .filter(self.model.content.ilike(f"%{query}%"))
-            .limit(limit)
-        )
+    async def search(self, db: AsyncSession, query: str, source_type: str | None = None, limit: int = 10) -> list[Quote]:
+        statement = select(self.model).filter(self.model.content.ilike(f"%{query}%"))
+        if source_type:
+            statement = statement.join(Source).filter(Source.source_type == source_type)
+        statement = statement.limit(limit)
         result = await db.execute(statement)
         return result.scalars().all()
 

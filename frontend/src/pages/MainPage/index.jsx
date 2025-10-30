@@ -23,8 +23,6 @@ export const MainPage = ({ mode }) => {
 
       if (results[0].status === "fulfilled") {
         setPopularQuote(results[0].value.data);
-      } else {
-        console.error("Failed to fetch popular quotes:", results[0].reason);
       }
 
       if (results[1].status === "fulfilled") {
@@ -32,14 +30,10 @@ export const MainPage = ({ mode }) => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setNewQuote(sortedNew.slice(0, 3));
-      } else {
-        console.error("Failed to fetch new quotes:", results[1].reason);
       }
 
       if (results[2] && results[2].status === "fulfilled") {
         setRecomQuote(results[2].value.data);
-      } else if (results[2]) {
-        console.error("Failed to fetch recommended quotes:", results[2].reason);
       }
     };
 
@@ -48,7 +42,7 @@ export const MainPage = ({ mode }) => {
   return (
     <>
       <div className="flex justify-center">
-        <Search />
+        <Search source_type={mode} />
       </div>
       <div className="mt-12">
         <Popular mode={mode} popularQuote={popularQuote} />

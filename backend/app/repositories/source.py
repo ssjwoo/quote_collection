@@ -10,12 +10,11 @@ class SourceRepository(BaseRepository[Source]):
         result = await db.execute(statement)
         return result.scalar_one_or_none()
 
-    async def search(self, db: AsyncSession, query: str, limit: int = 10) -> list[Source]:
-        statement = (
-            select(self.model)
-            .filter(self.model.title.ilike(f"%{query}%"))
-            .limit(limit)
-        )
+    async def search(self, db: AsyncSession, query: str, source_type: str | None = None, limit: int = 10) -> list[Source]:
+        statement = select(self.model).filter(self.model.title.ilike(f"%{query}%"))
+        if source_type:
+            statement = statement.filter(self.model.source_type == source_type)
+        statement = statement.limit(limit)
         result = await db.execute(statement)
         return result.scalars().all()
 
