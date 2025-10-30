@@ -184,10 +184,10 @@ export const MovieDetail = ({ quote }) => {
               {quote.tags.map((t) => (
                 <span
                   key={t.id}
-                  onClick={() => onSearchList(t)}
+                  onClick={() => onSearchList(t.name)}
                   className="rounded-xl p-2 cursor-pointer bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
-                  {t}
+                  {t.name}
                 </span>
               ))}
             </div>

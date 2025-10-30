@@ -186,10 +186,10 @@ export const DramaDetail = ({ quote }) => {
               {quote.tags.map((t) => (
                 <span
                   key={t.id}
-                  onClick={() => onSearchList(t)}
+                  onClick={() => onSearchList(t.name)}
                   className="cursor-pointer rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
-                  {t}
+                  {t.name}
                 </span>
               ))}
             </div>
