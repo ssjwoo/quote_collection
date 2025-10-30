@@ -86,10 +86,14 @@ export const SearchList = () => {
   const onDetail = (id) => {
     navigation("/detail/" + id);
   };
+
+  const queryParams = new URLSearchParams(location.search);
+  const source_type_from_url = queryParams.get('source_type');
+
     return(
         <>
         <div className="flex justify-center">
-        <Search prevInput={input}/>
+        <Search prevInput={input} source_type={source_type_from_url}/>
         </div>
          <div className="text-main-green flex mt-10 justify-center">
             " {input} " results
