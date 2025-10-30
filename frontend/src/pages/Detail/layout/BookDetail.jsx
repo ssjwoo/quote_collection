@@ -10,52 +10,54 @@ export const BookDetail = ({ quote }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
-  const [source, setSource] = useState({});
-  const [publisherName, setPublisherName] = useState(""); // 출판사 이름 저장용
+  const [source,setSource] = useState({});
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("accessToken");
-      console.log(token);
-      console.log(quote);
+      try {
+        const token = localStorage.getItem("accessToken");
+        console.log(token);
+        console.log(quote);
+        try{
+          const id = quote.source_id;
+          console.log(id);
+          const sourceData = await axios.get(`/api/source/${id}`);
+          setSource(sourceData.data);
+          console.log(sourceData.data);
+        }catch(error){
+          console.log('Failed to get quotes_source_data',error);
+        }
 
-      const id = quote.source_id;
-      console.log(id);
-
-      const sourceData = await axios.get(`/api/source/${id}`);
-      setSource(sourceData.data);
-      console.log(sourceData.data);
-
-      if (sourceData.data.publisher_id) {
-        const publisherID = await axios.get(`/api/publisher/${sourceData.data.publisher_id}`);
-        setPublisherName(publisherID.data.name);
-      }
-
-      if (token) {
-        // TODO: /api/auth/me - need testing
-        const response = await axios.get("/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("/api/auth/me", response);
-        const userData = response.data;
-        setUser(userData);
-        setIsLogin(true);
-        // console.log(user);
-        // Check if the current quote is bookmarked by the user
-        // user에 bookmark가 없음
-        // const bookmarkCheck = await axios.
-        const isBookmarked =
-          userData.bookmarks?.some((b) => b.quote_id === quote.id) ?? false;
-        setBookMarked(isBookmarked);
-      } else {
+        if (token) {
+          // TODO: /api/auth/me - need testing
+          const response = await axios.get("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("/api/auth/me", response);
+          const userData = response.data;
+          setUser(userData);
+          setIsLogin(true);
+          // console.log(user);
+          // Check if the current quote is bookmarked by the user
+          // user에 bookmark가 없음
+          // const bookmarkCheck = await axios.
+          const isBookmarked = userData.bookmarks.some(
+            (b) => b.quote_id === quote.id
+          )?? false;
+          setBookMarked(isBookmarked);
+        } else {
+          setIsLogin(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
         setIsLogin(false);
       }
     };
 
     fetchUser();
-  }, [isLogin, quote.id]);
+  }, [isLogin,quote.id]);
 
   const onIsLogin = async () => {
     console.log(isLogin);
@@ -64,42 +66,44 @@ export const BookDetail = ({ quote }) => {
       return;
     }
 
-    const token = localStorage.getItem("accessToken");
-
-    if (bookmark) {
-      // Unbookmark
-      // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
-      const response = await axios.delete(
-        `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(
-        `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-        response
-      );
-      setBookMarked(false);
-    } else {
-      // Bookmark
-      // TODO: /api/bookmark/ - need testing
-      const response = await axios.post(
-        "/api/bookmark/",
-        { user_id: user.id, quote_id: quote.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("/api/bookmark/", response);
-      setBookMarked(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (bookmark) {
+        // Unbookmark
+        // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
+        const response = await axios.delete(
+          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(
+          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+          response
+        );
+        setBookMarked(false);
+      } else {
+        // Bookmark
+        // TODO: /api/bookmark/ - need testing
+        const response = await axios.post(
+          "/api/bookmark/",
+          { user_id: user.id, quote_id: quote.id },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("/api/bookmark/", response);
+        setBookMarked(true);
+      }
+    } catch (error) {
+      console.error("Failed to update bookmark:", error);
     }
   };
-
   const onSearchList = (input) => {
     navigation("/searchlist/" + input);
   };
@@ -168,7 +172,8 @@ export const BookDetail = ({ quote }) => {
             <div className="flex items-end mt-3">
               <label className="w-1/12 text-end pb-3 text-sm">출판사 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
-                {publisherName || "출판사 정보 없음"}
+                {/* publisher 정보 get */}
+                {quote.subData}
               </div>
             </div>
           </>
