@@ -31,6 +31,7 @@ class QuoteService(BaseService[QuoteRepository]):
 
         quote, source = result
         return PopularQuoteResponse(
+            id=quote.id,
             title=source.title,
             content=quote.content,
             creator=source.creator,
