@@ -14,7 +14,7 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), unique=True, nullable=False)
 
-    quotes = relationship("Quote", secondary=quote_tags, back_populates="tags")
+    quotes = relationship("Quote", secondary=quote_tags, back_populates="tags", lazy="selectin")
 
     ### Movie와의 다대다 관계 설정 ###
     movies = relationship(

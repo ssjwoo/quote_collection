@@ -21,10 +21,9 @@ class BaseRepository(Generic[ModelType]):
         return result.scalars().all()
 
     async def create(self, db: AsyncSession, *, obj_in) -> ModelType:
-        db_obj = self.model(**obj_in.model_dump())
+        db_obj = self.model(**obj_in.model_dump(exclude_none=True))
         db.add(db_obj)
-        await db.commit()
-        await db.refresh(db_obj)
+        await db.flush()
         return db_obj
 
     async def update(self, db: AsyncSession, *, db_obj, obj_in) -> ModelType:

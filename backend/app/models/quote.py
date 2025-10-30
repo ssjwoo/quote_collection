@@ -15,7 +15,7 @@ class Quote(Base):
     page = Column(String(255), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
-    tags = relationship("Tag", secondary=quote_tags, back_populates="quotes")
+    tags = relationship("Tag", secondary=quote_tags, back_populates="quotes", lazy="selectin")
     source = relationship("Source")
     bookmarks = relationship("Bookmark", back_populates="quote")
 

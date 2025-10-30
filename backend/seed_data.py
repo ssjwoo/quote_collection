@@ -192,53 +192,56 @@ async def seed_data(db: AsyncSession):
     await db.commit()
     print(f"Created {len(tags)} tags.")
 
-    # --- Create Quotes ---
-    quotes_in = []
+    # --- Create Quotes with Tag Associations ---
+    all_quotes = []
+
+    def create_quote_with_tags(user_id, source_id, content, available_tags):
+        quote = Quote(
+            user_id=user_id,
+            source_id=source_id,
+            content=content,
+        )
+        num_tags = random.randint(1, 3)
+        selected_tags = random.sample(available_tags, num_tags)
+        quote.tags.extend(selected_tags)
+        return quote
+
     # Create 20 quotes from books
     for i in range(20):
-        quotes_in.append(
-            QuoteCreate(
-                user_id=random.choice(user_ids),
-                source_id=random.choice(book_source_ids),
-                content=f"This is a sample quote from a book, number {i+1}.",
+        all_quotes.append(
+            create_quote_with_tags(
+                random.choice(user_ids),
+                random.choice(book_source_ids),
+                f"This is a sample quote from a book, number {i+1}.",
+                tags,
             )
         )
     # Create 20 quotes from movies
     for i in range(20):
-        quotes_in.append(
-            QuoteCreate(
-                user_id=random.choice(user_ids),
-                source_id=random.choice(movie_source_ids),
-                content=f"This is a sample quote from a movie, number {i+1}.",
+        all_quotes.append(
+            create_quote_with_tags(
+                random.choice(user_ids),
+                random.choice(movie_source_ids),
+                f"This is a sample quote from a movie, number {i+1}.",
+                tags,
             )
         )
     # Create 10 quotes from dramas
     for i in range(10):
-        quotes_in.append(
-            QuoteCreate(
-                user_id=random.choice(user_ids),
-                source_id=random.choice(drama_source_ids),
-                content=f"This is a sample quote from a drama, number {i+1}.",
+        all_quotes.append(
+            create_quote_with_tags(
+                random.choice(user_ids),
+                random.choice(drama_source_ids),
+                f"This is a sample quote from a drama, number {i+1}.",
+                tags,
             )
         )
 
-    quotes = [Quote(**q.model_dump()) for q in quotes_in]
-    db.add_all(quotes)
-    await db.flush()
-    quote_ids = [quote.id for quote in quotes]
+    db.add_all(all_quotes)
+    await db.flush()  # Flush to get quote IDs for bookmarks
+    quote_ids = [quote.id for quote in all_quotes]
     await db.commit()
-    print(f"Created {len(quotes)} quotes.")
-
-    # --- Associate Tags with Quotes (Many-to-Many) ---
-    associations = []
-    for quote_id in quote_ids:
-        num_tags = random.randint(1, 3)  # Each quote gets 1 to 3 tags
-        selected_tag_ids = random.sample(tag_ids, num_tags)
-        for tag_id in selected_tag_ids:
-            associations.append({"quote_id": quote_id, "tag_id": tag_id})
-    await db.execute(quote_tags.insert().values(associations))
-    await db.commit()
-    print("Created quote-tag associations.")
+    print(f"Created {len(all_quotes)} quotes with tag associations.")
 
     # --- Create Bookmark Folders ---
     folders_in = []
@@ -254,20 +257,29 @@ async def seed_data(db: AsyncSession):
     print(f"Created {len(folders)} bookmark folders.")
 
     # --- Create Bookmarks (Many-to-Many) ---
-    bookmarks_in = []
-    for i in range(20):  # 20 bookmarks
+    bookmarks_to_create = []
+    used_pairs = set()
+
+    # Create 50 unique bookmarks
+    while len(bookmarks_to_create) < 50:
         user_id = random.choice(user_ids)
         quote_id = random.choice(quote_ids)
-        folder_id = (
-            random.choice(folder_ids) if random.random() > 0.3 else None
-        )  # Some bookmarks without folders
-        bookmarks_in.append(
-            BookmarkCreate(user_id=user_id, quote_id=quote_id, folder_id=folder_id)
+
+        if (user_id, quote_id) in used_pairs:
+            continue  # Skip if this pair is already used
+
+        used_pairs.add((user_id, quote_id))
+
+        folder_id = random.choice(folder_ids) if random.random() > 0.3 else None
+
+        bookmark = Bookmark(
+            user_id=user_id, quote_id=quote_id, folder_id=folder_id
         )
-    bookmarks = [Bookmark(**b.model_dump()) for b in bookmarks_in]
-    db.add_all(bookmarks)
+        bookmarks_to_create.append(bookmark)
+
+    db.add_all(bookmarks_to_create)
     await db.commit()
-    print(f"Created {len(bookmarks)} bookmarks.")
+    print(f"Created {len(bookmarks_to_create)} bookmarks.")
 
 
 async def main():

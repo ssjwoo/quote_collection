@@ -94,6 +94,7 @@ export const DramaWrite = () => {
         content: content,
         source_id: sourceData.id,
         user_id: 1, // Hardcoded user_id
+        tags: selectedTags,
       });
       console.log("/api/quote/", quoteRes);
 

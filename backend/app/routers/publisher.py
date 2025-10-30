@@ -18,10 +18,17 @@ async def create(publisher: PublisherCreate, db: AsyncSession = Depends(get_asyn
     if existing_publisher:
         return existing_publisher
     try:
-        return await publisher_service.repository.create(db, obj_in=publisher)
+        new_publisher = await publisher_service.repository.create(db, obj_in=publisher)
+        publisher_id = new_publisher.id
+        await db.commit()
+        # After commit, new_publisher is expired. Refetch it.
+        refetched_publisher = await publisher_service.repository.get(db, id=publisher_id)
+        return refetched_publisher
     except IntegrityError:
+        await db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Publisher with this name already exists")
     except Exception as e:
+        await db.rollback()
         logger.error(f"Error creating publisher: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {e}")
 

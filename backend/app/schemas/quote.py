@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, List
+
+from app.schemas.tag import TagRead
 
 # 공통
 class QuoteBase(BaseModel):
@@ -11,7 +13,7 @@ class QuoteBase(BaseModel):
 
 # 문장 등록
 class QuoteCreate(QuoteBase):
-    pass
+    tags: Optional[List[str]] = None
 
 class SourceCreateForQuote(BaseModel):
     title: str
@@ -44,4 +46,4 @@ class QuoteInDB(QuoteBase):
 
 #클라이언트에게 반환할 모델 -> QuoteInDB 그대로
 class QuoteRead(QuoteInDB):
-    pass
+    tags: List[TagRead] = []

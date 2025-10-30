@@ -13,8 +13,12 @@ router = APIRouter(prefix="/source", tags=["Source"])
 async def create_source(source: SourceCreate, db: AsyncSession = Depends(get_async_db)):
     try:
         created_source = await source_service.repository.create(db, obj_in=source)
-        return await source_service.get_with_details(db, source_id=created_source.id)
+        source_id = created_source.id  # Get ID before commit
+        await db.commit()
+        # After commit, created_source is expired. Fetch fresh data.
+        return await source_service.get_with_details(db, source_id=source_id)
     except IntegrityError as e:
+        await db.rollback()
         raise HTTPException(status_code=400, detail=f"Database integrity issue: {e}")
 
 

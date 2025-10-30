@@ -73,33 +73,28 @@ export const BookWrite = () => {
       let publisherData = null;
       if (publisher.trim()) {
         // 1. Create Publisher if it exists
-        // TODO: /api/publisher/ - need testing
         const publisherRes = await axios.post("/api/publisher/", {
           name: publisher,
         });
-        console.log("/api/publisher/", publisherRes);
         publisherData = publisherRes.data;
       }
 
       // 2. Create Source
-      // TODO: /api/source/ - need testing
       const sourceRes = await axios.post("/api/source/", {
         title: title,
         source_type: "book",
         creator: author,
         publisher_id: publisherData ? publisherData.id : null,
       });
-      console.log("/api/source/", sourceRes);
       const sourceData = sourceRes.data;
 
-      // 3. Create Quote
-      // TODO: /api/quote/ - need testing
-      const quoteRes = await axios.post("/api/quote/", {
+      // 3. Create Quote with Tags
+      await axios.post("/api/quote/", {
         content: content,
         source_id: sourceData.id,
         user_id: 1, // Hardcoded user_id
+        tags: selectedTags,
       });
-      console.log("/api/quote/", quoteRes);
 
       alert("책 명언이 등록되었습니다.");
       navigation("/");

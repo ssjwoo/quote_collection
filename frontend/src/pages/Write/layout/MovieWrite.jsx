@@ -65,21 +65,30 @@ export const MovieWrite = () => {
       return;
     }
     try {
-      // TODO: /api/movie/ - need testing
-      const response = await axios.post(`/api/movie/`, {
+      // 1. Create Source for the movie
+      const sourceRes = await axios.post("/api/source/", {
         title: title,
-        director: director,
-        release_date: release,
+        source_type: "movie",
+        creator: director,
+        release_year: release ? parseInt(release) : null,
+      });
+      console.log("/api/source/", sourceRes);
+      const sourceData = sourceRes.data;
+
+      // 2. Create Quote
+      const quoteRes = await axios.post("/api/quote/", {
         content: content,
+        source_id: sourceData.id,
+        user_id: 1, // Hardcoded user_id
         tags: selectedTags,
       });
-      console.log("/api/movie/", response);
+      console.log("/api/quote/", quoteRes);
 
-      alert("Movie created successfully!");
+      alert("영화 명언이 등록되었습니다.");
       navigate("/"); // Redirect to home or a suitable page after creation
     } catch (error) {
-      console.error("Error creating movie:", error);
-      alert("Failed to create movie.");
+      console.error("Error creating movie quote:", error);
+      alert("Failed to create movie quote.");
     }
   };
   return (
