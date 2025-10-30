@@ -15,54 +15,42 @@ export const BookDetail = ({ quote }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        console.log(token);
-        console.log(quote);
+      const token = localStorage.getItem("accessToken");
+      console.log(token);
+      console.log(quote);
 
-        try {
-          const id = quote.source_id;
-          console.log(id);
-          const sourceData = await axios.get(`/api/source/${id}`);
-          setSource(sourceData.data);
-          console.log(sourceData.data);
+      const id = quote.source_id;
+      console.log(id);
 
-          if (sourceData.data.publisher_id) {
-            const publisherID = await axios.get(
-              `/api/publisher/${sourceData.data.publisher_id}`
-            );
-            setPublisherName(publisherID.data.name);
-          }
-        } catch (error) {
-          console.log("Failed to get source or publisher data:", error);
-        }
+      const sourceData = await axios.get(`/api/source/${id}`);
+      setSource(sourceData.data);
+      console.log(sourceData.data);
 
-        if (token) {
-          try {
-            // TODO: /api/auth/me - need testing
-            const response = await axios.get("/api/auth/me", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            console.log("/api/auth/me", response);
-            const userData = response.data;
-            setUser(userData);
-            setIsLogin(true);
+      if (sourceData.data.publisher_id) {
+        const publisherID = await axios.get(`/api/publisher/${sourceData.data.publisher_id}`);
+        setPublisherName(publisherID.data.name);
+      }
 
-            // Check if the current quote is bookmarked by the user
-            const isBookmarked =
-              userData.bookmarks?.some((b) => b.quote_id === quote.id) ?? false;
-            setBookMarked(isBookmarked);
-          } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            setIsLogin(false);
-          }
-        } else {
-          setIsLogin(false);
-        }
-      } catch (error) {
-        console.error("Unexpected error in fetchUser:", error);
+      if (token) {
+        // TODO: /api/auth/me - need testing
+        const response = await axios.get("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("/api/auth/me", response);
+        const userData = response.data;
+        setUser(userData);
+        setIsLogin(true);
+        // console.log(user);
+        // Check if the current quote is bookmarked by the user
+        // user에 bookmark가 없음
+        // const bookmarkCheck = await axios.
+        const isBookmarked =
+          userData.bookmarks?.some((b) => b.quote_id === quote.id) ?? false;
+        setBookMarked(isBookmarked);
+      } else {
+        setIsLogin(false);
       }
     };
 
@@ -78,41 +66,37 @@ export const BookDetail = ({ quote }) => {
 
     const token = localStorage.getItem("accessToken");
 
-    try {
-      if (bookmark) {
-        // Unbookmark
-        // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
-        const response = await axios.delete(
-          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(
-          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-          response
-        );
-        setBookMarked(false);
-      } else {
-        // Bookmark
-        // TODO: /api/bookmark/ - need testing
-        const response = await axios.post(
-          "/api/bookmark/",
-          { user_id: user.id, quote_id: quote.id },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log("/api/bookmark/", response);
-        setBookMarked(true);
-      }
-    } catch (error) {
-      console.error("Failed to update bookmark:", error);
+    if (bookmark) {
+      // Unbookmark
+      // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
+      const response = await axios.delete(
+        `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(
+        `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+        response
+      );
+      setBookMarked(false);
+    } else {
+      // Bookmark
+      // TODO: /api/bookmark/ - need testing
+      const response = await axios.post(
+        "/api/bookmark/",
+        { user_id: user.id, quote_id: quote.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("/api/bookmark/", response);
+      setBookMarked(true);
     }
   };
 
@@ -152,10 +136,7 @@ export const BookDetail = ({ quote }) => {
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-sm text-end pb-3">책 제목 </label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
-            <span
-              className="cursor-pointer"
-              onClick={() => onSearchList(source.title)}
-            >
+            <span className="cursor-pointer" onClick={() => onSearchList(source.title)}>
               {source.title}
             </span>
           </div>
@@ -169,21 +150,14 @@ export const BookDetail = ({ quote }) => {
 
         <div className="flex justify-end mt-3">
           <div className="flex border-2 border-sub-darkgreen rounded-lg p-3 mr-14">
-            <img
-              className="size-5 cursor-pointer"
-              onClick={onIsLogin}
-              src={(isLogin && bookmark) ? marked : mark}
-            />
+            <img className="size-5 cursor-pointer" onClick={onIsLogin} src={(isLogin&&bookmark)?marked:mark}/>
           </div>
         </div>
 
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-end pb-3 text-sm">저자 </label>
           <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
-            <span
-              className="cursor-pointer"
-              onClick={() => onSearchList(source.creator)}
-            >
+            <span className="cursor-pointer" onClick={() => onSearchList(source.creator)}>
               {source.creator}
             </span>
           </div>
@@ -194,7 +168,6 @@ export const BookDetail = ({ quote }) => {
             <div className="flex items-end mt-3">
               <label className="w-1/12 text-end pb-3 text-sm">출판사 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
-                {/* publisher 정보 get */}
                 {publisherName || "출판사 정보 없음"}
               </div>
             </div>
