@@ -18,7 +18,7 @@ async def get_todays_popular_quote(
         db, source_type=source_type
     )
     if not popular_quote:
-        raise HTTPException(status_code=404, detail="No popular quote found for today")
+        raise HTTPException(status_code=404, detail="No popular quote found")
     return popular_quote
 
 

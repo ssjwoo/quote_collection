@@ -12,7 +12,6 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
     const password = form.password.value;
 
     try {
-      // TODO: /api/auth/login - need testing
       const response = await axios.post(
         "/api/auth/login",
         new URLSearchParams({

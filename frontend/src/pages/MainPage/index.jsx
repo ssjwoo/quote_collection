@@ -13,42 +13,47 @@ export const MainPage = ({ mode }) => {
   /** mode에 맞게 데이터 불러오기 */
   useEffect(() => {
     const fetchQuotes = async () => {
-      try {
-        const popularResponse = await axios.get(
-          `/api/quote/popular/today/${mode}`
-        );
-        // console.log(`/api/quote/popular/today/${mode}`, popularResponse);
-        // console.log("popularResposnse.data:", popularResponse.data);
-        setPopularQuote(popularResponse.data); // Assuming it returns a single object
+      const token = localStorage.getItem("token");
 
-        // Fetch new quotes
-        const newResponse = await axios.get(
-          `/api/quote/latest?source_type=${mode}`
+      const promises = [
+        axios.get(`/api/quote/popular/today/${mode}`),
+        axios.get(`/api/quote/latest?source_type=${mode}`),
+      ];
+
+      if (token) {
+        promises.push(
+          axios.get("/api/recommendations/user-based", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
         );
-        // console.log(`/api/quote/latest?source_type=${mode}`, newResponse);
-        // console.log("newResponse.data:", newResponse.data);
-        const sortedNew = newResponse.data.sort(
+      }
+
+      const results = await Promise.allSettled(promises);
+
+      if (results[0].status === "fulfilled") {
+        setPopularQuote(results[0].value.data);
+      } else {
+        console.error("Failed to fetch popular quotes:", results[0].reason);
+      }
+
+      if (results[1].status === "fulfilled") {
+        const sortedNew = results[1].value.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-        setNewQuote(sortedNew.slice(0, 3)); // Get top 3
+        setNewQuote(sortedNew.slice(0, 3));
+      } else {
+        console.error("Failed to fetch new quotes:", results[1].reason);
+      }
 
-        // Fetch recommended quotes
-        const token = localStorage.getItem("token");
-        if (token) {
-          // TODO: /api/recommendations/user-based - need testing
-          const recomResponse = await axios.get(
-            "/api/recommendations/user-based",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          console.log("/api/recommendations/user-based", recomResponse);
-          setRecomQuote(recomResponse.data.slice(0, 3)); // Get top 3
-        }
-      } catch (error) {
-        console.error("Failed to fetch quotes:", error);
+      if (token && results[2] && results[2].status === "fulfilled") {
+        setRecomQuote(results[2].value.data.slice(0, 3));
+      } else if (token && results[2]) {
+        console.error(
+          "Failed to fetch recommended quotes:",
+          results[2].reason
+        );
       }
     };
 
