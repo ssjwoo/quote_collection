@@ -51,6 +51,19 @@ class QuoteRepository(BaseRepository[Quote]):
         result = await db.execute(statement)
         return result.scalars().all()
 
+    async def get_random_by_source_type(
+        self, db: AsyncSession, *, source_type: str, limit: int = 3
+    ) -> list[Quote]:
+        statement = (
+            select(self.model)
+            .join(Source)
+            .filter(Source.source_type == source_type)
+            .order_by(func.random())
+            .limit(limit)
+        )
+        result = await db.execute(statement)
+        return result.scalars().all()
+
     async def get_todays_most_popular_by_source_type(
         self, db: AsyncSession, *, source_type: str
     ) -> tuple[Quote, Source] | None:

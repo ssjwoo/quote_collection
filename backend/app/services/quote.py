@@ -20,6 +20,13 @@ class QuoteService(BaseService[QuoteRepository]):
             db, source_type=source_type, limit=limit
         )
 
+    async def get_random_by_source_type(
+        self, db: AsyncSession, source_type: str, limit: int = 3
+    ):
+        return await self.repository.get_random_by_source_type(
+            db, source_type=source_type, limit=limit
+        )
+
     async def get_todays_most_popular_by_source_type(
         self, db: AsyncSession, source_type: str
     ) -> PopularQuoteResponse | None:

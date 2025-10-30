@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 import random
@@ -10,10 +10,25 @@ from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
 
+
+@router.get("/", response_model=List[QuoteRead])
+async def get_recommendations_by_source(
+    db: AsyncSession = Depends(get_async_db),
+    source_type: str = Query("book", enum=["book", "movie", "drama"]),
+    limit: int = 3,
+):
+    """
+    Get recommended quotes from a specific source type.
+    """
+    return await quote_service.get_random_by_source_type(
+        db, source_type=source_type, limit=limit
+    )
+
+
 @router.get("/user-based", response_model=List[QuoteRead])
 async def get_user_based_recommendations(
     db: AsyncSession = Depends(get_async_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_current_user),
 ):
     """
     Get user-based recommended quotes.

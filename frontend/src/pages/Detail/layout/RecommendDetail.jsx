@@ -16,14 +16,8 @@ export const RecommendDetail = ({mode}) => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const token = localStorage.getItem("accesstoken");
-        // TODO: /api/recommendations/user-based - need testing
-        const response = await axios.get("/api/recommendations/user-based", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("/api/recommendations/user-based", response);
+        const response = await axios.get(`/api/recommendations?source_type=${mode}&limit=3`);
+        console.log(`/api/recommendations?source_type=${mode}&limit=3`, response);
         setQuotes(response.data);
       } catch (error) {
         console.error("Failed to fetch recommendations:", error);
@@ -31,11 +25,11 @@ export const RecommendDetail = ({mode}) => {
     };
 
     fetchRecommendations();
-  }, []);
+  }, [mode]);
   return (
     <>
       <div className="flex-col flex items-center mb-12">
-        <div className="mt-16 mb-4 text-3xl">User Based Recommend</div>
+        <div className="mt-16 mb-4 text-3xl">Recommended Quotes</div>
         {quotes.map((quote) => (
           <div
             key={quote.id}
