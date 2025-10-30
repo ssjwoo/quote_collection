@@ -71,7 +71,7 @@ export const DramaWrite = () => {
       // TODO: /api/producers/ - need testing
       const producerRes = await axios.post("/api/producers/", {
         name: producer,
-        pd_type: "producer",
+        pd_type: "broadcast",
       });
       console.log("/api/producers/", producerRes);
       const producerData = producerRes.data;
