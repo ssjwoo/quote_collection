@@ -13,7 +13,7 @@ export const Detail = () => {
   const mode = location.state?.mode;
   console.log(mode);
   
-  const [quote, setQuote] = useState("");
+  const [quote, setQuote] = useState(null);
 
   useEffect(() => {
     const fetchQuote = async () => {
@@ -30,6 +30,11 @@ export const Detail = () => {
 
     fetchQuote();
   }, [id]);
+
+  if (!quote) {
+    return <div>Loading...</div>; // Or a more sophisticated loading indicator
+  }
+
   return (
     <>
       {mode == "book" && <BookDetail quote={quote} />}

@@ -14,6 +14,7 @@ export const BookDetail = ({ quote }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!quote || !quote.source_id) return;
       try {
         const token = localStorage.getItem("accessToken");
         console.log(token);
@@ -56,12 +57,16 @@ export const BookDetail = ({ quote }) => {
     };
 
     fetchUser();
-  }, [isLogin, quote.id]);
+  }, [isLogin, quote?.id]);
 
   const onIsLogin = async () => {
     console.log(isLogin);
     if (!isLogin) {
       alert("로그인이 필요한 기능입니다.");
+      return;
+    }
+    if (!quote || !quote.id) {
+      console.error("Quote data is not available for bookmarking.");
       return;
     }
 
@@ -108,7 +113,9 @@ export const BookDetail = ({ quote }) => {
   };
 
   const onModify = () => {
-    navigation("/detail/" + quote.id + "/modi");
+    if (quote?.id) {
+      navigation("/detail/" + quote.id + "/modi");
+    }
   };
 
   const onDelete = () => {

@@ -13,6 +13,7 @@ export const MovieDetail = ({ quote }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!quote || !quote.source_id) return;
       try {
         const token = localStorage.getItem("accessToken");
 
@@ -52,11 +53,15 @@ export const MovieDetail = ({ quote }) => {
     };
 
     fetchUser();
-  }, [isLogin, quote.id]);
+  }, [isLogin, quote?.id]);
 
   const onIsLogin = async () => {
     if (!isLogin) {
       alert("로그인이 필요한 기능입니다.");
+      return;
+    }
+    if (!quote || !quote.id) {
+      console.error("Quote data is not available for bookmarking.");
       return;
     }
 
@@ -102,7 +107,9 @@ export const MovieDetail = ({ quote }) => {
     navigation("/searchlist/" + input);
   };
   const onModify = () => {
-    navigation("/detail/" + quote.id + "/modi");
+    if (quote?.id) {
+      navigation("/detail/" + quote.id + "/modi");
+    }
   };
   const onDelete = () => {};
 

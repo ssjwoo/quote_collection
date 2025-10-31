@@ -9,21 +9,22 @@ export const DramaDetail = ({ quote }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
-  const [source,setSource] = useState({});
+  const [source, setSource] = useState({});
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!quote || !quote.source_id) return;
       try {
         const token = localStorage.getItem("accessToken");
 
-         try{
+        try {
           const id = quote.source_id;
           console.log(id);
           const sourceData = await axios.get(`/api/source/${id}`);
           setSource(sourceData.data);
           console.log(sourceData.data);
-        }catch(error){
-          console.log('Failed to get quotes_source_data',error);
+        } catch (error) {
+          console.log("Failed to get quotes_source_data", error);
         }
 
         if (token) {
@@ -53,11 +54,15 @@ export const DramaDetail = ({ quote }) => {
     };
 
     fetchUser();
-  }, [isLogin, quote.id]);
+  }, [isLogin, quote?.id]);
 
   const onIsLogin = async () => {
     if (!isLogin) {
       alert("로그인이 필요한 기능입니다.");
+      return;
+    }
+    if (!quote || !quote.id) {
+      console.error("Quote data is not available for bookmarking.");
       return;
     }
 
@@ -104,7 +109,9 @@ export const DramaDetail = ({ quote }) => {
   };
 
   const onModify = () => {
-    navigation("/detail/" + quote.id + "/modi");
+    if (quote?.id) {
+      navigation("/detail/" + quote.id + "/modi");
+    }
   };
   const onDelete = () => {};
 
@@ -113,7 +120,7 @@ export const DramaDetail = ({ quote }) => {
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">DRAMA MOMENT</div>
         {/* 글 작성자에게만 보이도록 */}
-        {(isLogin &&user.id == quote.writer) && (
+        {isLogin && user.id == quote.writer && (
           <div className="text-end">
             <button
               className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
@@ -171,7 +178,7 @@ export const DramaDetail = ({ quote }) => {
             <div className="flex items-end mt-3">
               <label className="text-sm w-1/12 text-end pb-3">개봉일 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
-                 {/* producer 정보 get */}
+                {/* producer 정보 get */}
                 {quote.subData}
               </div>
             </div>
