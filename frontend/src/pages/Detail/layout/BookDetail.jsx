@@ -229,7 +229,7 @@ export const BookDetail = ({ quote }) => {
 
         <div className="flex justify-center mt-3">
           <div className="w-4/5 text-main-white pt-12 pb-12 bg-main-green rounded-lg p-2 pl-4 ml-3 shadow-lg shadow-gray-400">
-            {publisher.name}
+            {quote.content}
           </div>
         </div>
 

@@ -7,6 +7,7 @@ export const MyNavBar = ({ setIsOpen, isLogIn, setIsLogin }) => {
     e.preventDefault();
     alert("로그아웃 되었습니다");
     setIsLogin(false);
+    navigation("/");
     localStorage.setItem("accessToken", "");
   };
 

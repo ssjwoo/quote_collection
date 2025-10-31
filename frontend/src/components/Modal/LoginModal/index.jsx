@@ -3,7 +3,6 @@ import { LoginInput } from "../../LoginInput";
 import axios from "../../../api/axios";
 
 const LoginModal = ({ setIsLogin, setIsOpen }) => {
-  const navigation = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +25,8 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
       );
       console.log("/api/auth/login", response);
       localStorage.setItem("accessToken", response.data.access_token);
-      alert("로그인 완료");
       setIsLogin(true);
       setIsOpen(false);
-      navigation("/");
     } catch (error) {
       alert(error.message);
     }
