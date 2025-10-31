@@ -9,7 +9,7 @@ export const MovieDetail = ({ quote }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
-  const [source,setSource] = useState({});
+  const [source, setSource] = useState({});
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -17,19 +17,19 @@ export const MovieDetail = ({ quote }) => {
       try {
         const token = localStorage.getItem("accessToken");
 
-        try{
+        try {
           const id = quote.source_id;
           console.log(id);
-          const sourceData = await axios.get(`/api/source/${id}`);
+          const sourceData = await axios.get(`/source/${id}`);
           setSource(sourceData.data);
           console.log(sourceData.data);
-        }catch(error){
-          console.log('Failed to get quotes_source_data',error);
+        } catch (error) {
+          console.log("Failed to get quotes_source_data", error);
         }
 
         if (token) {
           // TODO: /api/auth/me - need testing
-          const response = await axios.get("/api/auth/me", {
+          const response = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -71,7 +71,7 @@ export const MovieDetail = ({ quote }) => {
         // Unbookmark
         // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
         const response = await axios.delete(
-          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+          `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ export const MovieDetail = ({ quote }) => {
         // Bookmark
         try {
           const response = await axios.post(
-            "/api/bookmark/",
+            "/bookmark/",
             { user_id: user.id, quote_id: quote.id },
             {
               headers: {
@@ -104,18 +104,24 @@ export const MovieDetail = ({ quote }) => {
             // If a 500 error occurs on POST, assume it's a duplicate and try to DELETE
             try {
               const deleteResponse = await axios.delete(
-                `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+                `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
                   },
                 }
               );
-              console.log("Attempted to delete duplicate bookmark:", deleteResponse);
+              console.log(
+                "Attempted to delete duplicate bookmark:",
+                deleteResponse
+              );
               setBookMarked(false); // Now it's unbookmarked
               alert("북마크 상태가 동기화되었습니다. 북마크를 해제했습니다.");
             } catch (deleteError) {
-              console.error("Failed to delete bookmark after duplicate POST:", deleteError);
+              console.error(
+                "Failed to delete bookmark after duplicate POST:",
+                deleteError
+              );
               alert("북마크 상태 동기화에 실패했습니다.");
             }
           } else {
@@ -142,7 +148,7 @@ export const MovieDetail = ({ quote }) => {
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">MOVIE MOMENT</div>
         {/* 글 작성자에게만 보이도록 */}
-        {(isLogin && user.id == quote.writer) && (
+        {isLogin && user.id == quote.writer && (
           <div className="text-end">
             <button
               className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"

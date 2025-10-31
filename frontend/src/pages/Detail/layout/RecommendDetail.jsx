@@ -2,22 +2,28 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
-export const RecommendDetail = ({mode}) => {
+export const RecommendDetail = ({ mode }) => {
   const navigation = useNavigate();
   const [quotes, setQuotes] = useState([]);
 
-   const onDetail=(id)=>{
-        navigation('/quote/'+id, {
-    state: {
-      mode:mode
-    }})
-    }
+  const onDetail = (id) => {
+    navigation("/quote/" + id, {
+      state: {
+        mode: mode,
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await axios.get(`/api/recommendations?source_type=${mode}&limit=3`);
-        console.log(`/api/recommendations?source_type=${mode}&limit=3`, response);
+        const response = await axios.get(
+          `/recommendations?source_type=${mode}&limit=3`
+        );
+        console.log(
+          `/api/recommendations?source_type=${mode}&limit=3`,
+          response
+        );
         setQuotes(response.data);
       } catch (error) {
         console.error("Failed to fetch recommendations:", error);

@@ -20,7 +20,7 @@ export const DramaDetail = ({ quote }) => {
         try {
           const id = quote.source_id;
           console.log(id);
-          const sourceData = await axios.get(`/api/source/${id}`);
+          const sourceData = await axios.get(`/source/${id}`);
           setSource(sourceData.data);
           console.log(sourceData.data);
         } catch (error) {
@@ -29,7 +29,7 @@ export const DramaDetail = ({ quote }) => {
 
         if (token) {
           // TODO: /api/auth/me - need testing
-          const response = await axios.get("/api/auth/me", {
+          const response = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -72,7 +72,7 @@ export const DramaDetail = ({ quote }) => {
         // Unbookmark
         // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
         const response = await axios.delete(
-          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+          `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -88,7 +88,7 @@ export const DramaDetail = ({ quote }) => {
         // Bookmark
         try {
           const response = await axios.post(
-            "/api/bookmark/",
+            "/bookmark/",
             { user_id: user.id, quote_id: quote.id },
             {
               headers: {
@@ -105,18 +105,24 @@ export const DramaDetail = ({ quote }) => {
             // If a 500 error occurs on POST, assume it's a duplicate and try to DELETE
             try {
               const deleteResponse = await axios.delete(
-                `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+                `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
                   },
                 }
               );
-              console.log("Attempted to delete duplicate bookmark:", deleteResponse);
+              console.log(
+                "Attempted to delete duplicate bookmark:",
+                deleteResponse
+              );
               setBookMarked(false); // Now it's unbookmarked
               alert("북마크 상태가 동기화되었습니다. 북마크를 해제했습니다.");
             } catch (deleteError) {
-              console.error("Failed to delete bookmark after duplicate POST:", deleteError);
+              console.error(
+                "Failed to delete bookmark after duplicate POST:",
+                deleteError
+              );
               alert("북마크 상태 동기화에 실패했습니다.");
             }
           } else {

@@ -13,7 +13,7 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
 
     try {
       const response = await axios.post(
-        "/api/auth/login",
+        "/auth/login",
         new URLSearchParams({
           username: email,
           password: password,

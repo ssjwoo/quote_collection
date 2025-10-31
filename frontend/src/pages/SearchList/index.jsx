@@ -33,7 +33,7 @@ export const SearchList = () => {
         const queryParams = new URLSearchParams(location.search);
         const source_type = queryParams.get("source_type");
 
-        let apiUrl = `/api/search/?q=${input}`;
+        let apiUrl = `/search/?q=${input}`;
         if (source_type) {
           apiUrl += `&source_type=${source_type}`;
         }

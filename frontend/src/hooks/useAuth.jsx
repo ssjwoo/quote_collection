@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async ({ email, username, password }) => {
     try {
-      const response = await axios.post("/api/auth/register", {
+      const response = await axios.post("/auth/register", {
         email,
         username,
         password,
@@ -42,12 +42,13 @@ export const AuthProvider = ({ children }) => {
 
   const verifyJWT = async () => {
     try {
-      const response = await axios.get("/api/auth/me");
+      const response = await axios.get("/auth/me");
       setIsAuthenticated(true);
       setUser(response.data);
       return true;
     } catch (error) {
-      if (error.response?.status === 401) { // Changed from 404 to 401
+      if (error.response?.status === 401) {
+        // Changed from 404 to 401
         const detail = error.response.data?.detail;
 
         if (detail === "token_expired") {
@@ -62,14 +63,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const checkAuth = async () => { // Define the async function
+    const checkAuth = async () => {
+      // Define the async function
       await verifyJWT();
     };
     checkAuth(); // Call the async function
   }, []);
 
   return (
-    <AuthContext.Provider value={{ sevError, isAuthenticated, signup, user, logout }}> // Add logout to value
+    <AuthContext.Provider
+      value={{ sevError, isAuthenticated, signup, user, logout }}
+    >
+      {" "}
+      // Add logout to value
       {children}
     </AuthContext.Provider>
   );

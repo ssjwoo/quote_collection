@@ -16,7 +16,7 @@ export const MemberInfo = () => {
         const token = localStorage.getItem("token");
         if (token) {
           // TODO: /api/auth/me
-          const response = await axios.get("/api/auth/me", {
+          const response = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -43,7 +43,7 @@ export const MemberInfo = () => {
   const onIdCheck = async () => {
     try {
       // TODO: /api/users/check-name
-      const response = await axios.post("/api/users/check-name", {
+      const response = await axios.post("/users/check-name", {
         username: name,
       });
       console.log("/api/users/check-name", response);
@@ -99,7 +99,7 @@ export const MemberInfo = () => {
       }
 
       // TODO: /api/users/${user.id}, no navigation
-      const response = await axios.put(`/api/users/${user.id}`, updatedUser, {
+      const response = await axios.put(`/users/${user.id}`, updatedUser, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

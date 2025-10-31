@@ -78,7 +78,7 @@ export const DramaModi = ({ quote }) => {
 
     try {
       // TODO: /api/drama/${id}, navigate to `/detail/${id}`
-      const response = await axios.put(`/api/drama/${id}`, {
+      const response = await axios.put(`/drama/${id}`, {
         title: modiQuote.title,
         producer: modiQuote.producer,
         release_date: modiQuote.release,
@@ -98,7 +98,7 @@ export const DramaModi = ({ quote }) => {
   const onDelete = async () => {
     try {
       // TODO: /api/drama/${id}, navigate to "/"
-      const response = await axios.delete(`/api/drama/${id}`);
+      const response = await axios.delete(`/drama/${id}`);
       console.log(`/api/drama/${id}`, response);
 
       alert("Drama deleted successfully!");
@@ -108,45 +108,100 @@ export const DramaModi = ({ quote }) => {
       alert("Failed to delete drama.");
     }
   };
-    return(
-        <>
-        <Form className="flex flex-col mt-10">
-            <div className="text-3xl mb-5">MoDIFY Drama MoMENT</div>
-            <div className="flex items-end mt-3">
-                <label className="w-1/5 text-end pb-2">드라마 제목 <span className="text-red-700">*</span></label>
-                <input type="text" className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green" placeholder="드라마 제목을 입력하세요" value={modiQuote.title} onChange={e=>setModiQuote({...modiQuote,title:e.target.value})} />
-            </div>
-            <div className="flex items-end mt-3">
-                <label className="w-1/5 text-end pb-2">감독 <span className="text-red-700">*</span></label>
-                <input type="text" className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green" placeholder="감독 정보를 입력하세요" value={modiQuote.producer} onChange={e=>setModiQuote({...modiQuote,producer:e.target.value})} />
-            </div>
-            <div className="flex items-end mt-3">
-                <label className="w-1/5 text-end pr-2 pb-2">개봉일</label>
-                <input type="text"className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green" placeholder="개봉일을 입력하세요" value={modiQuote.release} onChange={e=>setModiQuote({...modiQuote,release:e.target.value})} />
-            </div>
-            <div className="flex items-end mt-3">
-                <label className="w-1/5 text-end pb-20">기록 하고싶은 대사 <span className="text-red-700">*</span>
-                <div className="text-xs mr-4 text-gray-700">{charNum}/1000</div></label>
-                <textarea maxLength="1000" className="w-4/6 h-32 outline-1 pb-20 pl-4 rounded-lg p-2 shadow-lg ml-3 shadow-gray-400 outline-main-green" placeholder="기록 하고싶은 대사를 입력하세요" value={modiQuote.content} onChange={e=>{setModiQuote({...modiQuote,content:e.target.value}); setCharNum(e.target.value.length);}} />
-            </div>
-             <div className="flex items-end mt-3">
-                <label className="w-1/5 text-end pb-16 pr-2">태그 </label>
-                <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green" >
-                    {tags.map((id)=>(
-                        <button key={id} 
-                        onClick={()=>onSelected(id)}
-                        className={selectedTags.includes(id)?style[1]:style[0]}>{id}</button>
-                    ))}
-                </div>
-            </div>
-             {error&&(<div className="text-xs w-4/6 mt-4 pl-3 flex justify-center text-red-700">{error}</div>)}
-            <div className="self-end flex ">
-                    <button className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
-                    onClick={onSubmit}>수정</button>
-                    <button className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
-                    onClick={onDelete}>삭제</button>
-             </div>
-        </Form>
-        </>
-    );
-}
+  return (
+    <>
+      <Form className="flex flex-col mt-10">
+        <div className="text-3xl mb-5">MoDIFY Drama MoMENT</div>
+        <div className="flex items-end mt-3">
+          <label className="w-1/5 text-end pb-2">
+            드라마 제목 <span className="text-red-700">*</span>
+          </label>
+          <input
+            type="text"
+            className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green"
+            placeholder="드라마 제목을 입력하세요"
+            value={modiQuote.title}
+            onChange={(e) =>
+              setModiQuote({ ...modiQuote, title: e.target.value })
+            }
+          />
+        </div>
+        <div className="flex items-end mt-3">
+          <label className="w-1/5 text-end pb-2">
+            감독 <span className="text-red-700">*</span>
+          </label>
+          <input
+            type="text"
+            className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green"
+            placeholder="감독 정보를 입력하세요"
+            value={modiQuote.producer}
+            onChange={(e) =>
+              setModiQuote({ ...modiQuote, producer: e.target.value })
+            }
+          />
+        </div>
+        <div className="flex items-end mt-3">
+          <label className="w-1/5 text-end pr-2 pb-2">개봉일</label>
+          <input
+            type="text"
+            className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green"
+            placeholder="개봉일을 입력하세요"
+            value={modiQuote.release}
+            onChange={(e) =>
+              setModiQuote({ ...modiQuote, release: e.target.value })
+            }
+          />
+        </div>
+        <div className="flex items-end mt-3">
+          <label className="w-1/5 text-end pb-20">
+            기록 하고싶은 대사 <span className="text-red-700">*</span>
+            <div className="text-xs mr-4 text-gray-700">{charNum}/1000</div>
+          </label>
+          <textarea
+            maxLength="1000"
+            className="w-4/6 h-32 outline-1 pb-20 pl-4 rounded-lg p-2 shadow-lg ml-3 shadow-gray-400 outline-main-green"
+            placeholder="기록 하고싶은 대사를 입력하세요"
+            value={modiQuote.content}
+            onChange={(e) => {
+              setModiQuote({ ...modiQuote, content: e.target.value });
+              setCharNum(e.target.value.length);
+            }}
+          />
+        </div>
+        <div className="flex items-end mt-3">
+          <label className="w-1/5 text-end pb-16 pr-2">태그 </label>
+          <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green">
+            {tags.map((id) => (
+              <button
+                key={id}
+                onClick={() => onSelected(id)}
+                className={selectedTags.includes(id) ? style[1] : style[0]}
+              >
+                {id}
+              </button>
+            ))}
+          </div>
+        </div>
+        {error && (
+          <div className="text-xs w-4/6 mt-4 pl-3 flex justify-center text-red-700">
+            {error}
+          </div>
+        )}
+        <div className="self-end flex ">
+          <button
+            className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            onClick={onSubmit}
+          >
+            수정
+          </button>
+          <button
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            onClick={onDelete}
+          >
+            삭제
+          </button>
+        </div>
+      </Form>
+    </>
+  );
+};

@@ -69,7 +69,7 @@ export const DramaWrite = () => {
     try {
       // 1. Create Producer
       // TODO: /api/producers/ - need testing
-      const producerRes = await axios.post("/api/producers/", {
+      const producerRes = await axios.post("/producers/", {
         name: producer,
         pd_type: "broadcast",
       });
@@ -78,7 +78,7 @@ export const DramaWrite = () => {
 
       // 2. Create Source
       // TODO: /api/source/ - need testing
-      const sourceRes = await axios.post("/api/source/", {
+      const sourceRes = await axios.post("/source/", {
         title: title,
         source_type: "drama",
         creator: producer,
@@ -90,7 +90,7 @@ export const DramaWrite = () => {
 
       // 3. Create Quote
       // TODO: /api/quote/ - need testing
-      const quoteRes = await axios.post("/api/quote/", {
+      const quoteRes = await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
         user_id: 1, // Hardcoded user_id

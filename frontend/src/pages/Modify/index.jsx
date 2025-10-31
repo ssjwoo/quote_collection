@@ -14,7 +14,7 @@ export const Modify = () => {
     const fetchQuote = async () => {
       try {
         // TODO: /api/quote/${id}, no navigation
-        const response = await axios.get(`/api/quote/${id}`);
+        const response = await axios.get(`/quote/${id}`);
         console.log(`/api/quote/${id}`, response);
         const data = response.data;
         let sourceType = "";

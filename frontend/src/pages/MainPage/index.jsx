@@ -14,9 +14,9 @@ export const MainPage = ({ mode }) => {
   useEffect(() => {
     const fetchQuotes = async () => {
       const promises = [
-        axios.get(`/api/quote/popular/today/${mode}`),
-        axios.get(`/api/quote/latest?source_type=${mode}`),
-        axios.get(`/api/recommendations?source_type=${mode}&limit=3`),
+        axios.get(`/quote/popular/today/${mode}`),
+        axios.get(`/quote/latest?source_type=${mode}`),
+        axios.get(`/recommendations?source_type=${mode}&limit=3`),
       ];
 
       const results = await Promise.allSettled(promises);

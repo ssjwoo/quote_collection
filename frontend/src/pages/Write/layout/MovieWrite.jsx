@@ -66,7 +66,7 @@ export const MovieWrite = () => {
     }
     try {
       // 1. Create Source for the movie
-      const sourceRes = await axios.post("/api/source/", {
+      const sourceRes = await axios.post("/source/", {
         title: title,
         source_type: "movie",
         creator: director,
@@ -76,7 +76,7 @@ export const MovieWrite = () => {
       const sourceData = sourceRes.data;
 
       // 2. Create Quote
-      const quoteRes = await axios.post("/api/quote/", {
+      const quoteRes = await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
         user_id: 1, // Hardcoded user_id

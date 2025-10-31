@@ -12,14 +12,14 @@ export const Detail = () => {
   const location = useLocation();
   const mode = location.state?.mode;
   console.log(mode);
-  
+
   const [quote, setQuote] = useState(null);
 
   useEffect(() => {
     const fetchQuote = async () => {
       try {
         // TODO: /api/quote/${id} - need testing
-        const response = await axios.get(`/api/quote/${id}`);
+        const response = await axios.get(`/quote/${id}`);
         console.log(`/api/quote/${id}`, response);
         const data = response.data;
         setQuote(data);

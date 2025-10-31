@@ -27,7 +27,7 @@ export const Signup = () => {
 
     // name check api
     try {
-      const response = await axios.post("/api/users/check-name", {
+      const response = await axios.post("/users/check-name", {
         username: form.username,
       });
       if (!response.data.is_available) {

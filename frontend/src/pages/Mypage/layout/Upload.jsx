@@ -12,7 +12,7 @@ export const Upload = () => {
         const token = localStorage.getItem("token");
         if (token) {
           // TODO: /api/auth/me
-          const userResponse = await axios.get("/api/auth/me", {
+          const userResponse = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -21,7 +21,7 @@ export const Upload = () => {
           const userData = userResponse.data;
           // TODO: /api/users/${userData.id}/quotes
           const quotesResponse = await axios.get(
-            `/api/users/${userData.id}/quotes`
+            `/users/${userData.id}/quotes`
           );
           console.log(`/api/users/${userData.id}/quotes`, quotesResponse);
           setQuotes(quotesResponse.data);
@@ -39,18 +39,24 @@ export const Upload = () => {
   const onDetail = (id) => {
     navigation("/detail/" + id);
   };
-    return(
-        <>
-        <div className="flex flex-col justify-items-center m-3">
-            {quotes.map((q)=>(
-        <div key={q.id} className=" cursor-pointer mt-5 border-2 hover:bg-main-beige border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg" 
-        onClick={() => onDetail(q.id)}> 
+  return (
+    <>
+      <div className="flex flex-col justify-items-center m-3">
+        {quotes.map((q) => (
+          <div
+            key={q.id}
+            className=" cursor-pointer mt-5 border-2 hover:bg-main-beige border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
+            onClick={() => onDetail(q.id)}
+          >
             <div className=" pl-3 pb-3 text-sm text-start">{q.title} </div>
             <div className="text-lg">{q.content}</div>
-            <div className="text-xs text-end pr-3"><span className="mr-2 font-bold">{q.creater}</span>{q.createdAt}</div>
+            <div className="text-xs text-end pr-3">
+              <span className="mr-2 font-bold">{q.creater}</span>
+              {q.createdAt}
+            </div>
           </div>
         ))}
-        </div>
-        </>
-    );
-}
+      </div>
+    </>
+  );
+};

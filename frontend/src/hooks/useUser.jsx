@@ -6,7 +6,7 @@ const UserContext = createContext(null);
 export const UserProvider = ({ children }) => {
   const getuser = async ({ userid }) => {
     try {
-      const response = await axios.get("/api/users", {
+      const response = await axios.get("/users", {
         userid,
       });
 
