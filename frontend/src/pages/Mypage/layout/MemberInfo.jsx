@@ -13,7 +13,7 @@ export const MemberInfo = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
         if (token) {
           // TODO: /api/auth/me
           const response = await axios.get("/auth/me", {
@@ -90,7 +90,7 @@ export const MemberInfo = () => {
     if (newError.nameE || newError.pwE || newError.confirmedPwE) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       const updatedUser = {
         username: name.trim(),
       };
@@ -133,9 +133,11 @@ export const MemberInfo = () => {
           />
           <div className="self-end ml-4">
             <button
-              className=" p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green"
+               className="p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green
+             disabled:border-gray-400 disabled:text-gray-400 disabled:hover:ring-0 "
               onClick={onIdCheck}
-            >
+              disabled={user && user.username === name.trim()}
+             >
               중복 확인
             </button>
           </div>
