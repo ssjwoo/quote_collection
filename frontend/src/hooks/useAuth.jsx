@@ -11,6 +11,14 @@ export const AuthProvider = ({ children }) => {
 
   const navigation = useNavigate();
 
+  const logout = () => {
+    localStorage.removeItem("accessToken"); // Clear the token
+    setIsAuthenticated(false);
+    setUser(null);
+    alert("로그아웃 되었습니다."); // Inform the user
+    navigation("/login"); // Redirect to login page
+  };
+
   const signup = async ({ email, username, password }) => {
     try {
       const response = await axios.post("/api/auth/register", {
@@ -39,12 +47,12 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return true;
     } catch (error) {
-      if (error.response?.status === 404) {
+      if (error.response?.status === 401) { // Changed from 404 to 401
         const detail = error.response.data?.detail;
 
         if (detail === "token_expired") {
           alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
-          navigation("/login");
+          logout(); // Call logout function
         }
       }
       setIsAuthenticated(false);
@@ -54,13 +62,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    async () => {
+    const checkAuth = async () => { // Define the async function
       await verifyJWT();
     };
+    checkAuth(); // Call the async function
   }, []);
 
   return (
-    <AuthContext.Provider value={{ sevError, isAuthenticated, signup, user }}>
+    <AuthContext.Provider value={{ sevError, isAuthenticated, signup, user, logout }}> // Add logout to value
       {children}
     </AuthContext.Provider>
   );

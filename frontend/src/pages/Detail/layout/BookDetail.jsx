@@ -45,7 +45,7 @@ export const BookDetail = ({ quote }) => {
           // user에 bookmark가 없음
           // const bookmarkCheck = await axios.
           const isBookmarked =
-            userData.bookmarks.some((b) => b.quote_id === quote.id) ?? false;
+            userData.bookmarks?.some((b) => b.quote_id === quote.id) ?? false;
           setBookMarked(isBookmarked);
         } else {
           setIsLogin(false);
@@ -90,19 +90,43 @@ export const BookDetail = ({ quote }) => {
         setBookMarked(false);
       } else {
         // Bookmark
-        // TODO: /api/bookmark/ - need testing
-        const response = await axios.post(
-          "/api/bookmark/",
-          { user_id: user.id, quote_id: quote.id },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+        try {
+          const response = await axios.post(
+            "/api/bookmark/",
+            { user_id: user.id, quote_id: quote.id },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("/api/bookmark/", response);
+          setBookMarked(true);
+        } catch (error) {
+          console.error("Failed to update bookmark:", error);
+          if (error.response && error.response.status === 500) {
+            // If a 500 error occurs on POST, assume it's a duplicate and try to DELETE
+            try {
+              const deleteResponse = await axios.delete(
+                `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              console.log("Attempted to delete duplicate bookmark:", deleteResponse);
+              setBookMarked(false); // Now it's unbookmarked
+              alert("북마크 상태가 동기화되었습니다. 북마크를 해제했습니다.");
+            } catch (deleteError) {
+              console.error("Failed to delete bookmark after duplicate POST:", deleteError);
+              alert("북마크 상태 동기화에 실패했습니다.");
+            }
+          } else {
+            alert("북마크 추가에 실패했습니다.");
           }
-        );
-        console.log("/api/bookmark/", response);
-        setBookMarked(true);
+        }
       }
     } catch (error) {
       console.error("Failed to update bookmark:", error);
@@ -126,6 +150,10 @@ export const BookDetail = ({ quote }) => {
     <>
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">BOOK MOMENT</div>
+        {console.log("isLogin:", isLogin)}
+        {console.log("user.id:", user?.id)}
+        {console.log("quote.writer:", quote?.writer)}
+        {console.log("user.id == quote.writer:", user?.id == quote?.writer)}
         {isLogin && user.id == quote.writer && (
           <div className="text-end">
             <button
