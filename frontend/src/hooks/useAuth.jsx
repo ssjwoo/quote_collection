@@ -1,20 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from '../util/api.js';
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [sevError,setSevError]=useState("");
-    const [isAuthenticated,setIsAuthenticated] =useState(null);
-    const [user,setUser] = useState({});
+  const [sevError, setSevError] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [user, setUser] = useState({});
 
-    const navigation = useNavigate();
+  const navigation = useNavigate();
 
-  const signup = async ({ email, username, password}) => {
-
+  const signup = async ({ email, username, password }) => {
     try {
-      const response = await api.post("/auth/register", {
+      const response = await axios.post("/api/auth/register", {
         email,
         username,
         password,
@@ -25,10 +24,8 @@ export const AuthProvider = ({ children }) => {
         return true;
       }
 
-      if(response.status === 400)
-        alert(response.data.detail);
+      if (response.status === 400) alert(response.data.detail);
       return false;
-
     } catch (error) {
       setSevError(error.response?.data.detail || "회원가입에 실패했습니다.");
       return false;
@@ -37,11 +34,10 @@ export const AuthProvider = ({ children }) => {
 
   const verifyJWT = async () => {
     try {
-      const response = await api.get("/auth/me");
+      const response = await axios.get("/api/auth/me");
       setIsAuthenticated(true);
       setUser(response.data);
       return true;
-      
     } catch (error) {
       if (error.response?.status === 404) {
         const detail = error.response.data?.detail;
@@ -58,15 +54,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    (async () => {
+    async () => {
       await verifyJWT();
-    })
+    };
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ sevError, isAuthenticated, signup, user }}
-    >
+    <AuthContext.Provider value={{ sevError, isAuthenticated, signup, user }}>
       {children}
     </AuthContext.Provider>
   );
