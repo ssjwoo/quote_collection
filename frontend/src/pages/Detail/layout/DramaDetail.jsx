@@ -10,12 +10,25 @@ export const DramaDetail = ({ quote }) => {
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
   const [source, setSource] = useState({});
+  const [writer,setWriter] =useState({});
 
   useEffect(()=>{
     window.scrollTo({
     top: 0,
     behavior: 'smooth'
     });
+
+    const getWriter = async () =>{
+      try{
+        const writerData = await axios.get(`/users/${quote.user_id}`);
+        setWriter(writerData.data);
+      }catch(error){
+        console.log("Failed to get Writer's data",error);
+      }
+    }
+
+    getWriter();
+
   },[quote.id]);
 
   useEffect(() => {
@@ -156,23 +169,27 @@ export const DramaDetail = ({ quote }) => {
     <>
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">DRAMA MOMENT</div>
+        <div className="text-end">
+          <label className="text-xs text-end font-semibold text-gray-600">작성자 : <span> {writer.username}</span></label>
         {/* 글 작성자에게만 보이도록 */}
         {isLogin && user.id == quote.writer && (
-          <div className="text-end">
+          <>
             <button
-              className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
               onClick={onModify}
             >
               수정
             </button>
             <button
-              className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs"
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
               onClick={onDelete}
             >
-              삭제{" "}
+              삭제
             </button>
-          </div>
+            </>
         )}
+        </div>
+        
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-sm text-end pb-3 ">드라마제목</label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
@@ -210,13 +227,12 @@ export const DramaDetail = ({ quote }) => {
           </div>
         </div>
 
-        {source.producer_id && (
+        {source.release_year && (
           <>
             <div className="flex items-end mt-3">
               <label className="text-sm w-1/12 text-end pb-3">개봉일 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
-                {/* producer 정보 get */}
-                {quote.subData}
+                {source.release_year}
               </div>
             </div>
           </>

@@ -11,12 +11,25 @@ export const BookDetail = ({ quote }) => {
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
   const [source, setSource] = useState({});
+  const [writer,setWriter] =useState({});
+  const [publisher,setPublisher] =useState({});
 
   useEffect(()=>{
     window.scrollTo({
     top: 0,
     behavior: 'smooth'
     });
+
+    const getWriter = async () =>{
+      try{
+        const writerData = await axios.get(`/users/${quote.user_id}`);
+        setWriter(writerData.data);
+      }catch(error){
+        console.log("Failed to get Writer's data",error);
+      }
+    }
+
+    getWriter();
   },[quote.id]);
 
   useEffect(() => {
@@ -65,6 +78,20 @@ export const BookDetail = ({ quote }) => {
 
     fetchUser();
   }, [isLogin, quote?.id]);
+
+  useEffect(()=>{
+    const getPublisher = async() =>{
+      try{
+        const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
+        setPublisher(publisherData.data);
+        console.log(publisher);
+      }catch(e){
+        console.log("Failed to get Publisher data", e);
+      }
+    }
+
+    getPublisher();
+  },[source]);
 
   const onIsLogin = async () => {
     console.log(isLogin);
@@ -167,22 +194,26 @@ export const BookDetail = ({ quote }) => {
         {console.log("user.id:", user?.id)}
         {console.log("quote.writer:", quote?.writer)}
         {console.log("user.id == quote.writer:", user?.id == quote?.writer)}
-        {isLogin && user.id == quote.writer && (
-          <div className="text-end">
-            <button
-              className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
+        
+        <div className="text-end">
+          <label className="text-xs text-end font-semibold text-gray-600 mr-3">작성자 : <span> {writer.username}</span></label>
+        {isLogin && user.id == writer.id && (
+          <> 
+          <button
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
               onClick={onModify}
             >
               수정
             </button>
             <button
-              className="px-4 py-2 rounded-lg border hover:bg-main-beige border-main-green text-xs"
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
               onClick={onDelete}
             >
               삭제
             </button>
-          </div>
+          </> 
         )}
+        </div>
 
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-sm text-end pb-3">책 제목 </label>
@@ -198,7 +229,7 @@ export const BookDetail = ({ quote }) => {
 
         <div className="flex justify-center mt-3">
           <div className="w-4/5 text-main-white pt-12 pb-12 bg-main-green rounded-lg p-2 pl-4 ml-3 shadow-lg shadow-gray-400">
-            {quote.content}
+            {publisher.name}
           </div>
         </div>
 
@@ -230,7 +261,7 @@ export const BookDetail = ({ quote }) => {
               <label className="w-1/12 text-end pb-3 text-sm">출판사 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
                 {/* publisher 정보 get */}
-                {quote.subData}
+                {publisher.name}
               </div>
             </div>
           </>
