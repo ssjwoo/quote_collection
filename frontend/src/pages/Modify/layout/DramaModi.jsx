@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Form, useNavigate, useParams } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
 export const DramaModi = ({ quote, source }) => {
-  const {id} = useParams();
   const navigate = useNavigate();
 
   const [modiQuote, setModiQuote] = useState({
@@ -116,7 +115,7 @@ const onUpdate = async () => {
       await axios.delete(`/source/${source.id}`);
 
       alert("Drama deleted successfully!");
-      navigation("/drama"); 
+      navigate("/drama"); 
     } catch (error) {
       console.error("Error deleting Drama:", error);
       alert("Failed to delete Drama.");

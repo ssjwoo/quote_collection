@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Form, useNavigate, useParams } from "react-router-dom";
+import { Form, useNavigate} from "react-router-dom";
 import axios from "../../../api/axios";
 
 export const BookModi = ({ quote, source }) => {
-  const {id} = useParams();
   const navigate = useNavigate();
   const [modiQuote, setModiQuote] = useState({});
 

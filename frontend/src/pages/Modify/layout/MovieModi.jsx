@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Form, useParams, useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
 export const MovieModi = ({ quote ,source}) => {
-  const { id } = useParams();
+
   const navigate = useNavigate();
 
   const [modiQuote, setModiQuote] = useState({
@@ -114,7 +114,7 @@ export const MovieModi = ({ quote ,source}) => {
       await axios.delete(`/source/${source.id}`);
 
       alert("Movie deleted successfully!");
-      navigation("/movie"); 
+      navigate("/movie"); 
     } catch (error) {
       console.error("Error deleting Movie:", error);
       alert("Failed to delete Movie.");
