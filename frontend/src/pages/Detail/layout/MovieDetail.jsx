@@ -161,19 +161,31 @@ export const MovieDetail = ({ quote }) => {
       navigation("/quote/" + quote.id + "/modi");
     }
   };
-  const onDelete = () => {};
+  
+   const onDelete = async () => {
+    try {
+      await axios.delete(`/quote/${quote.id}`);
+      await axios.delete(`/source/${source.id}`);
+
+      alert("Movie deleted successfully!");
+      navigation("/movie"); 
+    } catch (error) {
+      console.error("Error deleting Movie:", error);
+      alert("Failed to delete Movie.");
+    }
+  };
 
   return (
     <>
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">MOVIE MOMENT</div>
         <div className="text-end">
-         <label className="text-xs text-end font-semibold text-gray-600">작성자 : <span> {writer.username}</span></label>
+         <label className="text-xs text-end font-semibold text-gray-600">작성자 : <span> {writer.username} </span></label>
         {/* 글 작성자에게만 보이도록 */}
-        {isLogin && user.id == quote.writer && (
+        {isLogin && user.id == writer.id && (
           <>
             <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
               onClick={onModify}
             >
               수정
@@ -225,7 +237,7 @@ export const MovieDetail = ({ quote }) => {
           </div>
         </div>
 
-        {source.release_year && (
+        {(source.release_year !== 0 && source.release_year )&& (
           <>
             <div className="flex items-end mt-3">
               <label className="w-1/12 text-end pb-3 text-sm">개봉일 </label>

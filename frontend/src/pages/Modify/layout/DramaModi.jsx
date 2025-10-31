@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Form, useParams, useNavigate } from "react-router-dom";
+import { Form, useNavigate, useParams } from "react-router-dom";
 import axios from "../../../api/axios";
 
-export const DramaModi = ({ quote }) => {
-  const { id } = useParams();
+export const DramaModi = ({ quote, source }) => {
+  const {id} = useParams();
   const navigate = useNavigate();
 
   const [modiQuote, setModiQuote] = useState({
-    title: quote.title,
-    producer: quote.creater,
-    release: quote.subdata,
+    title: source.title,
+    producer: source.creator,
+    release: source.release_year,
     content: quote.content,
   });
 
@@ -36,7 +36,7 @@ export const DramaModi = ({ quote }) => {
     "국내",
     "해외",
   ];
-  const [selectedTags, setSelectedTags] = useState(quote.tags);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(quote.content.length);
 
@@ -50,22 +50,32 @@ export const DramaModi = ({ quote }) => {
     if (selectedTags.length < 3) setError("");
   }, [selectedTags]);
 
+  useEffect(() => {
+  if (quote?.tags) {
+    const tagsData = quote.tags.map(tag =>
+      typeof tag === "object" ? tag.name : tag.id
+    );
+    setSelectedTags(tagsData);
+  }
+}, [quote]);
+
   const onSelected = (id) => {
     setSelectedTags((prevSelected) => {
-      if (prevSelected.includes(id)) {
+      const isSelected = prevSelected.includes(id);
+
+       if (isSelected) {
         return prevSelected.filter((tid) => tid !== id);
       } else {
-        if (selectedTags.length == 3) {
+        if (prevSelected.length >= 3) {
           setError("태그 선택은 최대 3개까지만 가능합니다.");
-          return [...prevSelected];
+          return prevSelected;
         }
         return [...prevSelected, id];
       }
     });
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+const onUpdate = async () => {
 
     if (
       !modiQuote.title.trim() ||
@@ -78,17 +88,22 @@ export const DramaModi = ({ quote }) => {
 
     try {
       // TODO: /api/drama/${id}, navigate to `/detail/${id}`
-      const response = await axios.put(`/drama/${id}`, {
+      await axios.put(`/source/${source.id}`, {
         title: modiQuote.title,
-        producer: modiQuote.producer,
-        release_date: modiQuote.release,
+        source_type: "drama",
+        creator: modiQuote.producer,
+        release_year: modiQuote.release,
+      });
+
+      await axios.put(`/quote/${quote.id}`, {
         content: modiQuote.content,
+        source_id: quote.source_id,
+        user_id: quote.user_id,
         tags: selectedTags,
       });
-      console.log(`/api/drama/${id}`, response);
 
       alert("Drama updated successfully!");
-      navigate(`/detail/${id}`);
+      navigate("/drama");
     } catch (error) {
       console.error("Error updating drama:", error);
       alert("Failed to update drama.");
@@ -97,17 +112,17 @@ export const DramaModi = ({ quote }) => {
 
   const onDelete = async () => {
     try {
-      // TODO: /api/drama/${id}, navigate to "/"
-      const response = await axios.delete(`/drama/${id}`);
-      console.log(`/api/drama/${id}`, response);
+      await axios.delete(`/quote/${quote.id}`);
+      await axios.delete(`/source/${source.id}`);
 
       alert("Drama deleted successfully!");
-      navigate("/"); // Redirect to home or a suitable page after deletion
+      navigation("/drama"); 
     } catch (error) {
-      console.error("Error deleting drama:", error);
-      alert("Failed to delete drama.");
+      console.error("Error deleting Drama:", error);
+      alert("Failed to delete Drama.");
     }
   };
+
   return (
     <>
       <Form className="flex flex-col mt-10">
@@ -174,6 +189,7 @@ export const DramaModi = ({ quote }) => {
             {tags.map((id) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => onSelected(id)}
                 className={selectedTags.includes(id) ? style[1] : style[0]}
               >
@@ -190,7 +206,7 @@ export const DramaModi = ({ quote }) => {
         <div className="self-end flex ">
           <button
             className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
-            onClick={onSubmit}
+            onClick={onUpdate}
           >
             수정
           </button>

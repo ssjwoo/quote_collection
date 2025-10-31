@@ -9,6 +9,7 @@ export const Modify = () => {
   const { id } = useParams();
 
   const [quote, setQuote] = useState(null);
+  const [source,setSource] =useState(null);
 
   useEffect(() => {
     const fetchQuote = async () => {
@@ -16,16 +17,16 @@ export const Modify = () => {
         // TODO: /api/quote/${id}, no navigation
         const response = await axios.get(`/quote/${id}`);
         console.log(`/api/quote/${id}`, response);
-        const data = response.data;
-        let sourceType = "";
-        if (data.source.book) {
-          sourceType = "book";
-        } else if (data.source.movie) {
-          sourceType = "movie";
-        } else if (data.source.drama) {
-          sourceType = "drama";
-        }
-        setQuote({ ...data, sourceType });
+        setQuote(response.data);
+        const sourceID = response.data.source_id;
+        try {
+          const data = await axios.get(`/source/${sourceID}`);
+          console.log(data.data);
+          setSource(data.data);
+          }
+          catch(e){
+            console.log('Failed to fetch sourceData',e);
+          }
       } catch (error) {
         console.error("Failed to fetch quote:", error);
       }
@@ -36,13 +37,16 @@ export const Modify = () => {
 
   return (
     <>
-      {quote && (
+      {quote ?(
         <>
-          {quote.sourceType === "book" && <BookModi quote={quote} />}
-          {quote.sourceType === "drama" && <DramaModi quote={quote} />}
-          {quote.sourceType === "movie" && <MovieModi quote={quote} />}
+          {source?.source_type === "book" && <BookModi quote={quote} source={source}/>}
+          {source?.source_type === "drama" && <DramaModi quote={quote} source={source}/>}
+          {source?.source_type === "movie" && <MovieModi quote={quote} source={source}/>}
         </>
-      )}
+      ):
+      <div>
+        잘못된 접근입니다.</div>}
+      
     </>
   );
 };

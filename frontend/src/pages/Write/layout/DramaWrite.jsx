@@ -8,6 +8,7 @@ export const DramaWrite = () => {
   const [producer, setProducer] = useState("");
   const [release, setRelease] = useState("");
   const [content, setContent] = useState("");
+  const [user,setUser] =useState({});
 
   const tags = [
     "로맨스",
@@ -41,6 +42,18 @@ export const DramaWrite = () => {
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
     "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
+
+  useEffect(()=>{
+    const fetchUser =async ()=>{
+      try{
+        const userData = await axios.get(`/auth/me`);
+        setUser(userData.data);
+      }catch(e){
+        console.log("Failed to fetch user", e);
+      }
+    }
+    fetchUser();
+  },[]);
 
   useEffect(() => {
     if (selectedTags.length < 3) setError("");
@@ -93,13 +106,13 @@ export const DramaWrite = () => {
       const quoteRes = await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
-        user_id: 1, // Hardcoded user_id
+        user_id: user?.id, 
         tags: selectedTags,
       });
       console.log("/api/quote/", quoteRes);
 
       alert("드라마 명언이 등록되었습니다.");
-      navigation("/");
+      navigation("/drama");
     } catch (error) {
       console.error("API call error:", error);
       alert(`등록 중 오류가 발생했습니다: ${error.message}`);

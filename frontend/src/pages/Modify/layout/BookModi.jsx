@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
-import { Form, useParams, useNavigate } from "react-router-dom";
+import { Form, useNavigate, useParams } from "react-router-dom";
 import axios from "../../../api/axios";
 
-export const BookModi = ({ quote }) => {
-  const { id } = useParams();
+export const BookModi = ({ quote, source }) => {
+  const {id} = useParams();
   const navigate = useNavigate();
-
-  const [modiQuote, setModiQuote] = useState({
-    title: quote.title,
-    author: quote.creater,
-    publisher: quote.subdata,
-    content: quote.content,
-  });
+  const [modiQuote, setModiQuote] = useState({});
 
   const tags = [
     "사랑",
@@ -39,7 +33,8 @@ export const BookModi = ({ quote }) => {
     "일상",
     "철학",
   ];
-  const [selectedTags, setSelectedTags] = useState(quote.tags);
+
+  const [selectedTags, setSelectedTags] = useState([]); 
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(quote.content.length);
 
@@ -49,28 +44,55 @@ export const BookModi = ({ quote }) => {
     "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
 
+  useEffect(()=>{
+    const getPublisher = async() =>{
+      try{
+        const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
+        setModiQuote({
+        title: source.title,
+        author: source.creator,
+        publisher: publisherData.data.name,
+        content: quote.content,
+      })
+      }catch(e){
+        console.log("Failed to get Publisher data", e);
+      }
+    }
+
+    getPublisher();
+  },[]);
+
   useEffect(() => {
     if (selectedTags.length < 5) setError("");
   }, [selectedTags]);
 
+useEffect(() => {
+  if (quote?.tags) {
+    const tagsData = quote.tags.map(tag =>
+      typeof tag === "object" ? tag.name : tag.id
+    );
+    setSelectedTags(tagsData);
+  }
+}, [quote]);
+
   const onSelected = (id) => {
-    setSelectedTags((prevSelected) => {
-      if (prevSelected.includes(id)) {
-        return prevSelected.filter((tid) => tid !== id);
-      } else {
-        if (selectedTags.length == 5) {
-          setError("태그 선택은 최대 5개까지만 가능합니다.");
-          return [...prevSelected];
-        }
-        return [...prevSelected, id];
+  setSelectedTags((prevSelected) => {
+    const isSelected = prevSelected.includes(id);
+
+    if (isSelected) {
+      return prevSelected.filter((tid) => tid !== id);
+    } else {
+      if (prevSelected.length >= 5) {
+        setError("태그 선택은 최대 5개까지만 가능합니다.");
+        return prevSelected;
       }
-    });
-  };
+      return [...prevSelected, id];
+    }
+  });
+};
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-
-    if (
+   const onUpdate = async () => {
+     if (
       !modiQuote.title.trim() ||
       !modiQuote.author.trim() ||
       !modiQuote.content.trim()
@@ -78,30 +100,41 @@ export const BookModi = ({ quote }) => {
       alert("필수항목을 입력해주세요");
       return;
     }
+
     try {
-      // TODO: /api/book/${id}, navigate to `/detail/${id}`
-      const response = await axios.put(`/book/${id}`, {
+      await axios.put(`/publisher/${source.publisher_id}`, {
+          name: modiQuote.publisher,
+        });
+
+      await axios.put(`/source/${source.id}`, {
         title: modiQuote.title,
-        author: modiQuote.author,
-        publisher: modiQuote.publisher,
+        source_type: "book",
+        creator: modiQuote.author,
+        publisher_id: source.publisher_id,
+      });
+
+      await axios.put(`/quote/${quote.id}`, {
         content: modiQuote.content,
+        source_id: quote.source_id,
+        user_id: quote.user_id,
         tags: selectedTags,
       });
-      console.log(`/api/book/${id}`, response);
 
-      alert("Book updated successfully!");
-      navigate(`/detail/${id}`);
+      alert("book update successfully!");
+      navigate("/");
     } catch (error) {
-      console.error("Error updating book:", error);
-      alert("Failed to update book.");
+      console.error("API call error:", error);
+      alert(`등록 중 오류가 발생했습니다: ${error.message}`);
     }
   };
 
   const onDelete = async () => {
     try {
       // TODO: /api/book/${id}, navigate to "/"
-      const response = await axios.delete(`/book/${id}`);
-      console.log(`/book/${id}`, response);
+      const responseQ = await axios.delete(`/quote/${quote.id}`);
+      console.log(`/quote/${quote.id}`, responseQ);
+      const responseS = await axios.delete(`/source/${source.id}`);
+      console.log(`/source/${source.id}`, responseS);
 
       alert("Book deleted successfully!");
       navigate("/"); // Redirect to home or a suitable page after deletion
@@ -110,6 +143,7 @@ export const BookModi = ({ quote }) => {
       alert("Failed to delete book.");
     }
   };
+
   return (
     <>
       <Form className="flex flex-col mt-10">
@@ -176,6 +210,7 @@ export const BookModi = ({ quote }) => {
             {tags.map((id) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => onSelected(id)}
                 className={selectedTags.includes(id) ? style[1] : style[0]}
               >
@@ -192,7 +227,7 @@ export const BookModi = ({ quote }) => {
         <div className="self-end flex ">
           <button
             className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
-            onClick={onSubmit}
+            onClick={onUpdate}
           >
             수정
           </button>

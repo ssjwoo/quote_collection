@@ -9,6 +9,7 @@ export const MovieWrite = () => {
   const [director, setDirector] = useState("");
   const [release, setRelease] = useState("");
   const [content, setContent] = useState("");
+  const [user,setUser] =useState({});
 
   const tags = [
     "로맨스",
@@ -40,6 +41,18 @@ export const MovieWrite = () => {
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
     "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
+
+   useEffect(()=>{
+    const fetchUser =async ()=>{
+      try{
+        const userData = await axios.get(`/auth/me`);
+        setUser(userData.data);
+      }catch(e){
+        console.log("Failed to fetch user", e);
+      }
+    }
+    fetchUser();
+  },[]);
 
   useEffect(() => {
     if (selectedTags.length < 3) setError("");
@@ -79,13 +92,13 @@ export const MovieWrite = () => {
       const quoteRes = await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
-        user_id: 1, // Hardcoded user_id
+        user_id: user?.id, 
         tags: selectedTags,
       });
       console.log("/api/quote/", quoteRes);
 
       alert("영화 명언이 등록되었습니다.");
-      navigate("/"); // Redirect to home or a suitable page after creation
+      navigate("/movie"); // Redirect to home or a suitable page after creation
     } catch (error) {
       console.error("Error creating movie quote:", error);
       alert("Failed to create movie quote.");

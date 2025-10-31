@@ -8,6 +8,7 @@ export const BookWrite = () => {
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
   const [content, setContent] = useState("");
+  const [user,setUser] =useState({});
 
   const tags = [
     "사랑",
@@ -44,6 +45,18 @@ export const BookWrite = () => {
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
     "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
+
+  useEffect(()=>{
+    const fetchUser =async ()=>{
+      try{
+        const userData = await axios.get(`/auth/me`);
+        setUser(userData.data);
+      }catch(e){
+        console.log("Failed to fetch user", e);
+      }
+    }
+    fetchUser();
+  },[]);
 
   useEffect(() => {
     if (selectedTags.length < 5) setError("");
@@ -92,7 +105,7 @@ export const BookWrite = () => {
       await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
-        user_id: 1, // Hardcoded user_id
+        user_id: user?.id, 
         tags: selectedTags,
       });
 

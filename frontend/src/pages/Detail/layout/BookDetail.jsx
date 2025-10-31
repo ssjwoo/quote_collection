@@ -182,8 +182,20 @@ export const BookDetail = ({ quote }) => {
     }
   };
 
-  const onDelete = () => {
-    //TODO: make delete
+  const onDelete = async () => {
+    try {
+      // TODO: /api/book/${id}, navigate to "/"
+      const responseQ = await axios.delete(`/quote/${quote.id}`);
+      console.log(`/quote/${quote.id}`, responseQ);
+      const responseS = await axios.delete(`/source/${source.id}`);
+      console.log(`/source/${source.id}`, responseS);
+
+      alert("Book deleted successfully!");
+      navigation("/"); // Redirect to home or a suitable page after deletion
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      alert("Failed to delete book.");
+    }
   };
 
   return (
@@ -200,7 +212,7 @@ export const BookDetail = ({ quote }) => {
         {isLogin && user.id == writer.id && (
           <> 
           <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-2"
+              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
               onClick={onModify}
             >
               수정
@@ -255,7 +267,7 @@ export const BookDetail = ({ quote }) => {
           </div>
         </div>
 
-        {source.publisher_id && (
+        {publisher.name && (
           <>
             <div className="flex items-end mt-3">
               <label className="w-1/12 text-end pb-3 text-sm">출판사 </label>
