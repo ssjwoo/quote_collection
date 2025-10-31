@@ -11,6 +11,13 @@ export const MovieDetail = ({ quote }) => {
   const [user, setUser] = useState({});
   const [source, setSource] = useState({});
 
+  useEffect(()=>{
+    window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+    });
+  },[quote.id]);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (!quote || !quote.source_id) return;
@@ -138,7 +145,7 @@ export const MovieDetail = ({ quote }) => {
   };
   const onModify = () => {
     if (quote?.id) {
-      navigation("/detail/" + quote.id + "/modi");
+      navigation("/quote/" + quote.id + "/modi");
     }
   };
   const onDelete = () => {};

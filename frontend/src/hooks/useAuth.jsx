@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       value={{ sevError, isAuthenticated, signup, user, logout }}
     >
       {" "}
-      // Add logout to value
+      {/* Add logout to value */}
       {children}
     </AuthContext.Provider>
   );

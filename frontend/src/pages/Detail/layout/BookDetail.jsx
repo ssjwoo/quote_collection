@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import mark from "../../../assets/bookmark.png";
 import marked from "../../../assets/bookmark_marked.png";
 import { useEffect, useState } from "react";
@@ -11,6 +11,13 @@ export const BookDetail = ({ quote }) => {
   const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
   const [source, setSource] = useState({});
+
+  useEffect(()=>{
+    window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+    });
+  },[quote.id]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -144,7 +151,7 @@ export const BookDetail = ({ quote }) => {
 
   const onModify = () => {
     if (quote?.id) {
-      navigation("/detail/" + quote.id + "/modi");
+      navigation("/quote/" + quote.id + "/modi");
     }
   };
 
@@ -236,11 +243,11 @@ export const BookDetail = ({ quote }) => {
             <div className="w-4/6 text-start rounded-lg p-2 pl-4 ">
               {quote.tags.map((t) => (
                 <span
-                  key={String(t?.id ?? t)}
-                  onClick={() => onSearchList(t)}
-                  className="cursor-pointer rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
+                  key={t.id}
+                  onClick={() => onSearchList(t.name)}
+                  className="rounded-xl p-2 cursor-pointer bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
-                  {String(t?.name ?? t)}
+                  {t.name}
                 </span>
               ))}
             </div>
