@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { AlertModal } from "../components/Modal/AlertModal";
 
 const AuthContext = createContext(null);
 
@@ -10,6 +11,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error,setError] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    setAlertOpen(true);
+  };
+
+  const closeAlert = () => setAlertOpen(false);
 
   const navigation = useNavigate();
 
@@ -44,7 +54,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("accessToken");
     setIsAuthenticated(false);
     setUser(null);
-    alert("로그아웃 되었습니다.");
+    // alert("로그아웃 되었습니다.");
+    showAlert("로그아웃 되었습니다.")
     navigation("/");
   };
 
@@ -57,7 +68,8 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.status === 200) {
-        alert("회원가입이 완료되었습니다.");
+        // alert("회원가입이 완료되었습니다.");
+        showAlert("회원가입이 완료되었습니다.");
         return true;
       }
 
@@ -124,9 +136,12 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         error,
         setError,
+        showAlert,
       }}
     >
       {children}
+
+    <AlertModal open={alertOpen} onClose={closeAlert} message={alertMessage} />
     </AuthContext.Provider>
   );
 };

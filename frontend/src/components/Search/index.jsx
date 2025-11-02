@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import search from "../../assets/search.png"
+import { useAuth } from '../../hooks/useAuth';
 
 export const Search = ({prevInput, source_type}) => {
 
   const navigation = useNavigate();
   const [input,setInput]=useState(prevInput||'');
+
+  const {showAlert} = useAuth();
 
   const handleKeyDown =(e)=>{
     if(e.key === 'Enter')
@@ -14,7 +17,9 @@ export const Search = ({prevInput, source_type}) => {
 
   const onSearchList =()=>{
     if(!input.trim()){
-      alert('검색어를 입력해주세요');
+      // alert('검색어를 입력해주세요');
+      showAlert("검색어를 입력해주세요");
+
       return;
     }
     let path = '/searchlist/'+input;

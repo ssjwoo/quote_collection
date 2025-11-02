@@ -6,7 +6,7 @@ import axios from "../../api/axios";
 
 export const Signup = () => {
   const navigation = useNavigate();
-  const { signup, sevError } = useAuth();
+  const { signup, sevError, showAlert } = useAuth();
 
   const [form, setForm] = useState({
     username: "",
@@ -102,7 +102,9 @@ export const Signup = () => {
     const success = await signup({ email, username, password });
 
     if (success) {
-      alert("회원가입이 완료되었습니다");
+      // alert("회원가입이 완료되었습니다");
+      showAlert("회원가입이 완료되었습니다.");
+
       navigation("/");
     } else {
       alert(sevError);
@@ -216,7 +218,7 @@ export const Signup = () => {
               <button
                 onClick={() => navigation("/")}
                 type="button"
-                className="bg-custom-search mr-3 w-[80px] h-[30px] rounded-lg"
+                className="bg-main-beige mr-3 w-[80px] h-[30px] rounded-lg"
               >
                 Cancel
               </button>

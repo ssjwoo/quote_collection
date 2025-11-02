@@ -12,6 +12,8 @@ export const MainPage = ({ mode }) => {
 
   /** mode에 맞게 데이터 불러오기 */
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
     const fetchQuotes = async () => {
       const promises = [
         axios.get(`/quote/popular/today/${mode}`),

@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export const MyNavBar = ({ setIsOpen, isLogIn }) => {
   const navigation = useNavigate();
-  const { logout ,setError} = useAuth();
+  const { logout ,setError,showAlert} = useAuth();
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -12,7 +12,8 @@ export const MyNavBar = ({ setIsOpen, isLogIn }) => {
 
   const onBookmark = () => {
     if (!isLogIn) {
-      alert("로그인이 필요한 기능입니다.");
+      // alert("로그인이 필요한 기능입니다.");
+      showAlert("로그인이 필요한 기능입니다.");
     } else {
       navigation("/mypage/bookmark");
     }
@@ -20,7 +21,8 @@ export const MyNavBar = ({ setIsOpen, isLogIn }) => {
 
   const onWrite = () => {
     if (!isLogIn) {
-      alert("로그인이 필요한 기능입니다.");
+      // alert("로그인이 필요한 기능입니다.");
+      showAlert("로그인이 필요한 기능입니다.");
     } else {
       navigation("/write");
     }

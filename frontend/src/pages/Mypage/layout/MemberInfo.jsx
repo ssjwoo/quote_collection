@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const MemberInfo = () => {
   const [user, setUser] = useState(null);
@@ -9,6 +10,8 @@ export const MemberInfo = () => {
   const [confirmedPw, setConfirmedPw] = useState("");
   const [error, setError] = useState({ nameE: "", pwE: "", confirmedPwE: "" });
   const [usernameStatus, setUsernameStatus] = useState("idle"); // 'idle', 'checking', 'available', 'unavailable', 'error'
+
+  const {showAlert } =useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -83,15 +86,18 @@ export const MemberInfo = () => {
     }
 
     if (usernameStatus === "unavailable") {
-      alert("이미 사용중인 아이디입니다. 다시 확인해주세요.");
+      // alert("이미 사용중인 아이디입니다. 다시 확인해주세요.");
+      showAlert("이미 사용중인 아이디입니다. 다시 확인해주세요.");
       return;
     }
     if (usernameStatus === "idle" && user.username !== name.trim()) {
-      alert("아이디 중복확인이 필요합니다.");
+      // alert("아이디 중복확인이 필요합니다.");
+      showAlert("아이디 중복확인이 필요합니다.");
       return;
     }
     if (!name.trim()) {
-      alert("수정할 아이디를 입력해주세요");
+      // alert("수정할 아이디를 입력해주세요");
+      showAlert("수정할 아이디를 입력해주세요");
       return;
     }
 
@@ -133,7 +139,8 @@ export const MemberInfo = () => {
       setName(updatedUserData.username);
       setPw("");
       setConfirmedPw("");
-      alert("회원정보 수정 완료");
+      // alert("회원정보 수정 완료");
+      showAlert("회원정보 수정 완료");
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -169,7 +176,7 @@ export const MemberInfo = () => {
   return (
     <>
       <Form className="flex flex-col mt-10">
-        <div className="text-3xl mb-5">Member Info</div>
+        <div className="text-3xl font-medium mb-5">Member Info</div>
         <div className="flex items-end mt-3">
           <label className="w-1/5 text-end pb-2 pr-2">name</label>
           <input

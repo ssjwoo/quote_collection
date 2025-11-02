@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const DramaModi = ({ quote, source }) => {
   const navigate = useNavigate();
+  const {showAlert} =useAuth();
 
   const [modiQuote, setModiQuote] = useState({
     title: source.title,
@@ -81,7 +83,8 @@ const onUpdate = async () => {
       !modiQuote.producer.trim() ||
       !modiQuote.content.trim()
     ) {
-      alert("필수항목을 입력해주세요");
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
 
@@ -101,7 +104,8 @@ const onUpdate = async () => {
         tags: selectedTags,
       });
 
-      alert("Drama updated successfully!");
+      // alert("Drama updated successfully!");
+      showAlert("Drama Moment 수정이 완료되었습니다.");
       navigate("/drama");
     } catch (error) {
       console.error("Error updating drama:", error);
@@ -114,7 +118,7 @@ const onUpdate = async () => {
       await axios.delete(`/quote/${quote.id}`);
       await axios.delete(`/source/${source.id}`);
 
-      alert("Drama deleted successfully!");
+      showAlert("Drama Moment 삭제가 완료되었습니다.");
       navigate("/drama"); 
     } catch (error) {
       console.error("Error deleting Drama:", error);
