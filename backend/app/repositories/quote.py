@@ -1,10 +1,10 @@
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, or_
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, time, timedelta
 from sqlalchemy.orm import selectinload
 
-from app.models import Quote, Bookmark, Source
+from app.models import Quote, Bookmark, Source, Tag
 from app.repositories.base import BaseRepository
 
 
@@ -22,10 +22,20 @@ class QuoteRepository(BaseRepository[Quote]):
         return result.scalars().all()
 
     async def search(self, db: AsyncSession, query: str, source_type: str | None = None, limit: int = 10) -> list[Quote]:
-        statement = select(self.model).filter(self.model.content.ilike(f"%{query}%"))
+        statement = (
+            select(self.model)
+            .outerjoin(self.model.tags)
+            .filter(
+                or_(
+                    self.model.content.ilike(f"%{query}%"),
+                    Tag.name.ilike(f"%{query}%")
+                )
+            )
+        )
         if source_type:
             statement = statement.join(Source).filter(Source.source_type == source_type)
-        statement = statement.options(selectinload(self.model.source), selectinload(self.model.tags)).limit(limit)
+
+        statement = statement.options(selectinload(self.model.source), selectinload(self.model.tags)).distinct().limit(limit)
         result = await db.execute(statement)
         return result.scalars().all()
 

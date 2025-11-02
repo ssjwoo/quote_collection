@@ -17,6 +17,6 @@ class Quote(Base):
 
     tags = relationship("Tag", secondary=quote_tags, back_populates="quotes", lazy="selectin")
     source = relationship("Source")
-    bookmarks = relationship("Bookmark", back_populates="quote")
+    bookmarks = relationship("Bookmark", back_populates="quote", cascade="all, delete-orphan")
 
     
