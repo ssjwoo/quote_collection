@@ -3,11 +3,12 @@ import mark from "../../../assets/bookmark.png";
 import marked from "../../../assets/bookmark_marked.png";
 import { useEffect, useState } from "react";
 import axios from "../../../api/axios";
+import { useBookmarks } from "../../../hooks/useBookmarks";
 
 export const DramaDetail = ({ quote }) => {
   const navigation = useNavigate();
+  const { isBookmarked, toggleBookmark } = useBookmarks();
   const [isLogin, setIsLogin] = useState(false);
-  const [bookmark, setBookMarked] = useState(false);
   const [user, setUser] = useState({});
   const [source, setSource] = useState({});
   const [writer,setWriter] =useState({});
@@ -39,31 +40,21 @@ export const DramaDetail = ({ quote }) => {
 
         try {
           const id = quote.source_id;
-          console.log(id);
           const sourceData = await axios.get(`/source/${id}`);
           setSource(sourceData.data);
-          console.log(sourceData.data);
         } catch (error) {
           console.log("Failed to get quotes_source_data", error);
         }
 
         if (token) {
-          // TODO: /api/auth/me - need testing
           const response = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log("/api/auth/me", response);
           const userData = response.data;
           setUser(userData);
           setIsLogin(true);
-
-          // Check if the current quote is bookmarked by the user
-          const isBookmarked = userData.bookmarks?.some(
-            (b) => b.quote_id === quote.id
-          );
-          setBookMarked(isBookmarked);
         } else {
           setIsLogin(false);
         }
@@ -76,84 +67,6 @@ export const DramaDetail = ({ quote }) => {
     fetchUser();
   }, [isLogin, quote?.id]);
 
-  const onIsLogin = async () => {
-    if (!isLogin) {
-      alert("로그인이 필요한 기능입니다.");
-      return;
-    }
-    if (!quote || !quote.id) {
-      console.error("Quote data is not available for bookmarking.");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (bookmark) {
-        // Unbookmark
-        // TODO: /api/bookmark/?user_id=${user.id}&quote_id=${quote.id} - need testing
-        const response = await axios.delete(
-          `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(
-          `/api/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-          response
-        );
-        setBookMarked(false);
-      } else {
-        // Bookmark
-        try {
-          const response = await axios.post(
-            "/bookmark/",
-            { user_id: user.id, quote_id: quote.id },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          console.log("/api/bookmark/", response);
-          setBookMarked(true);
-        } catch (error) {
-          console.error("Failed to update bookmark:", error);
-          if (error.response && error.response.status === 500) {
-            // If a 500 error occurs on POST, assume it's a duplicate and try to DELETE
-            try {
-              const deleteResponse = await axios.delete(
-                `/bookmark/?user_id=${user.id}&quote_id=${quote.id}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-              console.log(
-                "Attempted to delete duplicate bookmark:",
-                deleteResponse
-              );
-              setBookMarked(false); // Now it's unbookmarked
-              alert("북마크 상태가 동기화되었습니다. 북마크를 해제했습니다.");
-            } catch (deleteError) {
-              console.error(
-                "Failed to delete bookmark after duplicate POST:",
-                deleteError
-              );
-              alert("북마크 상태 동기화에 실패했습니다.");
-            }
-          } else {
-            alert("북마크 추가에 실패했습니다.");
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Failed to update bookmark:", error);
-    }
-  };
   const onSearchList = (input) => {
     navigation("/searchlist/" + input);
   };
@@ -222,8 +135,8 @@ export const DramaDetail = ({ quote }) => {
           <div className="flex border-2 border-sub-darkgreen rounded-lg p-3 mr-14">
             <img
               className="size-5 cursor-pointer"
-              onClick={onIsLogin}
-              src={isLogin && bookmark ? marked : mark}
+              onClick={() => toggleBookmark(quote)}
+              src={isBookmarked(quote.id) ? marked : mark}
             />
           </div>
         </div>

@@ -18,6 +18,7 @@ import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
 import { Modify } from "./pages/Modify";
 import BookmarkGroup from "./pages/Mypage/layout/BookmarkGroup";
+import { BookmarkProvider } from "./contexts/BookmarkProvider";
 import { AuthProvider } from "./hooks/useAuth";
 import { UserProvider } from "./hooks/useUser";
 
@@ -42,26 +43,32 @@ const RootLayout = () => {
     <div className="relative flex flex-nowrap">
       <div className="min-h-screen relative justify-center justify-items-center bg-main-green">
         <div className="relative">
-        <AuthProvider>
-          <UserProvider>
-          <NavBar />
-          <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
-            {isOpen && (
-              <div className=" fixed inset-0 flex justify-center items-center">
-                <LoginModal setIsOpen={setIsOpen} setIsLogin={setIsLogin} />
-              </div>
-            )}
-            <MyNavBar
-              setIsLogin={setIsLogin}
-              isLogIn={isLogIn}
-              setIsOpen={setIsOpen}
-            />
-            <main className="p-8 md:p-12 text-center text-black">
-              <Logo />
-              <Outlet />
-            </main>
-          </div>
-            </UserProvider>
+          <AuthProvider>
+            <BookmarkProvider>
+              0{" "}
+              <UserProvider>
+                <NavBar />
+                <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
+                  {isOpen && (
+                    <div className=" fixed inset-0 flex justify-center items-center">
+                      <LoginModal
+                        setIsOpen={setIsOpen}
+                        setIsLogin={setIsLogin}
+                      />
+                    </div>
+                  )}
+                  <MyNavBar
+                    setIsLogin={setIsLogin}
+                    isLogIn={isLogIn}
+                    setIsOpen={setIsOpen}
+                  />
+                  <main className="p-8 md:p-12 text-center text-black">
+                    <Logo />
+                    <Outlet />
+                  </main>
+                </div>
+              </UserProvider>
+            </BookmarkProvider>
           </AuthProvider>
         </div>
       </div>
@@ -87,7 +94,10 @@ const router = createBrowserRouter([
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
           { path: "/quote/:id/modi", element: <Modify /> },
-          {path:"/mypage/bookmark/group/:folderId", element: <BookmarkGroup />}
+          {
+            path: "/mypage/bookmark/group/:folderId",
+            element: <BookmarkGroup />,
+          },
         ],
       },
     ],

@@ -6,8 +6,6 @@ import { BookmarkProvider } from "./contexts/BookmarkProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-      <BookmarkProvider>
       <App />
-     </BookmarkProvider>
   </StrictMode>
 );
