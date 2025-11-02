@@ -125,7 +125,7 @@ const onUpdate = async () => {
   return (
     <>
       <Form className="flex flex-col mt-10">
-        <div className="text-3xl mb-5">MoDIFY Drama MoMENT</div>
+        <div className="text-3xl mb-5">MODIFY DRAMA</div>
         <div className="flex items-end mt-3">
           <label className="w-1/5 text-end pb-2">
             드라마 제목 <span className="text-red-700">*</span>

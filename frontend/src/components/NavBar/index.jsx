@@ -1,9 +1,9 @@
 import { NavLink } from "react-router-dom";
 
 const navItems = [
-  { to: "/", label: "book", color: "first", darkColor: "first" },
-  { to: "/movie", label: "movie", color: "second", darkColor: "second" },
-  { to: "/drama", label: "drama", color: "third", darkColor: "third" },
+  { to: "/", label: "BOOK", color: "first", darkColor: "first" },
+  { to: "/movie", label: "MOVIE", color: "second", darkColor: "second" },
+  { to: "/drama", label: "DRAMA", color: "third", darkColor: "third" },
 ];
 
 const colorVariants = {

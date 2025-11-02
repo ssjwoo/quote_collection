@@ -124,7 +124,7 @@ export const MovieModi = ({ quote ,source}) => {
   return (
     <>
       <Form className="flex flex-col mt-10">
-        <div className="text-3xl mb-5">MoDIFY MoVIE MoMENT</div>
+        <div className="text-3xl mb-5">MODIFY MOVIE</div>
         <div className="flex items-end mt-3">
           <label className="w-1/5 text-end pb-2">
             영화 제목 <span className="text-red-700">*</span>

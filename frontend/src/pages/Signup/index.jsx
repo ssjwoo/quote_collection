@@ -24,18 +24,22 @@ export const Signup = () => {
 
   const validate = async () => {
     const newErrors = {};
-
+    if(!form.username){
+      newErrors.name = "이름을 입력해주세요.";
+    }else{
     // name check api
     try {
       const response = await axios.post("/users/check-name", {
         username: form.username,
       });
       if (!response.data.is_available) {
-        newErrors.username = "이미 사용중인 이름입니다.";
+        newErrors.name = "이미 사용중인 이름입니다.";
       }
     } catch (error) {
       console.error("name check error", error);
     }
+    }
+    
 
     if (
       !/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i.test(
@@ -80,7 +84,7 @@ export const Signup = () => {
           <div className="mb-10 text-custom-basic-font text-3xl">Signup</div>
 
           <form
-            className="flex-col items-center justify-center"
+            className="flex-col items-center justify-center text-start ml-24"
             onSubmit={handlesubmit}
           >
             <SigninInput
@@ -91,8 +95,8 @@ export const Signup = () => {
               value={form.username}
               onChange={handleChange}
             />
-            {error.username && (
-              <p className="text-red-500 text-sm mt-1">{error.username}</p>
+            {error.name && (
+              <p className="text-red-500 text-sm mt-1">{error.name}</p>
             )}
             <div className="">
               <SigninInput
@@ -140,7 +144,7 @@ export const Signup = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-custom-pink w-[80px] h-[30px] mt-5"
+                  className="bg-mypage-menu w-[80px] h-[30px] mt-5"
                 >
                   Confirm
                 </button>
