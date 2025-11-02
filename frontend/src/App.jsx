@@ -18,58 +18,49 @@ import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
 import { Modify } from "./pages/Modify";
 import BookmarkGroup from "./pages/Mypage/layout/BookmarkGroup";
-import { BookmarkProvider } from "./contexts/BookmarkProvider";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { UserProvider } from "./hooks/useUser";
+import { BookmarkProvider } from "./contexts/BookmarkProvider";
+
+const ProviderLayout = () => (
+  <AuthProvider>
+    <BookmarkProvider>
+      <UserProvider>
+        <Outlet />
+      </UserProvider>
+    </BookmarkProvider>
+  </AuthProvider>
+);
 
 const RootLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLogIn, setIsLogin] = useState(false);
   const location = useLocation();
+  const { isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
-  // 로그인 상태 확인
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      setIsLogin(true);
-    }
-  }, []);
-
   return (
     <div className="relative flex flex-nowrap">
       <div className="min-h-screen relative justify-center justify-items-center bg-main-green">
         <div className="relative">
-          <AuthProvider>
-            <BookmarkProvider>
-              0{" "}
-              <UserProvider>
-                <NavBar />
-                <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
-                  {isOpen && (
-                    <div className=" fixed inset-0 flex justify-center items-center">
-                      <LoginModal
-                        setIsOpen={setIsOpen}
-                        setIsLogin={setIsLogin}
-                      />
-                    </div>
-                  )}
-                  <MyNavBar
-                    setIsLogin={setIsLogin}
-                    isLogIn={isLogIn}
-                    setIsOpen={setIsOpen}
-                  />
-                  <main className="p-8 md:p-12 text-center text-black">
-                    <Logo />
-                    <Outlet />
-                  </main>
-                </div>
-              </UserProvider>
-            </BookmarkProvider>
-          </AuthProvider>
+          <NavBar />
+          <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
+            {isOpen && (
+              <div className=" fixed inset-0 flex justify-center items-center">
+                <LoginModal setIsOpen={setIsOpen} />
+              </div>
+            )}
+            <MyNavBar
+              isLogIn={isAuthenticated}
+              setIsOpen={setIsOpen}
+            />
+            <main className="p-8 md:p-12 text-center text-black">
+              <Logo />
+              {isLoading ? <div>Loading...</div> : <Outlet />}
+            </main>
+          </div>
         </div>
       </div>
     </div>
@@ -78,13 +69,13 @@ const RootLayout = () => {
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <RootLayout />,
+    element: <ProviderLayout />,
     children: [
-      { index: true, element: <MainPage mode={"book"} /> },
       {
-        element: <Outlet />,
+        path: "/",
+        element: <RootLayout />,
         children: [
+          { index: true, element: <MainPage mode={"book"} /> },
           { path: "/movie", element: <MainPage mode={"movie"} /> },
           { path: "/drama", element: <MainPage mode={"drama"} /> },
           { path: "/write", element: <Write /> },
@@ -94,10 +85,7 @@ const router = createBrowserRouter([
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
           { path: "/quote/:id/modi", element: <Modify /> },
-          {
-            path: "/mypage/bookmark/group/:folderId",
-            element: <BookmarkGroup />,
-          },
+          {path:"/mypage/bookmark/group/:folderId", element: <BookmarkGroup />}
         ],
       },
     ],

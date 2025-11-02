@@ -27,6 +27,12 @@ async def toggle_bookmark(bookmark_in: BookmarkCreate, db: AsyncSession = Depend
         await db.commit()
         return {"bookmarked": True}
 
+# 북마크 상태 확인
+@router.get("/status")
+async def get_bookmark_status(user_id: int, quote_id: int, db: AsyncSession = Depends(get_async_db)):
+    bookmark = await bookmark_service.repository.get(db, id=(user_id, quote_id))
+    return {"bookmarked": bookmark is not None}
+
 # 조회
 @router.get("/", response_model=list[BookmarkRead])
 async def list_bookmark(db: AsyncSession = Depends(get_async_db)):

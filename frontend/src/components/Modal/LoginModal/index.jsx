@@ -1,8 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
-import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
-const LoginModal = ({ setIsLogin, setIsOpen }) => {
+const LoginModal = ({ setIsOpen }) => {
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -10,25 +11,9 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
     const email = form.email.value;
     const password = form.password.value;
 
-    try {
-      const response = await axios.post(
-        "/auth/login",
-        new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      console.log("/api/auth/login", response);
-      localStorage.setItem("accessToken", response.data.access_token);
-      setIsLogin(true);
+    const success = await login(email, password);
+    if (success) {
       setIsOpen(false);
-    } catch (error) {
-      alert(error.message);
     }
   };
 

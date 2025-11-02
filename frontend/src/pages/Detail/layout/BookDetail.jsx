@@ -1,83 +1,95 @@
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import mark from "../../../assets/bookmark.png";
 import marked from "../../../assets/bookmark_marked.png";
 import { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import { useBookmarks } from "../../../hooks/useBookmarks";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const BookDetail = ({ quote }) => {
   const navigation = useNavigate();
-  const { isBookmarked, toggleBookmark } = useBookmarks();
-  const [isLogin, setIsLogin] = useState(false);
-  const [user, setUser] = useState({});
+  const { user } = useAuth();
+  const { toggleBookmark } = useBookmarks();
+  
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLoadingBookmark, setIsLoadingBookmark] = useState(true);
+
   const [source, setSource] = useState({});
-  const [writer,setWriter] =useState({});
-  const [publisher,setPublisher] =useState({});
-
-  useEffect(()=>{
-    window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-    });
-
-    const getWriter = async () =>{
-      try{
-        const writerData = await axios.get(`/users/${quote.user_id}`);
-        setWriter(writerData.data);
-      }catch(error){
-        console.log("Failed to get Writer's data",error);
-      }
-    }
-
-    getWriter();
-  },[quote.id]);
+  const [writer, setWriter] = useState({});
+  const [publisher, setPublisher] = useState({});
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (!quote || !quote.source_id) return;
-      try {
-        const token = localStorage.getItem("accessToken");
-        try {
-          const id = quote.source_id;
-          const sourceData = await axios.get(`/source/${id}`);
-          setSource(sourceData.data);
-        } catch (error) {
-          console.log("Failed to get quotes_source_data", error);
-        }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        if (token) {
-          const response = await axios.get("/auth/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const userData = response.data;
-          setUser(userData);
-          setIsLogin(true);
-        } else {
-          setIsLogin(false);
-        }
+    const getWriter = async () => {
+      try {
+        const writerData = await axios.get(`/users/${quote.user_id}`);
+        setWriter(writerData.data);
       } catch (error) {
-        console.error("Failed to fetch user:", error);
-        setIsLogin(false);
+        console.log("Failed to get Writer's data", error);
       }
     };
 
-    fetchUser();
-  }, [isLogin, quote?.id]);
+    if (quote?.user_id) getWriter();
+  }, [quote?.user_id]);
 
-  useEffect(()=>{
-    const getPublisher = async() =>{
-      try{
+  useEffect(() => {
+    const fetchSource = async () => {
+      if (!quote?.source_id) return;
+      try {
+        const sourceData = await axios.get(`/source/${quote.source_id}`);
+        setSource(sourceData.data);
+      } catch (error) {
+        console.log("Failed to get quote's source data", error);
+      }
+    };
+    fetchSource();
+  }, [quote?.source_id]);
+
+  useEffect(() => {
+    const fetchBookmarkStatus = async () => {
+      if (!user || !quote?.id) {
+        setIsLoadingBookmark(false);
+        return;
+      }
+      try {
+        setIsLoadingBookmark(true);
+        const response = await axios.get(`/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`);
+        setIsBookmarked(response.data.bookmarked);
+      } catch (error) {
+        console.error("Failed to fetch bookmark status:", error);
+      } finally {
+        setIsLoadingBookmark(false);
+      }
+    };
+
+    fetchBookmarkStatus();
+  }, [user, quote?.id]);
+
+  useEffect(() => {
+    const getPublisher = async () => {
+      if (!source?.publisher_id) return;
+      try {
         const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
         setPublisher(publisherData.data);
-      }catch(e){
+      } catch (e) {
         console.log("Failed to get Publisher data", e);
       }
-    }
+    };
 
     getPublisher();
-  },[source]);
+  }, [source]);
+
+  const handleToggleBookmark = async () => {
+    if (!user) {
+      alert("로그인이 필요한 기능입니다.");
+      return;
+    }
+    const result = await toggleBookmark(quote);
+    if (result) {
+      setIsBookmarked(result.bookmarked);
+    }
+  };
 
   const onSearchList = (input) => {
     navigation("/searchlist/" + input);
@@ -91,11 +103,8 @@ export const BookDetail = ({ quote }) => {
 
   const onDelete = async () => {
     try {
-      const responseQ = await axios.delete(`/quote/${quote.id}`);
-      console.log(`/quote/${quote.id}`, responseQ);
-      const responseS = await axios.delete(`/source/${source.id}`);
-      console.log(`/source/${source.id}`, responseS);
-
+      await axios.delete(`/quote/${quote.id}`);
+      await axios.delete(`/source/${source.id}`);
       alert("Book deleted successfully!");
       navigation("/");
     } catch (error) {
@@ -111,9 +120,9 @@ export const BookDetail = ({ quote }) => {
         
         <div className="text-end">
           <label className="text-xs text-end font-semibold text-gray-600 mr-3">작성자 : <span> {writer.username}</span></label>
-        {isLogin && user.id == writer.id && (
+        {user && user.id === writer.id && (
           <> 
-          <button
+            <button
               className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
               onClick={onModify}
             >
@@ -149,11 +158,13 @@ export const BookDetail = ({ quote }) => {
 
         <div className="flex justify-end mt-3">
           <div className="flex border-2 border-sub-darkgreen rounded-lg p-3 mr-14">
-            <img
-              className="size-5 cursor-pointer"
-              onClick={() => toggleBookmark(quote)}
-              src={isBookmarked(quote.id) ? marked : mark}
-            />
+            <button onClick={handleToggleBookmark} disabled={isLoadingBookmark}>
+              <img
+                className="size-5 cursor-pointer"
+                src={isBookmarked ? marked : mark}
+                alt="Bookmark" 
+              />
+            </button>
           </div>
         </div>
 
