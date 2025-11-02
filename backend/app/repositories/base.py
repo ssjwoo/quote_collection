@@ -27,13 +27,17 @@ class BaseRepository(Generic[ModelType]):
         return db_obj
 
     async def update(self, db: AsyncSession, *, db_obj, obj_in) -> ModelType:
-        update_data = obj_in.model_dump(exclude_unset=True)
-        print(f"Update data in BaseRepository.update: {update_data}") # Debug print
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.model_dump(exclude_unset=True)
+
         if not update_data:
             return db_obj # No data to update
 
         for field, value in update_data.items():
-            setattr(db_obj, field, value)
+            if hasattr(db_obj, field):
+                setattr(db_obj, field, value)
 
         db.add(db_obj) # Explicitly add to session
         await db.commit()

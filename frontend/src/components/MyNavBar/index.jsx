@@ -29,26 +29,26 @@ export const MyNavBar = ({ setIsOpen, isLogIn, setIsLogin }) => {
 
   return (
     <>
-      <nav className="float-right relative flex flex-row justify-items-end mr-3 mt-3 text-sm z-20">
-        <div className="mr-3 pr-2 pl-2 cursor-pointer" onClick={onBookmark}>
+      <nav className="float-right relative flex flex-row justify-items-end mr-1 mt-3 text-sm z-20">
+        <div className="px-1 mr-1 cursor-pointer" onClick={onBookmark}>
           bookmark
-        </div>
-        <div className="mr-3 pr-2 pl-2 cursor-pointer" onClick={onWrite}>
+        </div> |
+        <div className="px-1 mr-1 cursor-pointer" onClick={onWrite}>
           write
-        </div>
+        </div> |
         {isLogIn ? (
           <>
-            <NavLink className="mr-3 pr-2 pl-2 cursor-pointer" to="/mypage/memberinfo">
+            <NavLink className="mr-1 px-1 cursor-pointer" to="/mypage/memberinfo">
               mypage
-            </NavLink>
-            <span className="mr-3 pr-2 pl-2 cursor-pointer" onClick={handleLogout}>
+            </NavLink> 
+            <span className="mr-2 ml-1.5 px-2 cursor-pointer border rounded-3xl" onClick={handleLogout}>
               logout
             </span>
           </>
         ) : (
           <>
             <span
-              className="mr-3 pr-2 pl-2 cursor-pointer"
+              className="mr-1 px-1 cursor-pointer"
               onClick={() => setIsOpen(true)}
             >
               login

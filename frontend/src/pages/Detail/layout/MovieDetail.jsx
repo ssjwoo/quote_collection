@@ -18,7 +18,7 @@ export const MovieDetail = ({ quote }) => {
   const [writer, setWriter] = useState({});
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     const getWriter = async () => {
       try {
@@ -53,7 +53,9 @@ export const MovieDetail = ({ quote }) => {
       }
       try {
         setIsLoadingBookmark(true);
-        const response = await axios.get(`/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`);
+        const response = await axios.get(
+          `/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`
+        );
         setIsBookmarked(response.data.bookmarked);
       } catch (error) {
         console.error("Failed to fetch bookmark status:", error);
@@ -85,13 +87,13 @@ export const MovieDetail = ({ quote }) => {
       navigation("/quote/" + quote.id + "/modi");
     }
   };
-  
-   const onDelete = async () => {
+
+  const onDelete = async () => {
     try {
       await axios.delete(`/quote/${quote.id}`);
       await axios.delete(`/source/${source.id}`);
       alert("Movie deleted successfully!");
-      navigation("/movie"); 
+      navigation("/movie");
     } catch (error) {
       console.error("Error deleting Movie:", error);
       alert("Failed to delete Movie.");
@@ -103,25 +105,27 @@ export const MovieDetail = ({ quote }) => {
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">MOVIE MOMENT</div>
         <div className="text-end">
-         <label className="text-xs text-end font-semibold text-gray-600">작성자 : <span> {writer.username} </span></label>
-        {user && user.id === writer.id && (
-          <>
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
-              onClick={onModify}
-            >
-              수정
-            </button>
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
-              onClick={onDelete}
-            >
-              삭제
-            </button>
+          <label className="text-xs text-end font-semibold text-gray-600">
+            작성자 : <span> {writer.username} </span>
+          </label>
+          {user && user.id === writer.id && (
+            <>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
+                onClick={onModify}
+              >
+                수정
+              </button>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
+                onClick={onDelete}
+              >
+                삭제
+              </button>
             </>
-        )}
+          )}
         </div>
-        
+
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-sm text-end pb-3">영화 제목 </label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
@@ -161,7 +165,7 @@ export const MovieDetail = ({ quote }) => {
           </div>
         </div>
 
-        {(source.release_year !== 0 && source.release_year )&& (
+        {source.release_year !== 0 && source.release_year && (
           <>
             <div className="flex items-end mt-3">
               <label className="w-1/12 text-end pb-3 text-sm">개봉일 </label>

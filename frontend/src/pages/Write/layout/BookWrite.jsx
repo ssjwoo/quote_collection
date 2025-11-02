@@ -43,7 +43,7 @@ export const BookWrite = () => {
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
-    "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
+    "rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
 
   useEffect(()=>{
@@ -77,7 +77,7 @@ export const BookWrite = () => {
   };
 
   const onSubmit = async () => {
-    if (!title.trim() || !author.trim() || !content.trim()) {
+    if (!title.trim() || !author.trim() || !content.trim() || selectedTags.length === 0) {
       alert("필수항목을 입력해주세요");
       return;
     }
@@ -172,7 +172,7 @@ export const BookWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-24 pr-2">태그 </label>
+          <label className="w-1/5 text-end pb-24 pr-2">태그 <span className="text-red-700">*</span></label>
           <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green">
             {tags.map((id) => (
               <button
@@ -192,7 +192,7 @@ export const BookWrite = () => {
         )}
         <div className="self-end">
           <button
-            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-mypage-menu"
             onClick={onSubmit}
             type="button"
           >

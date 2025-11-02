@@ -18,7 +18,7 @@ export const DramaDetail = ({ quote }) => {
   const [writer, setWriter] = useState({});
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     const getWriter = async () => {
       try {
@@ -53,7 +53,9 @@ export const DramaDetail = ({ quote }) => {
       }
       try {
         setIsLoadingBookmark(true);
-        const response = await axios.get(`/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`);
+        const response = await axios.get(
+          `/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`
+        );
         setIsBookmarked(response.data.bookmarked);
       } catch (error) {
         console.error("Failed to fetch bookmark status:", error);
@@ -85,13 +87,13 @@ export const DramaDetail = ({ quote }) => {
       navigation("/quote/" + quote.id + "/modi");
     }
   };
- 
+
   const onDelete = async () => {
     try {
       await axios.delete(`/quote/${quote.id}`);
       await axios.delete(`/source/${source.id}`);
       alert("Drama deleted successfully!");
-      navigation("/drama"); 
+      navigation("/drama");
     } catch (error) {
       console.error("Error deleting Drama:", error);
       alert("Failed to delete Drama.");
@@ -104,25 +106,27 @@ export const DramaDetail = ({ quote }) => {
         <div className="text-3xl mb-5">DRAMA MOMENT</div>
 
         <div className="text-end">
-          <label className="text-xs text-end font-semibold text-gray-600 mr-3">작성자 : <span> {writer.username}</span></label>
-        {user && user.id === writer.id && (
-          <>
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
-              onClick={onModify}
-            >
-              수정
-            </button>
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
-              onClick={onDelete}
-            >
-              삭제
-            </button>
+          <label className="text-xs text-end font-semibold text-gray-600 mr-3">
+            작성자 : <span> {writer.username}</span>
+          </label>
+          {user && user.id === writer.id && (
+            <>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs mr-1"
+                onClick={onModify}
+              >
+                수정
+              </button>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs"
+                onClick={onDelete}
+              >
+                삭제
+              </button>
             </>
-        )}
+          )}
         </div>
-        
+
         <div className="flex items-end mt-3">
           <label className="w-1/12 text-sm text-end pb-3 ">드라마제목</label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
@@ -162,7 +166,7 @@ export const DramaDetail = ({ quote }) => {
           </div>
         </div>
 
-        {(source.release_year !== 0 && source.release_year )&& (
+        {source.release_year !== 0 && source.release_year && (
           <>
             <div className="flex items-end mt-3">
               <label className="text-sm w-1/12 text-end pb-3">개봉일 </label>
@@ -182,7 +186,7 @@ export const DramaDetail = ({ quote }) => {
                 <span
                   key={t.id}
                   onClick={() => onSearchList(t.name)}
-                  className="cursor-pointer rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
+                  className="cursor-pointer rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
                   {t.name}
                 </span>

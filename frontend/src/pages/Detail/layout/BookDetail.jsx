@@ -10,7 +10,7 @@ export const BookDetail = ({ quote }) => {
   const navigation = useNavigate();
   const { user } = useAuth();
   const { toggleBookmark } = useBookmarks();
-  
+
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoadingBookmark, setIsLoadingBookmark] = useState(true);
 
@@ -19,7 +19,7 @@ export const BookDetail = ({ quote }) => {
   const [publisher, setPublisher] = useState({});
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     const getWriter = async () => {
       try {
@@ -54,7 +54,9 @@ export const BookDetail = ({ quote }) => {
       }
       try {
         setIsLoadingBookmark(true);
-        const response = await axios.get(`/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`);
+        const response = await axios.get(
+          `/bookmark/status?user_id=${user.id}&quote_id=${quote.id}`
+        );
         setIsBookmarked(response.data.bookmarked);
       } catch (error) {
         console.error("Failed to fetch bookmark status:", error);
@@ -70,7 +72,9 @@ export const BookDetail = ({ quote }) => {
     const getPublisher = async () => {
       if (!source?.publisher_id) return;
       try {
-        const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
+        const publisherData = await axios.get(
+          `/publisher/${source.publisher_id}`
+        );
         setPublisher(publisherData.data);
       } catch (e) {
         console.log("Failed to get Publisher data", e);
@@ -117,25 +121,27 @@ export const BookDetail = ({ quote }) => {
     <>
       <div className="flex flex-col mt-10">
         <div className="text-3xl mb-5">BOOK MOMENT</div>
-        
+
         <div className="text-end">
-          <label className="text-xs text-end font-semibold text-gray-600 mr-3">작성자 : <span> {writer.username}</span></label>
-        {user && user.id === writer.id && (
-          <> 
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
-              onClick={onModify}
-            >
-              수정
-            </button>
-            <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
-              onClick={onDelete}
-            >
-              삭제
-            </button>
-          </> 
-        )}
+          <label className="text-xs text-end font-semibold text-gray-600 mr-3">
+            작성자 : <span> {writer.username}</span>
+          </label>
+          {user && user.id === writer.id && (
+            <>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs mr-1"
+                onClick={onModify}
+              >
+                수정
+              </button>
+              <button
+                className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs"
+                onClick={onDelete}
+              >
+                삭제
+              </button>
+            </>
+          )}
         </div>
 
         <div className="flex items-end mt-3">
@@ -162,7 +168,7 @@ export const BookDetail = ({ quote }) => {
               <img
                 className="size-5 cursor-pointer"
                 src={isBookmarked ? marked : mark}
-                alt="Bookmark" 
+                alt="Bookmark"
               />
             </button>
           </div>
@@ -188,7 +194,7 @@ export const BookDetail = ({ quote }) => {
                 {publisher.name}
               </div>
             </div>
-          </> 
+          </>
         )}
 
         {quote.tags && (
@@ -199,7 +205,7 @@ export const BookDetail = ({ quote }) => {
                 <span
                   key={t.id}
                   onClick={() => onSearchList(t.name)}
-                  className="rounded-xl p-2 cursor-pointer bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
+                  className="rounded-xl p-2 cursor-pointer bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
                   {t.name}
                 </span>

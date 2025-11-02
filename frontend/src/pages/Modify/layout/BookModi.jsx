@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form, useNavigate} from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
 export const BookModi = ({ quote, source }) => {
@@ -33,65 +33,74 @@ export const BookModi = ({ quote, source }) => {
     "철학",
   ];
 
-  const [selectedTags, setSelectedTags] = useState([]); 
+  const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(quote.content.length);
 
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
-    "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
+    "rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
 
   useEffect(()=>{
     const getPublisher = async() =>{
-      try{
-        const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
+      if(!source.publisher_id){
         setModiQuote({
         title: source.title,
         author: source.creator,
-        publisher: publisherData.data.name,
+        publisher: null,
         content: quote.content,
       })
-      }catch(e){
+      }else{
+
+      try{
+        const publisherData = await axios.get(`/publisher/${source.publisher_id}`);
+        setModiQuote({
+          title: source.title,
+          author: source.creator,
+          publisher: publisherData.data.name,
+          content: quote.content,
+        });
+      } catch (e) {
         console.log("Failed to get Publisher data", e);
       }
     }
-
+  }
     getPublisher();
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (selectedTags.length < 5) setError("");
   }, [selectedTags]);
 
-useEffect(() => {
-  if (quote?.tags) {
-    const tagsData = quote.tags.map(tag =>
-      typeof tag === "object" ? tag.name : tag.id
-    );
-    setSelectedTags(tagsData);
-  }
-}, [quote]);
+  useEffect(() => {
+    if (quote?.tags) {
+      const tagsData = quote.tags.map((tag) =>
+        typeof tag === "object" ? tag.name : tag.id
+      );
+      setSelectedTags(tagsData);
+    }
+  }, [quote]);
 
   const onSelected = (id) => {
-  setSelectedTags((prevSelected) => {
-    const isSelected = prevSelected.includes(id);
+    setSelectedTags((prevSelected) => {
+      const isSelected = prevSelected.includes(id);
 
-    if (isSelected) {
-      return prevSelected.filter((tid) => tid !== id);
-    } else {
-      if (prevSelected.length >= 5) {
-        setError("태그 선택은 최대 5개까지만 가능합니다.");
-        return prevSelected;
+      if (isSelected) {
+        return prevSelected.filter((tid) => tid !== id);
+      } else {
+        if (prevSelected.length >= 5) {
+          setError("태그 선택은 최대 5개까지만 가능합니다.");
+          return prevSelected;
+        }
+        return [...prevSelected, id];
       }
-      return [...prevSelected, id];
-    }
-  });
-};
+    });
+  };
 
-   const onUpdate = async () => {
-     if (
+  const onUpdate = async () => {
+    if (
       !modiQuote.title.trim() ||
       !modiQuote.author.trim() ||
       !modiQuote.content.trim()
@@ -101,15 +110,11 @@ useEffect(() => {
     }
 
     try {
-      await axios.put(`/publisher/${source.publisher_id}`, {
-          name: modiQuote.publisher,
-        });
-
       await axios.put(`/source/${source.id}`, {
         title: modiQuote.title,
         source_type: "book",
         creator: modiQuote.author,
-        publisher_id: source.publisher_id,
+        publisher_name: modiQuote.publisher,
       });
 
       await axios.put(`/quote/${quote.id}`, {
@@ -146,7 +151,7 @@ useEffect(() => {
   return (
     <>
       <Form className="flex flex-col mt-10">
-        <div className="text-3xl mb-5">MoDIFY Book MoMENT</div>
+        <div className="text-3xl mb-5">Book Moment 수정</div>
         <div className="flex items-end mt-3">
           <label className="w-1/5 text-end pb-2">
             책 제목 <span className="text-red-700">*</span>
@@ -225,13 +230,13 @@ useEffect(() => {
         )}
         <div className="self-end flex ">
           <button
-            className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-mypage-menu"
             onClick={onUpdate}
           >
             수정
           </button>
           <button
-            className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-mypage-menu"
             onClick={onDelete}
           >
             삭제

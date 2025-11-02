@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from app.database import get_async_db
-from app.schemas import SourceCreate, SourceRead, SourceUpdate
-from app.services import source_service
+from app.schemas import SourceCreate, SourceRead, SourceUpdate, PublisherCreate
+from app.services import source_service, publisher_service
 
 router = APIRouter(prefix="/source", tags=["Source"])
 
@@ -42,6 +42,17 @@ async def update_source(
     source = await source_service.repository.get(db, id=source_id)
     if not source:
         raise HTTPException(status_code=404, detail="Source not found")
+
+    # Handle publisher_name if provided
+    if source_in.publisher_name:
+        existing_publisher = await publisher_service.repository.get_by_name(db, name=source_in.publisher_name)
+        if existing_publisher:
+            source_in.publisher_id = existing_publisher.id
+        else:
+            # Create new publisher
+            new_publisher = await publisher_service.repository.create(db, obj_in=PublisherCreate(name=source_in.publisher_name))
+            source_in.publisher_id = new_publisher.id
+
     updated_source = await source_service.update(db, db_obj=source, obj_in=source_in)
     return updated_source
 

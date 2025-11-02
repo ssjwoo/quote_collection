@@ -107,7 +107,7 @@ export const SearchList = () => {
         {result.map((r) => (
           <div
             key={r.id}
-            className=" cursor-pointer mt-5 border-2 hover:bg-main-beige border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
+            className=" cursor-pointer mt-5 border-2 hover:bg-mypage-menu border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
             onClick={() => onDetail(r.id)}
           >
             {r.type === "quote" ? (

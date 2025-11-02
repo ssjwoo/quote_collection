@@ -51,6 +51,7 @@ async def update(publisher_id: int, publisher_in: PublisherUpdate, db: AsyncSess
     publisher = await publisher_service.repository.get(db, id=publisher_id)
     if not publisher:
         raise HTTPException(status_code=404, detail="Publisher not found")
+
     publisher = await publisher_service.repository.update(db, db_obj=publisher, obj_in=publisher_in)
     return publisher
 

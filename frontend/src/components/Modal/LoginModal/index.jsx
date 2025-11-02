@@ -24,7 +24,7 @@ const LoginModal = ({ setIsOpen }) => {
         onClick={() => setIsOpen(false)}
       >
         <div onClick={(e) => e.stopPropagation()}>
-          <div className="z-50 bg-main-green/90 mt-8 h-[300px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
+          <div className="mb-6 bg-main-green/80 h-[330px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
             <div className="text-custom-div text-3xl mb-5 cursor-pointer">
               LOGIN
             </div>
@@ -33,7 +33,7 @@ const LoginModal = ({ setIsOpen }) => {
               <LoginInput title="email" type="email" name="email" />
               <div className="flex items-center mb-5">
                 <LoginInput title="password" type="password" name="password" />
-                <button className="bg-custom-div w-[50px] ml-3 mt-5 h-[30px] flex justify-center items-center">
+                <button className="border ml-3 mt-5 border-custom-div text-custom-div w-[70px] h-[30px] rounded-sm flex justify-center items-center hover:bg-custom-div hover:text-main-green transition">
                   login
                 </button>
                 <div></div>
