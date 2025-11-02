@@ -190,7 +190,7 @@ export const MemberInfo = () => {
         )}
         <div className="self-end">
           <button
-            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-mypage-menu"
             onClick={onsubmit}
           >
             수정

@@ -32,7 +32,7 @@ export const Search = ({prevInput, source_type}) => {
         onKeyDown={handleKeyDown} 
         className="w-3/4 p-2 h-7 border-b-1 opacity-80  focus:outline-none placeholder:text-sm text-center"
       />
-      <button className="bg-main-white p-2 ml-3 rounded-md cursor-pointer"onClick={onSearchList}>search</button>
+      <button className="bg-search-btn p-2 ml-3 rounded-md cursor-pointer"onClick={onSearchList}>search</button>
     </div>
   );
 };

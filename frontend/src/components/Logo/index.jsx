@@ -6,9 +6,10 @@ export const Logo=()=>{
 
     return(
         <>
-        <hr className="border-1"></hr>
-        <div className="flex justify-center mt-5 mb-5 text-5xl cursor-pointer" onClick={()=>navigator('/')}>MOMENTARY</div>
-        <hr className="border-1"></hr>
+        {/* <hr className="border-1"></hr> */}
+        <div className="flex justify-center mt-7 mb-10 cursor-pointer"
+        ><span className="text-3xl text-center rounded-full border-2 px-4 py-1" onClick={()=>navigator('/')}>MOMENTARY</span></div>
+        <hr className=" border-1"></hr>
         </>
     );
 }

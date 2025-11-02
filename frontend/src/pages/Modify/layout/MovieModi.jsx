@@ -41,7 +41,7 @@ export const MovieModi = ({ quote ,source}) => {
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
-    "rounded-xl p-2 bg-main-pink text-xs ml-1 mr-1 mb-1 border-main-green border",
+    "rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
 
   useEffect(() => {
@@ -203,13 +203,13 @@ export const MovieModi = ({ quote ,source}) => {
         )}
         <div className="self-end flex ">
           <button
-            className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-2 mt-7 w-4/12 border border-main-green hover:bg-mypage-menu"
             onClick={onUpdate}
           >
             수정
           </button>
           <button
-            className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-4/12 border border-main-green hover:bg-mypage-menu"
             onClick={onDelete}
           >
             삭제

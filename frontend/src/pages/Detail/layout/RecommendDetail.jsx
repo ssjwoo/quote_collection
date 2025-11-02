@@ -39,7 +39,7 @@ export const RecommendDetail = ({ mode }) => {
         {quotes.map((quote) => (
           <div
             key={quote.id}
-            className="mt-5 cursor-pointer w-11/12 border-2 border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg hover:bg-main-beige"
+            className="mt-5 cursor-pointer w-11/12 border-2 border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg hover:bg-mypage-menu"
             onClick={() => onDetail(quote.id)}
           >
             <div>{quote.content}</div>

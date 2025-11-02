@@ -5,11 +5,12 @@ import axios from "../../../api/axios";
 export const Upload = () => {
   const navigation = useNavigate();
   const [quotes, setQuotes] = useState([]);
+  const [mode,setMode] = useState("");
 
   useEffect(() => {
     const fetchUserAndQuotes = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
         if (token) {
           // TODO: /api/auth/me
           const userResponse = await axios.get("/auth/me", {
@@ -37,15 +38,19 @@ export const Upload = () => {
   }, []);
 
   const onDetail = (id) => {
-    navigation("/detail/" + id);
+    navigation('/quote/'+id, {
+    state: {
+      mode:mode
+    }})
   };
+
   return (
     <>
       <div className="flex flex-col justify-items-center m-3">
         {quotes.map((q) => (
           <div
             key={q.id}
-            className=" cursor-pointer mt-5 border-2 hover:bg-main-beige border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
+            className=" cursor-pointer mt-5 border-2 hover:bg-mypage-menu border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
             onClick={() => onDetail(q.id)}
           >
             <div className=" pl-3 pb-3 text-sm text-start">{q.title} </div>

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { LoginInput } from "../../LoginInput";
 import axios from "../../../api/axios";
 
@@ -27,8 +27,8 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
       localStorage.setItem("accessToken", response.data.access_token);
       setIsLogin(true);
       setIsOpen(false);
-    } catch (error) {
-      alert(error.message);
+    } catch  {
+      alert("로그인 정보가 없습니다.");
     }
   };
 
@@ -39,7 +39,7 @@ const LoginModal = ({ setIsLogin, setIsOpen }) => {
         onClick={() => setIsOpen(false)}
       >
         <div onClick={(e) => e.stopPropagation()}>
-          <div className="z-50 bg-main-green/90 mt-8 h-[300px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
+          <div className="z-50 mb-12 bg-main-green h-[330px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
             <div className="text-custom-div text-3xl mb-5 cursor-pointer">
               LOGIN
             </div>

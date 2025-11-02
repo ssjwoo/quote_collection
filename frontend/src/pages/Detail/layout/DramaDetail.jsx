@@ -187,13 +187,13 @@ export const DramaDetail = ({ quote }) => {
         {isLogin && user.id == writer.id && (
           <>
             <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs mr-1"
+              className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs mr-1"
               onClick={onModify}
             >
               수정
             </button>
             <button
-              className="px-2 py-0.5 rounded-lg border hover:bg-main-beige border-main-green text-xs"
+              className="px-2 py-0.5 rounded-lg border hover:bg-mypage-menu border-main-green text-xs"
               onClick={onDelete}
             >
               삭제
@@ -219,7 +219,7 @@ export const DramaDetail = ({ quote }) => {
           </div>
         </div>
         <div className="flex justify-end mt-3">
-          <div className="flex border-2 border-sub-darkgreen rounded-lg p-3 mr-14">
+          <div className="flex p-3 mr-14">
             <img
               className="size-5 cursor-pointer"
               onClick={onIsLogin}
@@ -259,7 +259,7 @@ export const DramaDetail = ({ quote }) => {
                 <span
                   key={t.id}
                   onClick={() => onSearchList(t.name)}
-                  className="cursor-pointer rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
+                  className="cursor-pointer rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border"
                 >
                   {t.name}
                 </span>

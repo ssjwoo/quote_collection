@@ -217,7 +217,7 @@ export const MovieDetail = ({ quote }) => {
           </div>
         </div>
         <div className="flex justify-end mt-3">
-          <div className="flex border-2 border-sub-darkgreen rounded-lg p-3 mr-14">
+          <div className="flex p-3 mr-14">
             <img
               className="size-5 cursor-pointer"
               onClick={onIsLogin}
