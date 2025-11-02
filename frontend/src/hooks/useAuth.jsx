@@ -28,9 +28,11 @@ export const AuthProvider = ({ children }) => {
       );
       localStorage.setItem("accessToken", response.data.access_token);
       await verifyJWT(); // Re-verify to set user and isAuthenticated state
+      navigation("/");
       return true;
     } catch (error) {
-      alert(error.message);
+      console.log(error.message);
+      alert("아이디/혹은 비밀번호가 일치하지 않습니다.");
       return false;
     }
   };
@@ -100,11 +102,23 @@ export const AuthProvider = ({ children }) => {
     verifyJWT();
   }, []);
 
-  console.log("[AuthProvider] Rendering with state:", { isLoading, isAuthenticated, user });
+  console.log("[AuthProvider] Rendering with state:", {
+    isLoading,
+    isAuthenticated,
+    user,
+  });
 
   return (
     <AuthContext.Provider
-      value={{ sevError, isAuthenticated, signup, user, logout, login, isLoading }}
+      value={{
+        sevError,
+        isAuthenticated,
+        signup,
+        user,
+        logout,
+        login,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>

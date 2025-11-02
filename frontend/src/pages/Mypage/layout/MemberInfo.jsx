@@ -8,7 +8,7 @@ export const MemberInfo = () => {
   const [pw, setPw] = useState("");
   const [confirmedPw, setConfirmedPw] = useState("");
   const [error, setError] = useState({ nameE: "", pwE: "", confirmedPwE: "" });
-  const [usernameStatus, setUsernameStatus] = useState('idle'); // 'idle', 'checking', 'available', 'unavailable', 'error'
+  const [usernameStatus, setUsernameStatus] = useState("idle"); // 'idle', 'checking', 'available', 'unavailable', 'error'
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,7 +23,7 @@ export const MemberInfo = () => {
           const userData = response.data;
           setUser(userData);
           setName(userData.username);
-          setUsernameStatus('available'); // Assume initial username is available
+          setUsernameStatus("available"); // Assume initial username is available
         } else {
           // Handle error
         }
@@ -36,39 +36,42 @@ export const MemberInfo = () => {
 
   useEffect(() => {
     if (user && user.username === name.trim()) {
-      setUsernameStatus('available'); // Current username is always available
-    } else if (usernameStatus !== 'checking'){
-      setUsernameStatus('idle'); // Reset status if username changes and not checking
+      setUsernameStatus("available"); // Current username is always available
+    } else if (usernameStatus !== "checking") {
+      setUsernameStatus("idle"); // Reset status if username changes and not checking
     }
   }, [name, user]);
 
   const onIdCheck = async () => {
     if (!name.trim()) {
-      setError(prev => ({ ...prev, nameE: "아이디를 입력해주세요." }));
-      setUsernameStatus('unavailable');
+      setError((prev) => ({ ...prev, nameE: "아이디를 입력해주세요." }));
+      setUsernameStatus("unavailable");
       return;
     }
     if (name.trim().length < 3) {
-      setError(prev => ({ ...prev, nameE: "아이디는 3자 이상으로 설정해주세요." }));
-      setUsernameStatus('unavailable');
+      setError((prev) => ({
+        ...prev,
+        nameE: "아이디는 3자 이상으로 설정해주세요.",
+      }));
+      setUsernameStatus("unavailable");
       return;
     }
 
-    setUsernameStatus('checking');
-    setError(prev => ({ ...prev, nameE: "" }));
+    setUsernameStatus("checking");
+    setError((prev) => ({ ...prev, nameE: "" }));
     try {
       const response = await axios.post("/users/check-name", {
         username: name,
       });
       const data = response.data;
       if (data.is_available) {
-        setUsernameStatus('available');
+        setUsernameStatus("available");
       } else {
-        setUsernameStatus('unavailable');
+        setUsernameStatus("unavailable");
       }
     } catch (error) {
       console.error("Failed to check name:", error);
-      setUsernameStatus('error');
+      setUsernameStatus("error");
     }
   };
 
@@ -79,11 +82,11 @@ export const MemberInfo = () => {
       return;
     }
 
-    if (usernameStatus === 'unavailable') {
-      alert("이미 사용중인 아이디입니다. 다시 확인해주세요."); 
+    if (usernameStatus === "unavailable") {
+      alert("이미 사용중인 아이디입니다. 다시 확인해주세요.");
       return;
     }
-    if (usernameStatus === 'idle' && user.username !== name.trim()){
+    if (usernameStatus === "idle" && user.username !== name.trim()) {
       alert("아이디 중복확인이 필요합니다.");
       return;
     }
@@ -137,24 +140,29 @@ export const MemberInfo = () => {
   };
 
   const getNameInputClass = () => {
-    let baseClass = "w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400";
-    if (usernameStatus === 'available') return baseClass + " outline-main-green border border-main-green";
-    if (usernameStatus === 'unavailable') return baseClass + " outline-red-500 border border-red-500";
+    let baseClass =
+      "w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400";
+    if (usernameStatus === "available")
+      return baseClass + " outline-main-green border border-main-green";
+    if (usernameStatus === "unavailable")
+      return baseClass + " outline-red-500 border border-red-500";
     return baseClass + " outline-main-green"; // Default or idle state
   };
 
   const getNameFeedbackMessage = () => {
-    if (user && user.username === name.trim() && usernameStatus === 'available') return "(현재 아이디)";
-    if (usernameStatus === 'checking') return "(중복 확인 중...)";
-    if (usernameStatus === 'available') return "(사용 가능한 아이디입니다.)";
-    if (usernameStatus === 'unavailable') return "(이미 사용중인 아이디입니다.)";
-    if (usernameStatus === 'error') return "(아이디 확인 중 오류 발생)";
+    if (user && user.username === name.trim() && usernameStatus === "available")
+      return "(현재 아이디)";
+    if (usernameStatus === "checking") return "(중복 확인 중...)";
+    if (usernameStatus === "available") return "(사용 가능한 아이디입니다.)";
+    if (usernameStatus === "unavailable")
+      return "(이미 사용중인 아이디입니다.)";
+    if (usernameStatus === "error") return "(아이디 확인 중 오류 발생)";
     return "";
   };
 
   const getNameFeedbackColorClass = () => {
-    if (usernameStatus === 'available') return "text-main-green";
-    if (usernameStatus === 'unavailable') return "text-red-500";
+    if (usernameStatus === "available") return "text-main-green";
+    if (usernameStatus === "unavailable") return "text-red-500";
     return "";
   };
 
@@ -171,23 +179,33 @@ export const MemberInfo = () => {
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              setUsernameStatus(prev => (user && user.username === e.target.value.trim()) ? 'available' : 'idle'); // Reset status on change unless it's current user's username
+              setUsernameStatus((prev) =>
+                user && user.username === e.target.value.trim()
+                  ? "available"
+                  : "idle"
+              ); // Reset status on change unless it's current user's username
             }}
           />
           <div className="self-end ml-4">
             <button
-               className="p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green
+              className="p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green
              disabled:border-gray-400 disabled:text-gray-400 disabled:hover:ring-0 "
               onClick={onIdCheck}
-              disabled={usernameStatus === 'checking' || (user && user.username === name.trim())}
+              disabled={
+                usernameStatus === "checking" ||
+                (user && user.username === name.trim())
+              }
             >
               중복 확인
             </button>
           </div>
         </div>
-        {(error.nameE || usernameStatus !== 'idle') && (
-          <div className={`text-xs w-4/6 mt-1 pl-4 flex justify-center ${getNameFeedbackColorClass()}`}>
-            {error.nameE || getNameFeedbackMessage()}
+        {(error.nameE || usernameStatus !== "idle") && (
+          <div className="flex items-end mt-1">
+            <div className="w-1/5"></div> {/* Spacer to match the label */}
+            <div className={`text-xs ml-3 ${getNameFeedbackColorClass()}`}>
+              {error.nameE || getNameFeedbackMessage()}
+            </div>
           </div>
         )}
 
