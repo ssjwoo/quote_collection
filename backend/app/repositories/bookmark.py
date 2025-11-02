@@ -1,4 +1,4 @@
-from app.models import Bookmark
+from app.models import Bookmark, Quote
 from app.repositories.base import BaseRepository
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,10 @@ class BookmarkRepository(BaseRepository[Bookmark]):
     async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> list[Bookmark]:
         statement = (
             select(self.model)
-            .options(selectinload(self.model.quote))
+            .options(
+                selectinload(self.model.quote).selectinload(Quote.source),
+                selectinload(self.model.quote).selectinload(Quote.tags)
+            )
             .filter(self.model.user_id == user_id)
         )
         result = await db.execute(statement)

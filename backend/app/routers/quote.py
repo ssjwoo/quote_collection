@@ -101,10 +101,20 @@ async def list_quotes(db: AsyncSession = Depends(get_async_db)):
 
 @router.get("/{quote_id}", response_model=QuoteRead)
 async def get_quote(quote_id: int, db: AsyncSession = Depends(get_async_db)):
-    quote = await quote_service.repository.get(db, id=quote_id)
+    result = await db.execute(
+        select(Quote)
+        .options(selectinload(Quote.source), selectinload(Quote.tags))
+        .filter(Quote.id == quote_id)
+    )
+    quote = result.scalar_one_or_none()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     return quote
+
+
+@router.get("/user/{user_id}", response_model=list[QuoteRead])
+async def get_quotes_by_user(user_id: int, db: AsyncSession = Depends(get_async_db)):
+    return await quote_service.get_by_user_id(db, user_id=user_id)
 
 
 @router.put("/{quote_id}", response_model=QuoteRead)

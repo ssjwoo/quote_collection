@@ -2,6 +2,7 @@ from sqlalchemy import func, desc
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, time, timedelta
+from sqlalchemy.orm import selectinload
 
 from app.models import Quote, Bookmark, Source
 from app.repositories.base import BaseRepository
@@ -12,6 +13,7 @@ class QuoteRepository(BaseRepository[Quote]):
         statement = (
             select(self.model)
             .join(Bookmark, self.model.id == Bookmark.quote_id)
+            .options(selectinload(self.model.source), selectinload(self.model.tags))
             .group_by(self.model.id)
             .order_by(func.count(Bookmark.quote_id).desc())
             .limit(limit)
@@ -23,17 +25,25 @@ class QuoteRepository(BaseRepository[Quote]):
         statement = select(self.model).filter(self.model.content.ilike(f"%{query}%"))
         if source_type:
             statement = statement.join(Source).filter(Source.source_type == source_type)
-        statement = statement.limit(limit)
+        statement = statement.options(selectinload(self.model.source), selectinload(self.model.tags)).limit(limit)
         result = await db.execute(statement)
         return result.scalars().all()
 
     async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> list[Quote]:
-        statement = select(self.model).filter(self.model.user_id == user_id)
+        statement = (
+            select(self.model)
+            .options(selectinload(self.model.source), selectinload(self.model.tags))
+            .filter(self.model.user_id == user_id)
+        )
         result = await db.execute(statement)
         return result.scalars().all()
 
     async def get_by_source_id(self, db: AsyncSession, *, source_id: int) -> list[Quote]:
-        statement = select(self.model).filter(self.model.source_id == source_id)
+        statement = (
+            select(self.model)
+            .options(selectinload(self.model.source), selectinload(self.model.tags))
+            .filter(self.model.source_id == source_id)
+        )
         result = await db.execute(statement)
         return result.scalars().all()
 
@@ -44,6 +54,7 @@ class QuoteRepository(BaseRepository[Quote]):
             select(self.model)
             .join(Source)
             .filter(Source.source_type == source_type)
+            .options(selectinload(self.model.source), selectinload(self.model.tags))
             .order_by(desc(self.model.created_at))
             .limit(limit)
         )
@@ -57,6 +68,7 @@ class QuoteRepository(BaseRepository[Quote]):
             select(self.model)
             .join(Source)
             .filter(Source.source_type == source_type)
+            .options(selectinload(self.model.source), selectinload(self.model.tags))
             .order_by(func.random())
             .limit(limit)
         )

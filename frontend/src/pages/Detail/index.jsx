@@ -7,22 +7,14 @@ import { RecommendDetail } from "./layout/RecommendDetail";
 import axios from "../../api/axios";
 
 export const Detail = () => {
-  /** id로 해당 data 불러오기  */
   const { id } = useParams();
-  const location = useLocation();
-  const mode = location.state?.mode;
-  console.log(mode);
-
   const [quote, setQuote] = useState(null);
 
   useEffect(() => {
     const fetchQuote = async () => {
       try {
-        // TODO: /api/quote/${id} - need testing
         const response = await axios.get(`/quote/${id}`);
-        console.log(`/api/quote/${id}`, response);
-        const data = response.data;
-        setQuote(data);
+        setQuote(response.data);
       } catch (error) {
         console.error("Failed to fetch quote:", error);
       }
@@ -31,15 +23,17 @@ export const Detail = () => {
     fetchQuote();
   }, [id]);
 
-  if (!quote) {
-    return <div>Loading...</div>; // Or a more sophisticated loading indicator
+  if (!quote || !quote.source) {
+    return <div>Loading...</div>; 
   }
+
+  const mode = quote.source.source_type;
 
   return (
     <>
-      {mode == "book" && <BookDetail quote={quote} />}
-      {mode == "movie" && <MovieDetail quote={quote} />}
-      {mode == "drama" && <DramaDetail quote={quote} />}
+      {mode === "book" && <BookDetail quote={quote} />}
+      {mode === "movie" && <MovieDetail quote={quote} />}
+      {mode === "drama" && <DramaDetail quote={quote} />}
       <RecommendDetail mode={mode} quote={quote} />
     </>
   );

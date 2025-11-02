@@ -17,7 +17,6 @@ import { Detail } from "./pages/Detail";
 import { SearchList } from "./pages/SearchList";
 import { BookMark } from "./pages/Mypage/layout/BookMark";
 import { Modify } from "./pages/Modify";
-import BookmarkGroup from "./pages/Mypage/layout/BookmarkGroup";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { UserProvider } from "./hooks/useUser";
 import { BookmarkProvider } from "./contexts/BookmarkProvider";
@@ -85,7 +84,6 @@ const router = createBrowserRouter([
           { path: "/searchlist/:input", element: <SearchList /> },
           { path: "/bookmark", element: <BookMark /> },
           { path: "/quote/:id/modi", element: <Modify /> },
-          {path:"/mypage/bookmark/group/:folderId", element: <BookmarkGroup />}
         ],
       },
     ],

@@ -2,10 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BookMark } from "./layout/BookMark";
 import { Upload } from "./layout/Upload";
 import { MemberInfo } from "./layout/MemberInfo";
+import { useAuth } from "../../hooks/useAuth";
 
 export const Mypage=()=>{
     const { tab } = useParams(); 
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const style = ["mt-10 text-sm pt-3 pb-3 ml-1" ,"mt-10 text-sm bg-main-white pt-3 pb-3 mr-5 rounded-lg"];
 
@@ -20,9 +22,9 @@ export const Mypage=()=>{
             </div>
         
             <div className="w-5/6">
-                {tab === "bookmark" && <BookMark />}
+                {tab === "bookmark" && user && <BookMark userId={user.id} />}
                 {tab === "memberinfo" && <MemberInfo />}
-                {tab === "upload" && <Upload />}
+                {tab === "upload" && user && <Upload userId={user.id} />}
             </div>
         </div>
     );

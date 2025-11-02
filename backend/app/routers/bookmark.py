@@ -2,11 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_db
-from app.schemas import BookmarkCreate, BookmarkRead
+from app.schemas import BookmarkCreate, BookmarkRead, QuoteRead
 from app.services import bookmark_service
 from app.models import Bookmark
 
 router = APIRouter(prefix="/bookmark", tags=["Bookmark"])
+
+# 유저의 북마크 조회
+@router.get("/user/{user_id}", response_model=list[QuoteRead])
+async def get_bookmarks_by_user(user_id: int, db: AsyncSession = Depends(get_async_db)):
+    bookmarks = await bookmark_service.repository.get_by_user_id(db, user_id=user_id)
+    return [bookmark.quote for bookmark in bookmarks]
 
 # 북마크 추가
 @router.post("/", response_model=BookmarkRead)

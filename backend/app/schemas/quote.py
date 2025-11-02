@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Optional, List
 
 from app.schemas.tag import TagRead
+from app.schemas.source import SourceRead
 
 # 공통
 class QuoteBase(BaseModel):
@@ -47,3 +48,4 @@ class QuoteInDB(QuoteBase):
 #클라이언트에게 반환할 모델 -> QuoteInDB 그대로
 class QuoteRead(QuoteInDB):
     tags: List[TagRead] = []
+    source: Optional[SourceRead] = None
