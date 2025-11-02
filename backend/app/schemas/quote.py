@@ -35,6 +35,7 @@ class QuoteUpdate(BaseModel):
     content: Optional[str] = None
     page: Optional[str] = None
     source_id: Optional[int] = None
+    tags: Optional[List[str]] = None
 
 # DB에서 관리되는 모델
 class QuoteInDB(QuoteBase):

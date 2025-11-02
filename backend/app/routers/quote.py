@@ -114,8 +114,43 @@ async def update_quote(
     quote = await quote_service.repository.get(db, id=quote_id)
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
-    quote = await quote_service.repository.update(db, db_obj=quote, obj_in=quote_in)
-    return quote
+
+    # Extract tags from the input, if present
+    tag_names = quote_in.tags
+    quote_data = quote_in.model_dump(exclude_unset=True)
+    if 'tags' in quote_data:
+        del quote_data['tags']
+
+    # Update quote's basic fields
+    updated_quote = await quote_service.repository.update(db, db_obj=quote, obj_in=quote_data)
+
+    # Handle tags update
+    if tag_names is not None: # Check if tags were explicitly provided in the update
+        # Delete existing associations
+        await db.execute(quote_tags.delete().where(quote_tags.c.quote_id == quote_id))
+
+        if tag_names: # If new tags are provided, create new associations
+            tag_ids_to_associate = []
+            for name in tag_names:
+                tag = await tag_service.repository.get_by_name(db, name=name)
+                if not tag:
+                    tag = await tag_service.repository.create(db, obj_in=TagCreate(name=name))
+                tag_ids_to_associate.append(tag.id)
+
+            if tag_ids_to_associate:
+                associations = [
+                    {"quote_id": quote_id, "tag_id": tag_id}
+                    for tag_id in tag_ids_to_associate
+                ]
+                await db.execute(quote_tags.insert().values(associations))
+        await db.commit() # Commit after tag operations
+
+    # Re-fetch the quote with the updated tags preloaded to return the correct data.
+    result = await db.execute(
+        select(Quote).where(Quote.id == quote_id).options(selectinload(Quote.tags))
+    )
+    final_quote = result.scalar_one()
+    return final_quote
 
 
 @router.delete("/{quote_id}")

@@ -89,7 +89,7 @@ export const MovieModi = ({ quote ,source}) => {
         title: modiQuote.title,
         source_type: "movie",
         creator: modiQuote.director,
-        release_year: modiQuote.release | null,
+        release_year: parseInt(modiQuote.release) || null,
       });
 
       await axios.put(`/quote/${quote.id}`, {

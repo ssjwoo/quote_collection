@@ -91,7 +91,7 @@ const onUpdate = async () => {
         title: modiQuote.title,
         source_type: "drama",
         creator: modiQuote.producer,
-        release_year: modiQuote.release,
+        release_year: parseInt(modiQuote.release) || null,
       });
 
       await axios.put(`/quote/${quote.id}`, {
