@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export const MyNavBar = ({ setIsOpen, isLogIn }) => {
   const navigation = useNavigate();
-  const { logout } = useAuth();
+  const { logout ,setError} = useAuth();
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -47,8 +47,8 @@ export const MyNavBar = ({ setIsOpen, isLogIn }) => {
         ) : (
           <>
             <span
-              className="mr-1 px-1 cursor-pointer"
-              onClick={() => setIsOpen(true)}
+              className="mr-3 px-1 cursor-pointer"
+              onClick={() => {setIsOpen(true); setError(false);}}
             >
               login
             </span>

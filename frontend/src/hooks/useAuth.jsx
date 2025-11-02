@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error,setError] = useState(false);
 
   const navigation = useNavigate();
 
@@ -27,12 +28,14 @@ export const AuthProvider = ({ children }) => {
         }
       );
       localStorage.setItem("accessToken", response.data.access_token);
+      setError(false);
       await verifyJWT(); // Re-verify to set user and isAuthenticated state
       navigation("/");
       return true;
     } catch (error) {
       console.log(error.message);
-      alert("아이디/혹은 비밀번호가 일치하지 않습니다.");
+      setError(true);
+      // alert("아이디/혹은 비밀번호가 일치하지 않습니다.");
       return false;
     }
   };
@@ -100,6 +103,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     console.log("[AuthProvider] Initializing... Running verifyJWT.");
     verifyJWT();
+    setError(false);
   }, []);
 
   console.log("[AuthProvider] Rendering with state:", {
@@ -118,6 +122,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         login,
         isLoading,
+        error,
+        setError,
       }}
     >
       {children}
