@@ -28,6 +28,7 @@ class SourceUpdate(BaseModel):
     publisher_id: Optional[int] = None
     release_year: Optional[int] = None
     isbn: Optional[str] = None
+    publisher_name: Optional[str] = None
 
 class SourceInDB(SourceBase):
     id: int
