@@ -51,10 +51,7 @@ const RootLayout = () => {
                 <LoginModal setIsOpen={setIsOpen} />
               </div>
             )}
-            <MyNavBar
-              isLogIn={isAuthenticated}
-              setIsOpen={setIsOpen}
-            />
+            <MyNavBar isLogIn={isAuthenticated} setIsOpen={setIsOpen} />
             <main className="p-8 md:p-12 text-center text-black">
               <Logo />
               {isLoading ? <div>Loading...</div> : <Outlet />}

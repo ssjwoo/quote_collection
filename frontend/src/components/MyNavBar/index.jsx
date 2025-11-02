@@ -1,14 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
-export const MyNavBar = ({ setIsOpen, isLogIn, setIsLogin }) => {
+export const MyNavBar = ({ setIsOpen, isLogIn }) => {
   const navigation = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = (e) => {
     e.preventDefault();
-    alert("로그아웃 되었습니다");
-    setIsLogin(false);
-    navigation("/");
-    localStorage.setItem("accessToken", "");
+    logout();
   };
 
   const onBookmark = () => {

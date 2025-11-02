@@ -8,23 +8,22 @@ export const MemberInfo = () => {
   const [pw, setPw] = useState("");
   const [confirmedPw, setConfirmedPw] = useState("");
   const [error, setError] = useState({ nameE: "", pwE: "", confirmedPwE: "" });
-  const [checked, setChecked] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState('idle'); // 'idle', 'checking', 'available', 'unavailable', 'error'
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (token) {
-          // TODO: /api/auth/me
           const response = await axios.get("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log("/api/auth/me", response);
           const userData = response.data;
           setUser(userData);
           setName(userData.username);
+          setUsernameStatus('available'); // Assume initial username is available
         } else {
           // Handle error
         }
@@ -36,35 +35,55 @@ export const MemberInfo = () => {
   }, []);
 
   useEffect(() => {
-    if (user && user.username === name.trim()) setChecked(true);
-    else setChecked(false);
+    if (user && user.username === name.trim()) {
+      setUsernameStatus('available'); // Current username is always available
+    } else if (usernameStatus !== 'checking'){
+      setUsernameStatus('idle'); // Reset status if username changes and not checking
+    }
   }, [name, user]);
 
   const onIdCheck = async () => {
+    if (!name.trim()) {
+      setError(prev => ({ ...prev, nameE: "아이디를 입력해주세요." }));
+      setUsernameStatus('unavailable');
+      return;
+    }
+    if (name.trim().length < 3) {
+      setError(prev => ({ ...prev, nameE: "아이디는 3자 이상으로 설정해주세요." }));
+      setUsernameStatus('unavailable');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    setError(prev => ({ ...prev, nameE: "" }));
     try {
-      // TODO: /api/users/check-name
       const response = await axios.post("/users/check-name", {
         username: name,
       });
-      console.log("/api/users/check-name", response);
       const data = response.data;
-      setChecked(data.is_available);
-      if (!data.is_available) {
-        alert("이미 사용중인 아이디입니다.");
+      if (data.is_available) {
+        setUsernameStatus('available');
+      } else {
+        setUsernameStatus('unavailable');
       }
     } catch (error) {
       console.error("Failed to check name:", error);
+      setUsernameStatus('error');
     }
   };
 
   const onsubmit = async (e) => {
     e.preventDefault();
 
-    if (user.username === name.trim() && !pw && !confirmedPw) {
+    if (user && user.username === name.trim() && !pw && !confirmedPw) {
       return;
     }
 
-    if (!checked) {
+    if (usernameStatus === 'unavailable') {
+      alert("이미 사용중인 아이디입니다. 다시 확인해주세요."); 
+      return;
+    }
+    if (usernameStatus === 'idle' && user.username !== name.trim()){
       alert("아이디 중복확인이 필요합니다.");
       return;
     }
@@ -98,7 +117,6 @@ export const MemberInfo = () => {
         updatedUser.password = pw;
       }
 
-      // TODO: /api/users/${user.id}, no navigation
       const response = await axios.put(`/users/${user.id}`, updatedUser, {
         headers: {
           "Content-Type": "application/json",
@@ -118,6 +136,28 @@ export const MemberInfo = () => {
     }
   };
 
+  const getNameInputClass = () => {
+    let baseClass = "w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400";
+    if (usernameStatus === 'available') return baseClass + " outline-main-green border border-main-green";
+    if (usernameStatus === 'unavailable') return baseClass + " outline-red-500 border border-red-500";
+    return baseClass + " outline-main-green"; // Default or idle state
+  };
+
+  const getNameFeedbackMessage = () => {
+    if (user && user.username === name.trim() && usernameStatus === 'available') return "(현재 아이디)";
+    if (usernameStatus === 'checking') return "(중복 확인 중...)";
+    if (usernameStatus === 'available') return "(사용 가능한 아이디입니다.)";
+    if (usernameStatus === 'unavailable') return "(이미 사용중인 아이디입니다.)";
+    if (usernameStatus === 'error') return "(아이디 확인 중 오류 발생)";
+    return "";
+  };
+
+  const getNameFeedbackColorClass = () => {
+    if (usernameStatus === 'available') return "text-main-green";
+    if (usernameStatus === 'unavailable') return "text-red-500";
+    return "";
+  };
+
   return (
     <>
       <Form className="flex flex-col mt-10">
@@ -126,27 +166,31 @@ export const MemberInfo = () => {
           <label className="w-1/5 text-end pb-2 pr-2">name</label>
           <input
             type="text"
-            className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green"
+            className={getNameInputClass()}
             placeholder="아이디를 입력하세요"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setUsernameStatus(prev => (user && user.username === e.target.value.trim()) ? 'available' : 'idle'); // Reset status on change unless it's current user's username
+            }}
           />
           <div className="self-end ml-4">
             <button
                className="p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green
              disabled:border-gray-400 disabled:text-gray-400 disabled:hover:ring-0 "
               onClick={onIdCheck}
-              disabled={user && user.username === name.trim()}
-             >
+              disabled={usernameStatus === 'checking' || (user && user.username === name.trim())}
+            >
               중복 확인
             </button>
           </div>
         </div>
-        {name.length < 3 && error.nameE && (
-          <div className="text-xs w-4/6 mt-4 pl-3 flex justify-center text-red-700">
-            {error.nameE}
+        {(error.nameE || usernameStatus !== 'idle') && (
+          <div className={`text-xs w-4/6 mt-1 pl-4 flex justify-center ${getNameFeedbackColorClass()}`}>
+            {error.nameE || getNameFeedbackMessage()}
           </div>
         )}
+
         {user && (
           <div className="flex items-end mt-3">
             <label className="w-1/5 text-end pb-2 pr-2">email</label>

@@ -82,7 +82,9 @@ async def create_quote(quote_in: QuoteCreate, db: AsyncSession = Depends(get_asy
 
         # Re-fetch the quote with the tags preloaded to return the correct data.
         result = await db.execute(
-            select(Quote).where(Quote.id == quote_id).options(selectinload(Quote.tags))
+            select(Quote)
+            .where(Quote.id == quote_id)
+            .options(selectinload(Quote.tags), selectinload(Quote.source))
         )
         final_quote = result.scalar_one()
         return final_quote
@@ -157,7 +159,9 @@ async def update_quote(
 
     # Re-fetch the quote with the updated tags preloaded to return the correct data.
     result = await db.execute(
-        select(Quote).where(Quote.id == quote_id).options(selectinload(Quote.tags))
+        select(Quote)
+        .where(Quote.id == quote_id)
+        .options(selectinload(Quote.tags), selectinload(Quote.source))
     )
     final_quote = result.scalar_one()
     return final_quote
