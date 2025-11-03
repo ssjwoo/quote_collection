@@ -3,7 +3,7 @@ import { LoginInput } from "../../LoginInput";
 import { useAuth } from "../../../hooks/useAuth";
 
 const LoginModal = ({ setIsOpen }) => {
-  const { login , error,setError } = useAuth();
+  const { login, error, setError } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -11,7 +11,7 @@ const LoginModal = ({ setIsOpen }) => {
     const email = form.email.value;
     const password = form.password.value;
 
-    if(!email){
+    if (!email) {
       setError(true);
       return;
     }
@@ -35,9 +35,19 @@ const LoginModal = ({ setIsOpen }) => {
             </div>
 
             <form className="space-y-4 " onSubmit={handleSubmit}>
-              <LoginInput title="email" type="email" name="email" error={error} />
+              <LoginInput
+                title="email"
+                type="email"
+                name="email"
+                error={error}
+              />
               <div className="flex items-center mb-5">
-                <LoginInput title="password" type="password" name="password" error={error}/>
+                <LoginInput
+                  title="password"
+                  type="password"
+                  name="password"
+                  error={error}
+                />
                 <button className="border ml-3 mt-5 border-custom-div text-custom-div w-[70px] h-[30px] rounded-sm flex justify-center items-center hover:bg-custom-div hover:text-main-green transition">
                   login
                 </button>

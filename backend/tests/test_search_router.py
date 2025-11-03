@@ -76,3 +76,45 @@ async def test_search(client: AsyncClient, db_session: AsyncSession):
     assert len(data["quotes"]) == 0
     assert len(data["sources"]) == 0
     assert len(data["tags"]) == 0
+
+    # Search for book by author
+    response = await client.get("/search/?q=Great Author")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Book"
+
+    # Search for movie by director
+    response = await client.get("/search/?q=Great Director")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Movie"
+
+    # Search for drama by producer
+    response = await client.get("/search/?q=Test Producer")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Drama"
+
+    # Search for book by author
+    response = await client.get("/search/?q=Great Author")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Book"
+
+    # Search for movie by director
+    response = await client.get("/search/?q=Great Director")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Movie"
+
+    # Search for drama by producer
+    response = await client.get("/search/?q=Test Producer")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "The Great Drama"
