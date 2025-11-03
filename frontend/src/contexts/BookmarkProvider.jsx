@@ -4,7 +4,7 @@ import axios from "../api/axios";
 import { useAuth } from "../hooks/useAuth";
 
 export function BookmarkProvider({ children }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, showAlert } = useAuth();
   const [bookmarks, setBookmarks] = useState([]);
 
   console.log("[BookmarkProvider] Rendering with received state:", { isLoading, user });
@@ -26,7 +26,8 @@ export function BookmarkProvider({ children }) {
 
   const toggleBookmark = useCallback(async (quote) => {
     if (!user) {
-      alert("로그인이 필요한 기능입니다.");
+      // alert("로그인이 필요한 기능입니다.");
+      showAlert("로그인이 필요한 기능입니다.");
       return null;
     }
 
@@ -47,7 +48,8 @@ export function BookmarkProvider({ children }) {
       return response.data; // Return the new state
     } catch (error) {
       console.error("Failed to toggle bookmark:", error);
-      alert("북마크 변경에 실패했습니다.");
+      // alert("북마크 변경에 실패했습니다.");
+      showAlert("북마크 변경에 실패했습니다.");
       return null;
     }
   }, [user]);

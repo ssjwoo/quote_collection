@@ -8,7 +8,7 @@ import { useAuth } from "../../../hooks/useAuth";
 
 export const MovieDetail = ({ quote }) => {
   const navigation = useNavigate();
-  const { user } = useAuth();
+  const { user , showAlert} = useAuth();
   const { toggleBookmark } = useBookmarks();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -69,7 +69,8 @@ export const MovieDetail = ({ quote }) => {
 
   const handleToggleBookmark = async () => {
     if (!user) {
-      alert("로그인이 필요한 기능입니다.");
+      // alert("로그인이 필요한 기능입니다.");
+      showAlert("로그인이 필요한 기능입니다.");
       return;
     }
     const result = await toggleBookmark(quote);
@@ -92,7 +93,8 @@ export const MovieDetail = ({ quote }) => {
     try {
       await axios.delete(`/quote/${quote.id}`);
       await axios.delete(`/source/${source.id}`);
-      alert("Movie deleted successfully!");
+      // alert("Movie deleted successfully!");
+      showAlert("Book Moment 삭제가 완료되었습니다.");
       navigation("/movie");
     } catch (error) {
       console.error("Error deleting Movie:", error);

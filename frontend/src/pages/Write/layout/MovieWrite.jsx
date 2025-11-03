@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const MovieWrite = () => {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ export const MovieWrite = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(0);
+
+  const {showAlert }=useAuth();
 
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
@@ -73,8 +76,9 @@ export const MovieWrite = () => {
   };
 
   const onSubmit = async () => {
-    if (!title.trim() || !director.trim() || !content.trim()) {
-      alert("필수항목을 입력해주세요");
+    if (!title.trim() || !director.trim() || !content.trim()|| selectedTags.length === 0) {
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
     try {
@@ -97,7 +101,8 @@ export const MovieWrite = () => {
       });
       console.log("/api/quote/", quoteRes);
 
-      alert("영화 명언이 등록되었습니다.");
+      // alert("영화 명언이 등록되었습니다.");
+      showAlert("영화 명언이 등록되었습니다.");
       navigate("/movie"); // Redirect to home or a suitable page after creation
     } catch (error) {
       console.error("Error creating movie quote:", error);
@@ -159,7 +164,7 @@ export const MovieWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-16 pr-2">태그 </label>
+          <label className="w-1/5 text-end pb-16 pr-2">태그  <span className="text-red-700">*</span></label>
           <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green">
             {tags.map((id) => (
               <button
@@ -179,7 +184,7 @@ export const MovieWrite = () => {
         )}
         <div className="self-end">
           <button
-            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-main-pink"
+            className="rounded-xl p-2 text-xs mr-20 mt-7 w-5/12 border border-main-green hover:bg-mypage-menu"
             onClick={onSubmit}
           >
             등록
