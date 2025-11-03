@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const BookModi = ({ quote, source }) => {
   const navigate = useNavigate();
   const [modiQuote, setModiQuote] = useState({});
+  const {showAlert} =useAuth();
 
   const tags = [
     "사랑",
@@ -105,7 +107,8 @@ export const BookModi = ({ quote, source }) => {
       !modiQuote.author.trim() ||
       !modiQuote.content.trim()
     ) {
-      alert("필수항목을 입력해주세요");
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
 
@@ -124,11 +127,13 @@ export const BookModi = ({ quote, source }) => {
         tags: selectedTags,
       });
 
-      alert("book update successfully!");
+      // alert("book update successfully!");
+      showAlert("Book Moment 수정이 완료되었습니다.");
       navigate("/");
     } catch (error) {
       console.error("API call error:", error);
-      alert(`등록 중 오류가 발생했습니다: ${error.message}`);
+      // alert(`등록 중 오류가 발생했습니다: ${error.message}`);
+      showAlert(`등록 중 오류가 발생했습니다: ${error.message}`);
     }
   };
 
@@ -140,7 +145,8 @@ export const BookModi = ({ quote, source }) => {
       const responseS = await axios.delete(`/source/${source.id}`);
       console.log(`/source/${source.id}`, responseS);
 
-      alert("Book deleted successfully!");
+      // alert("Book deleted successfully!");
+      showAlert("Book Moment 삭제가 완료되었습니다.");
       navigate("/"); // Redirect to home or a suitable page after deletion
     } catch (error) {
       console.error("Error deleting book:", error);

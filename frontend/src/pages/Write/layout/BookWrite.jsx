@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const BookWrite = () => {
   const navigation = useNavigate();
@@ -40,6 +41,8 @@ export const BookWrite = () => {
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(0);
 
+  const {showAlert} = useAuth();
+
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
     "rounded-xl p-2 bg-main-beige text-xs ml-1 mr-1 mb-1 border-sub-darkbeidge border",
@@ -78,7 +81,8 @@ export const BookWrite = () => {
 
   const onSubmit = async () => {
     if (!title.trim() || !author.trim() || !content.trim() || selectedTags.length === 0) {
-      alert("필수항목을 입력해주세요");
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
 
@@ -109,7 +113,8 @@ export const BookWrite = () => {
         tags: selectedTags,
       });
 
-      alert("책 명언이 등록되었습니다.");
+      // alert("책 명언이 등록되었습니다.");
+      showAlert("책 명언이 등록되었습니다.");
       navigation("/");
     } catch (error) {
       console.error("API call error:", error);

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const MovieModi = ({ quote ,source}) => {
 
   const navigate = useNavigate();
+  const {showAlert} =useAuth();
 
   const [modiQuote, setModiQuote] = useState({
     title: source.title,
@@ -79,7 +81,8 @@ export const MovieModi = ({ quote ,source}) => {
       !modiQuote.director.trim() ||
       !modiQuote.content.trim()
     ) {
-      alert("필수항목을 입력해주세요");
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
     try {
@@ -99,7 +102,8 @@ export const MovieModi = ({ quote ,source}) => {
         tags: selectedTags,
       });
 
-      alert("Movie updated successfully!");
+      // alert("Movie updated successfully!");
+      showAlert("Movie Moment 수정이 완료되었습니다.");
       navigate("/movie");
     } catch (error) {
       console.error("Error updating movie:", error);
@@ -113,7 +117,8 @@ export const MovieModi = ({ quote ,source}) => {
       await axios.delete(`/quote/${quote.id}`);
       await axios.delete(`/source/${source.id}`);
 
-      alert("Movie deleted successfully!");
+      // alert("Movie deleted successfully!");
+      showAlert("Movie Moment 삭제가 완료되었습니다.");
       navigate("/movie"); 
     } catch (error) {
       console.error("Error deleting Movie:", error);

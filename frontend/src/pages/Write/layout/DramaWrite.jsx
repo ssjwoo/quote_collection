@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
+import { useAuth } from "../../../hooks/useAuth";
 
 export const DramaWrite = () => {
   const navigation = useNavigate();
@@ -36,6 +37,8 @@ export const DramaWrite = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(0);
+
+  const { showAlert } =useAuth();
 
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
@@ -74,8 +77,9 @@ export const DramaWrite = () => {
   };
 
   const onSubmit = async () => {
-    if (!title.trim() || !producer.trim() || !content.trim()) {
-      alert("필수항목을 입력해주세요");
+    if (!title.trim() || !producer.trim() || !content.trim()|| selectedTags.length === 0) {
+      // alert("필수항목을 입력해주세요");
+      showAlert("필수항목을 입력해주세요");
       return;
     }
 
@@ -111,7 +115,8 @@ export const DramaWrite = () => {
       });
       console.log("/api/quote/", quoteRes);
 
-      alert("드라마 명언이 등록되었습니다.");
+      // alert("드라마 명언이 등록되었습니다.");
+      showAlert("드라마 명언이 등록되었습니다.");
       navigation("/drama");
     } catch (error) {
       console.error("API call error:", error);
@@ -174,7 +179,7 @@ export const DramaWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-16 pr-2">태그 </label>
+          <label className="w-1/5 text-end pb-16 pr-2">태그  <span className="text-red-700">*</span></label>
           <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green">
             {tags.map((id) => (
               <button

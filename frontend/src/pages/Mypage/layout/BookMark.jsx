@@ -61,7 +61,7 @@ export const BookMark = ({ userId }) => {
           sortedQuotes.map((q) => (
             <div
               key={q.id}
-              className="cursor-pointer mt-5 border-2 hover:bg-main-beige border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
+              className="cursor-pointer mt-5 border-2 hover:bg-mypage-menu/50 border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg"
               onClick={() => onDetail(q.id)}
             >
               <div className="text-lg">{q.content}</div>

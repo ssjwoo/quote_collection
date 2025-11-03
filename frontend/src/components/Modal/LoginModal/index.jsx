@@ -3,13 +3,18 @@ import { LoginInput } from "../../LoginInput";
 import { useAuth } from "../../../hooks/useAuth";
 
 const LoginModal = ({ setIsOpen }) => {
-  const { login } = useAuth();
+  const { login, error, setError } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
+
+    if (!email) {
+      setError(true);
+      return;
+    }
 
     const success = await login(email, password);
     if (success) {
@@ -24,15 +29,25 @@ const LoginModal = ({ setIsOpen }) => {
         onClick={() => setIsOpen(false)}
       >
         <div onClick={(e) => e.stopPropagation()}>
-          <div className="mb-6 bg-main-green h-[330px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
+          <div className="mb-6 bg-main-green/90 h-[330px] w-[350px] rounded-sm flex-col flex items-start md:items-center justify-between md:justify-center">
             <div className="text-custom-div text-3xl mb-5 cursor-pointer">
               LOGIN
             </div>
 
             <form className="space-y-4 " onSubmit={handleSubmit}>
-              <LoginInput title="email" type="email" name="email" />
+              <LoginInput
+                title="email"
+                type="email"
+                name="email"
+                error={error}
+              />
               <div className="flex items-center mb-5">
-                <LoginInput title="password" type="password" name="password" />
+                <LoginInput
+                  title="password"
+                  type="password"
+                  name="password"
+                  error={error}
+                />
                 <button className="border ml-3 mt-5 border-custom-div text-custom-div w-[70px] h-[30px] rounded-sm flex justify-center items-center hover:bg-custom-div hover:text-main-green transition">
                   login
                 </button>
