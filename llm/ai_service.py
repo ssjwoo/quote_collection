@@ -453,14 +453,99 @@ class AIService:
         except Exception as e:
             logger.error(f"Error generating recommendations: {e}")
             # Fallback to mock data on error as well
-            return [
+            base_mock = [
                  {
                      "content": "가장 훌륭한 시는 아직 쓰여지지 않았다.",
                      "source_title": "나짐 히크메트 시집",
                      "author": "나짐 히크메트",
                      "source_type": source_type,
-                     "tags": ["희망", "시", "미래"],
-                     "link": "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord=나짐히크메트",
-                     "image": ""
+                     "tags": ["희망", "시", "미래"]
                  }
-            ]
+            ] * pool_size
+            
+            # Enrich fallback
+            for m in base_mock:
+                 m["link"] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={m['source_title']}"
+                 m["image"] = ""
+            
+            return base_mock
+    async def get_related_quotes(self, current_quote_content: str, limit: int = 3) -> list[dict]:
+        """
+        Generate quotes related to the provided quote content (Chain Recommendation).
+        Infinite exploration enabled by context-aware prompting.
+        """
+        if not self.model:
+            logger.warning("AI service not initialized. Returning mock related quotes.")
+            return [
+                 {
+                     "content": "비슷한 분위기의 추천 명언입니다. (AI 연결 필요)",
+                     "source_title": "AI 미연결",
+                     "author": "시스템",
+                     "source_type": "book",
+                     "tags": ["추천", "기본"]
+                 }
+            ] * limit
+
+        # No caching logic here because we want "infinite" variety based on subtle context shifts
+        # If we cache solely on content, the chain might loop. 
+        # But for strictly same content input, distinct results are hard without randomness.
+        # We'll use a high temperature.
+        
+        prompt = f"""
+        You are a creative muse. The user is reading this quote:
+        "{current_quote_content}"
+        
+        Recommend {limit} NEW and DISTINCT quotes that are related to this one.
+        They can be:
+        1. Similar in theme (deepening the mood)
+        2. A counter-perspective (offering a different view)
+        3. From the same author or work (if famous)
+        
+        The goal is to let the user endlessly surf through interesting quotes.
+        Target Language: Korean (Must be in Korean).
+        
+        Please provide the response in valid JSON format as a LIST of objects with the following keys:
+        - content: The quote text (in Korean).
+        - source_title: The title of the work (in Korean).
+        - author: The author or character (in Korean).
+        - source_type: "book" (or movie/drama if relevant).
+        - tags: A list of 1-3 keywords.
+
+        Do not include markdown formatting. Just the raw JSON list.
+        """
+        
+        try:
+            response = await self.model.generate_content_async(
+                prompt,
+                generation_config={
+                    "response_mime_type": "application/json",
+                    "temperature": 0.9  # High temperature for variety
+                }
+            )
+            import json
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            
+            data = json.loads(text)
+            
+            # Normalize list
+            if isinstance(data, dict):
+                data = [data]
+            
+            # Add fallback links
+            if data:
+                 import urllib.parse
+                 for item in data:
+                     if 'link' not in item or not item['link']:
+                          q = f"{item.get('source_title', '')} {item.get('author', '')}".strip()
+                          item['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={urllib.parse.quote(q)}"
+                     if 'image' not in item:
+                         item['image'] = ""
+            
+            return data
+        except Exception as e:
+            logger.error(f"Error generating related quotes: {e}")
+            return []

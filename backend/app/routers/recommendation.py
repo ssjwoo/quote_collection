@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 import random
@@ -176,7 +176,69 @@ async def get_recommendations_by_source(
                 recommendations.append(quote_read)
             return recommendations
             
-    return []
+
+@router.post("/related", response_model=List[QuoteRead])
+async def get_related_recommendations(
+    current_quote_content: str = Body(..., embed=True),
+    limit: int = 3,
+):
+    """
+    Get recommendations related to a specific quote content.
+    Used for "Chain Recommendation" on Detail page.
+    """
+    if not ai_service:
+        return []
+
+    print(f"DEBUG RECOM: Generating Chain Recommendations for: {current_quote_content[:30]}...")
+    
+    # Call AI Service for related quotes
+    # Context is just the current quote content
+    related_quotes = await ai_service.get_related_quotes(current_quote_content, limit=limit)
+    
+    from app.schemas.source import SourceRead
+    from app.schemas.tag import TagRead
+    from datetime import datetime
+    
+    recommendations = []
+    for i, q in enumerate(related_quotes):
+        # Using negative ID to indicate it's not a real DB record
+        fake_id = -1000 - i # Start from -1000 to differentiate? or just negative
+        
+        # Process tags
+        tags_data = q.get("tags", [])
+        tags_list = []
+        if isinstance(tags_data, list):
+            for t_idx, t_name in enumerate(tags_data):
+                tags_list.append(TagRead(
+                    id=-1 * (t_idx + 1),
+                    name=str(t_name),
+                    created_at=datetime.now()
+                ))
+        
+        # Construct dummy source
+        source_read = SourceRead(
+            id=0,
+            title=q.get("source_title", "Unknown Source"),
+            source_type=q.get("source_type", "book"),
+            creator=q.get("author", "Unknown Author"),
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        
+        # Construct dummy quote
+        quote_read = QuoteRead(
+            id=fake_id, 
+            content=q.get('content', ''),
+            source_id=0,
+            user_id=0,
+            created_at=datetime.now(),
+            tags=tags_list,
+            source=source_read
+        )
+        recommendations.append(quote_read)
+        
+    return recommendations
+
 
 
 @router.get("/user-based", response_model=List[QuoteRead])

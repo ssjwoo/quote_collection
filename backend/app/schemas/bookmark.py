@@ -6,7 +6,8 @@ class BookmarkBase(BaseModel):
     quote_id: int
 
 class BookmarkCreate(BookmarkBase):
-    pass
+    quote_data: dict | None = None  # AI 추천 문구 등 DB에 없는 경우를 위한 데이터
+
 
 class BookmarkInDB(BookmarkBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

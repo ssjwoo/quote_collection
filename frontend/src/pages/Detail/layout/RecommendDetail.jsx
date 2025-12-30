@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 
-export const RecommendDetail = ({ mode }) => {
+export const RecommendDetail = ({ mode, quote }) => {
   const navigation = useNavigate();
   const [quotes, setQuotes] = useState([]);
 
@@ -17,22 +17,22 @@ export const RecommendDetail = ({ mode }) => {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
+      if (!quote || !quote.content) return;
+
       try {
-        const response = await axios.get(
-          `/recommendations?source_type=${mode}&limit=3`
-        );
-        console.log(
-          `/api/recommendations?source_type=${mode}&limit=3`,
-          response
-        );
+        const response = await axios.post(`/recommendations/related?limit=3`, {
+          current_quote_content: quote.content,
+        });
+        console.log("Chain Recommendation Result:", response.data);
         setQuotes(response.data);
       } catch (error) {
-        console.error("Failed to fetch recommendations:", error);
+        console.error("Failed to fetch chain recommendations:", error);
+        // Fallback to mode-based if chain fails (optional)
       }
     };
 
     fetchRecommendations();
-  }, [mode]);
+  }, [quote]); // Re-run when quote changes (infinite chain)
   return (
     <>
       <div className="flex-col flex items-center mb-12">
