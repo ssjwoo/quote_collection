@@ -12,11 +12,6 @@ import sys
 import os
 
 # Add llm folder to sys.path to import AIService
-# Assuming backend is running from c:\quote_collection\backend
-# We need to go up one level to c:\quote_collection, then into llm
-# However, inside the container or runtime, we must validata the path.
-# __file__ is .../backend/app/routers/recommendation.py
-# ../../../llm
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../llm")))
 
 try:
@@ -25,6 +20,26 @@ except ImportError:
     # Fallback or error handling if path is wrong
     print("Could not import AIService from llm folder")
     AIService = None
+
+from fastapi.security import OAuth2PasswordBearer
+from app.core.auth import verify_token
+from app.services import user_service
+
+# Optional auth scheme
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
+
+async def get_current_user_optional(
+    token: str = Depends(oauth2_scheme_optional),
+    db: AsyncSession = Depends(get_async_db)
+):
+    if not token:
+        return None
+    try:
+        user_id = verify_token(token)
+        user = await user_service.repository.get(db, id=user_id)
+        return user
+    except Exception:
+        return None
 
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
 
@@ -43,10 +58,54 @@ async def get_recommendations_by_source(
     db: AsyncSession = Depends(get_async_db),
     source_type: str = Query("book", enum=["book", "movie", "drama"]),
     limit: int = 3,
+    current_user: UserResponse = Depends(get_current_user_optional),
 ):
     """
     Get recommended quotes from a specific source type.
+    Personalized if user is logged in.
     """
+    # 1. Build User Context if logged in
+    user_context = ""
+    if current_user:
+        try:
+            # Fetch bookmarks
+            bookmarks = await bookmark_service.get_by_user_id(db, user_id=current_user.id)
+            # Fetch user's own quotes
+            user_quotes = await quote_service.get_by_user_id(db, user_id=current_user.id)
+            
+            context_parts = []
+            if bookmarks:
+                context_parts.append("User Bookmarks provided below:")
+                for b in bookmarks[:5]: # Use top 5 recent bookmarks
+                    try:
+                        q = b.quote
+                        # Explicitly access attributes to ensure they are loaded (if lazy)
+                        # Depending on schema, might need to ensure eager loading or access carefully
+                        content = q.content[:50] if q.content else ""
+                        tags = ",".join([t.name for t in q.tags]) if q.tags else ""
+                        context_parts.append(f"- Quote: {content} (Tags: {tags})")
+                    except Exception as e:
+                        print(f"Error processing bookmark for context: {e}")
+                        continue
+            
+            if user_quotes:
+                context_parts.append("User Created Quotes:")
+                for q in user_quotes[:5]:
+                    try:
+                        content = q.content[:50] if q.content else ""
+                        tags = ",".join([t.name for t in q.tags]) if q.tags else ""
+                        context_parts.append(f"- Quote: {content} (Tags: {tags})")
+                    except Exception as e:
+                        print(f"Error processing user quote for context: {e}")
+                        continue
+            
+            if context_parts:
+                user_context = "\n".join(context_parts)
+                print(f"DEBUG: Recommendation logic using context for user {current_user.id}: {len(user_context)} chars")
+        except Exception as e:
+            print(f"DEBUG: Failed to build user context: {e}")
+            user_context = ""
+
     # quotes = await quote_service.get_random_by_source_type(
     #     db, source_type=source_type, limit=limit
     # )
@@ -56,8 +115,21 @@ async def get_recommendations_by_source(
 
     # Fallback to AI if no quotes found in DB
     if ai_service:
-        ai_quotes = await ai_service.get_recommendations(source_type, limit)
-        if ai_quotes:
+        # Get a larger pool from AI (cached)
+        # We ignore the 'limit' param for the AI call to get the full pool
+        ai_quotes_pool = await ai_service.get_recommendations(source_type, limit=15, user_context=user_context)
+        
+        if ai_quotes_pool:
+            # Randomly select 'limit' (3) items from the pool
+            # This ensures variety on every refresh
+            if len(ai_quotes_pool) > limit:
+                ai_quotes = random.sample(ai_quotes_pool, limit)
+            else:
+                ai_quotes = ai_quotes_pool
+
+            # Shuffle again just in case (random.sample already does it but good practice)
+            random.shuffle(ai_quotes)
+
             from app.schemas.source import SourceRead
             from app.schemas.tag import TagRead
             from datetime import datetime

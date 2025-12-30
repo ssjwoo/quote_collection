@@ -335,10 +335,13 @@ class AIService:
                 "tags": ["희망", "시", "미래"]
             }
 
-    async def get_recommendations(self, source_type: str, limit: int = 3) -> list[dict]:
+    async def get_recommendations(self, source_type: str, limit: int = 3, user_context: str = "") -> list[dict]:
+        pool_size = 15  # Request a larger pool for diversity
+        
         if not self.model:
              logger.warning(f"AI service not initialized. Returning mock recommendations for {source_type}")
-             return [
+             # Mock data needs to be diverse enough if we want to test randomization, but keeping simple for now
+             base_mock = [
                  {
                      "content": "사람은 무엇으로 사는가? 사랑으로 산다.",
                      "source_title": "사람은 무엇으로 사는가",
@@ -367,10 +370,19 @@ class AIService:
                      "image": ""
                  }
              ]
+             # Duplicate to simulate pool for mock
+             return base_mock * 5
 
         from datetime import datetime
         today = datetime.now().strftime("%Y-%m-%d")
-        cache_key = ("recommendations", source_type, limit, today)
+        
+        # Create a hash of user_context to keep cache key short but unique to context
+        import hashlib
+        context_hash = hashlib.md5(user_context.encode()).hexdigest() if user_context else "no_context"
+        
+        # Cache key includes context and date. 
+        # Note: We cache the POOL, not the final selection.
+        cache_key = ("recommendations_pool", source_type, today, context_hash)
 
         # Initialize cache if missing (safety check)
         if not hasattr(self, '_cache'):
@@ -380,16 +392,20 @@ class AIService:
             return self._cache[cache_key]
 
         prompt = f"""
-        Recommend {limit} famous and inspiring quotes from different {source_type}s for today ({today}).
+        Recommend {pool_size} famous and inspiring quotes from different {source_type}s.
         
-        The quotes must be suitable for a general audience and widely recognized. Only Korean.
+        User's Interest/Context:
+        {user_context or "General audience, popular and classic quotes."}
+
+        The quotes must be suitable for the user's interest if provided, otherwise general audience.
+        Only Korean.
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
         - content: The quote text (in Korean).
         - source_title: The title of the {source_type} (in Korean).
         - author: The author or character who said it (in Korean).
         - source_type: "{source_type}"
-        - tags: A list of 1-3 keywords relevant to the quote (in Korean).
+        - tags: A list of 1-3 keywords relevant to the quote (in Korean), reflecting the user's interest if applicable.
 
         Do not include markdown formatting. Just the raw JSON list.
         """
