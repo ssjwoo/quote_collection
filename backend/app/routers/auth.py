@@ -36,17 +36,23 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_async_db),
 ):
-    # 사용자 찾기
-    user = await user_service.repository.get_by_email(db, email=form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="메일 또는 비번이 틀립니다.")
+    try:
+        # 사용자 찾기
+        user = await user_service.repository.get_by_email(db, email=form_data.username)
+        if not user or not verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="메일 또는 비번이 틀립니다.")
 
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="비활성화 계정입니다.")
+        if not user.is_active:
+            raise HTTPException(status_code=400, detail="비활성화 계정입니다.")
 
-    # 토큰 생성
-    access_token = create_access_token(user.id)
-    return Token(access_token=access_token, user=UserResponse.model_validate(user))
+        # 토큰 생성
+        access_token = create_access_token(user.id)
+        return Token(access_token=access_token, user=UserResponse.model_validate(user))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"LOGIN ERROR: {e}")
+        raise e
 
 
 # 현재 사용자 정보

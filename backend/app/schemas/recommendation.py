@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class RecommendationItem(BaseModel):
     id: int
@@ -11,3 +11,11 @@ class RecommendationItem(BaseModel):
     bookmark_count: Optional[int] = None
 
     model_config = {"from_attributes": True}
+
+class BookRecommendation(BaseModel):
+    title: str
+    author: str
+    reason: str
+    image: Optional[str] = ""
+    link: Optional[str] = ""
+    tags: Optional[List[str]] = []

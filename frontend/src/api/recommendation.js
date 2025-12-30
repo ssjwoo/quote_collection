@@ -1,6 +1,7 @@
 import axios from "./axios";
 
-export const getAIRecommendations = async () => {
-  const response = await axios.post("/recommendations/ai", {}, { timeout: 60000 });
+export const getAIRecommendations = async (refresh = false) => {
+  const url = refresh ? "/recommendations/ai?refresh=true" : "/recommendations/ai";
+  const response = await axios.post(url, {}, { timeout: 60000 });
   return response;
 };

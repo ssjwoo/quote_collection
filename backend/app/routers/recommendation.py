@@ -143,8 +143,13 @@ async def get_user_based_recommendations(
     return final_recommendations
 
 
-@router.post("/ai", response_model=str)
+from app.schemas.recommendation import BookRecommendation
+
+# ...
+
+@router.post("/ai", response_model=List[BookRecommendation])
 async def get_ai_recommendations(
+    refresh: bool = Query(False),
     db: AsyncSession = Depends(get_async_db),
     current_user: UserResponse = Depends(get_current_user),
 ):
@@ -153,8 +158,11 @@ async def get_ai_recommendations(
     It calls the AI service with the user's recent bookmarks and quotes as context.
     """
     if not ai_service:
-        return "AI 서비스가 서버에서 활성화되지 않았습니다."
+        # Return empty list instead of string error to match model
+        return []
     
+    # ... (context gathering logic)
+
     # 1. Gather User Context: Recent Bookmarks and Quotes
     # Get recent bookmarks
     bookmarks = await bookmark_service.get_by_user_id(db, user_id=current_user.id)
@@ -182,6 +190,6 @@ async def get_ai_recommendations(
     user_context = "\n".join(context_lines)
     
     # 2. Call AI Service
-    recommendations = await ai_service.generate_book_recommendations(user_context)
+    recommendations = await ai_service.generate_book_recommendations(user_context, bypass_cache=refresh)
     
     return recommendations

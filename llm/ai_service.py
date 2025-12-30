@@ -40,6 +40,8 @@ class AIService:
         self.aladin_api_key = aladin_api_key or os.getenv("ALADIN_API_KEY", "")
         self._model = None
         self._cache = {}
+        logger.info(f"AIService Initialized. Cache ready: {hasattr(self, '_cache')}")
+        print(f"DEBUG: AIService Initialized. Cache ready: {hasattr(self, '_cache')}")
         
     @property
     def model(self):
@@ -115,15 +117,52 @@ class AIService:
             logger.warning(f"Failed to fetch Aladin book info: {e}")
             return {"image": "", "link": ""}
 
-    async def generate_book_recommendations(self, user_context: str) -> str:
+    async def generate_book_recommendations(self, user_context: str, bypass_cache: bool = False) -> list[dict]:
+        # Cache check
+        if not hasattr(self, '_cache'):
+            self._cache = {}
+        
+        # Simple cache key based on context hash. 
+        # Since context can be long, we shouldn't use it as raw key if possible, but python dict handles strings fine.
+        cache_key = ("book_recommendations", user_context)
+        
+        if not bypass_cache and cache_key in self._cache:
+            logger.info("Returning cached book recommendations")
+            return self._cache[cache_key]
+
         libs = _ensure_vertex_libs()
+        # Fallback if libraries missing or model init failed
         if not libs or not self.model:
-             return "AI 서비스가 초기화되지 않아 추천을 생성할 수 없습니다."
+             logger.warning("AI service not initialized or model failed. Using Mock Data for book recommendations.")
+             mock_books = [
+                 {"title": "달러구트 꿈 백화점", "author": "이미예", "reason": "힐링과 감동을 주는 한국형 판타지 소설"},
+                 {"title": "불편한 편의점", "author": "김호연", "reason": "따뜻한 위로가 필요한 당신에게 추천하는 베스트셀러"},
+                 {"title": "채식주의자", "author": "한강", "reason": "강렬한 문체와 깊이 있는 주제의식의 맨부커상 수상작"},
+                 {"title": "모순", "author": "양귀자", "reason": "인생의 모순을 날카롭지만 따뜻하게 그려낸 수작"},
+                 {"title": "파친코", "author": "이민진", "reason": "역사의 흐름 속에서 피어난 강인한 생명력의 이야기"}
+             ]
+             try:
+                 for book in mock_books:
+                    title = book.get('title', '')
+                    author = book.get('author', '')
+                    aladin_info = await self._fetch_aladin_book_info(title, author)
+                    if aladin_info["link"]:
+                        book['link'] = aladin_info["link"]
+                    else:
+                        import urllib.parse
+                        search_query = f"{title} {author}".strip()
+                        book['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={urllib.parse.quote(search_query)}"
+                    book['image'] = aladin_info["image"]
+                 
+                 self._cache[cache_key] = mock_books
+                 return mock_books
+             except Exception as e:
+                 logger.error(f"Error processing mock data: {e}")
+                 return []
         
         _, GenerativeModel, Tool, grounding = libs
 
         try:
-            # Define Tool for Google Search Grounding
             if grounding:
                 tool = Tool.from_google_search_retrieval(grounding.GoogleSearchRetrieval())
             else:
@@ -146,7 +185,7 @@ class AIService:
           The reason should be about the book's content or vibe only.
         
         User's Interest Context:
-        {user_context}
+        {user_context or "신규 사용자입니다. 일반적으로 인기있는 한국 문학 작품들을 추천해주세요."}
         
         Output ONLY raw JSON (no markdown, no explanation):
         [
@@ -161,7 +200,14 @@ class AIService:
 
         try:
             # Use the tool for grounding with enforced JSON
-            generate_kwargs = {"generation_config": {"response_mime_type": "application/json"}}
+            generate_kwargs = {
+                "generation_config": {
+                    "response_mime_type": "application/json",
+                    "temperature": 1.2,
+                    "top_p": 0.95,
+                    "top_k": 40
+                }
+            }
             if tool:
                 generate_kwargs["tools"] = [tool]
                 
@@ -170,73 +216,77 @@ class AIService:
                 **generate_kwargs
             )
             
-            # Clean up response text
             text = response.text.strip()
-            
-            # Remove markdown code blocks if present
             if text.startswith("```json"):
                 text = text[7:]
             if text.endswith("```"):
                 text = text[:-3]
             
-            # Robust extraction: find the first '[' and last ']'
             start_index = text.find('[')
             end_index = text.rfind(']')
             
             if start_index != -1 and end_index != -1 and end_index > start_index:
                 text = text[start_index : end_index + 1]
             else:
-                # If no list found, log warning and return text (will fallback to plain text UI)
                 logger.warning(f"Could not find JSON list in response: {text[:100]}...")
             
-            # Parse JSON and add Aladin links
             import json
             from urllib.parse import quote as url_quote
             try:
                 books = json.loads(text)
+                if not isinstance(books, list):
+                    if isinstance(books, dict):
+                        books = [books]
+                    else:
+                        books = []
                 
-                # Fetch Aladin info for each book
                 for book in books:
                     title = book.get('title', '')
                     author = book.get('author', '')
                     
-                    # Try to get real book info from Aladin API
                     aladin_info = await self._fetch_aladin_book_info(title, author)
-                    
                     if aladin_info["link"]:
                         book['link'] = aladin_info["link"]
                     else:
-                        # Fallback to search URL
                         search_query = f"{title} {author}".strip()
                         book['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={url_quote(search_query)}"
+                    book['image'] = aladin_info["image"]
                     
                     book['image'] = aladin_info["image"]
                     
-                return json.dumps(books, ensure_ascii=False)
+                self._cache[cache_key] = books
+                return books
             except json.JSONDecodeError:
-                logger.warning(f"Failed to parse JSON, returning raw text")
-                return text
+                logger.warning(f"Failed to parse JSON")
+                return []
             
         except Exception as e:
             logger.error(f"Error generating content from Vertex AI: {e}")
-            # Return a fallback JSON error message or empty list so frontend doesn't crash
-            return '[{"title": "Error", "author": "System", "reason": "AI 추천을 불러오는 중 오류가 발생했습니다.", "link": "#", "image": ""}]'
+            return []
 
     async def get_daily_quote(self, source_type: str) -> dict:
         if not self.model:
-            print("DEBUG: AI Service not available (Library/Initialization failed).")
-            return None
+            logger.warning(f"AI Service not available. Returning mock quote for {source_type}")
+            return {
+                "content": "가장 훌륭한 시는 아직 쓰여지지 않았다. 가장 아름다운 노래는 아직 불려지지 않았다.",
+                "source_title": "나짐 히크메트 시집",
+                "author": "나짐 히크메트",
+                "source_type": source_type,
+                "tags": ["희망", "시", "미래"]
+            }
 
         from datetime import datetime
         today = datetime.now().strftime("%Y-%m-%d")
         cache_key = ("daily_quote", source_type, today)
 
-        # Initialize cache if missing (safety check)
         if not hasattr(self, '_cache'):
             self._cache = {}
 
         if cache_key in self._cache:
+            print(f"DEBUG AI: Returning cached daily quote for {source_type}")
             return self._cache[cache_key]
+
+        print(f"DEBUG AI: Generating daily quote for {source_type}...")
 
         prompt = f"""
         Recommend a famous and inspiring quote from a {source_type} for today ({today}).
@@ -260,13 +310,11 @@ class AIService:
             )
             import json
             text = response.text.strip()
-            # Remove markdown if present
             if text.startswith("```json"):
                 text = text[7:]
             if text.endswith("```"):
                 text = text[:-3]
             
-            # Robust extraction for daily quote
             start_index = text.find('{')
             end_index = text.rfind('}')
             if start_index != -1 and end_index != -1:
@@ -277,12 +325,47 @@ class AIService:
             return result
         except Exception as e:
             logger.error(f"Error generating daily quote: {e}")
-            print(f"DEBUG: Error generating daily quote: {e}")
-            return None
+            # Mock fallback on error too
+            return {
+                "content": "가장 훌륭한 시는 아직 쓰여지지 않았다.",
+                "source_title": "나짐 히크메트 시집",
+                "author": "나짐 히크메트",
+                "source_type": source_type,
+                "tags": ["희망", "시", "미래"]
+            }
 
     async def get_recommendations(self, source_type: str, limit: int = 3) -> list[dict]:
         if not self.model:
-            return []
+             logger.warning(f"AI service not initialized. Returning mock recommendations for {source_type}")
+             return [
+                 {
+                     "content": "사람은 무엇으로 사는가? 사랑으로 산다.",
+                     "source_title": "사람은 무엇으로 사는가",
+                     "author": "톨스토이",
+                     "source_type": source_type,
+                     "tags": ["사랑", "인생", "고전"],
+                     "link": "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord=사람은무엇으로사는가",
+                     "image": ""
+                 },
+                 {
+                     "content": "행복한 가정은 모두 엇비슷하고 불행한 가정은 불행한 이유가 제각기 다르다.",
+                     "source_title": "안나 카레니나",
+                     "author": "톨스토이",
+                     "source_type": source_type,
+                     "tags": ["행복", "가정", "첫문장"],
+                     "link": "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord=안나카레니나",
+                     "image": ""
+                 },
+                 {
+                     "content": "내일은 내일의 태양이 뜬다.",
+                     "source_title": "바람과 함께 사라지다",
+                     "author": "마가렛 미첼",
+                     "source_type": source_type,
+                     "tags": ["희망", "내일", "고전"],
+                     "link": "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord=바람과함께사라지다",
+                     "image": ""
+                 }
+             ]
 
         from datetime import datetime
         today = datetime.now().strftime("%Y-%m-%d")
@@ -328,9 +411,29 @@ class AIService:
                 final_data = [data]
             
             if final_data:
+                # Add fallback links to recommendation items if missing (similar to generate_book_recommendations)
+                for item in final_data:
+                    if 'link' not in item or not item['link']:
+                         import urllib.parse
+                         q = f"{item.get('source_title', '')} {item.get('author', '')}".strip()
+                         item['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={urllib.parse.quote(q)}"
+                    if 'image' not in item:
+                        item['image'] = ""
+
                 self._cache[cache_key] = final_data
             
             return final_data
         except Exception as e:
             logger.error(f"Error generating recommendations: {e}")
-            return []
+            # Fallback to mock data on error as well
+            return [
+                 {
+                     "content": "가장 훌륭한 시는 아직 쓰여지지 않았다.",
+                     "source_title": "나짐 히크메트 시집",
+                     "author": "나짐 히크메트",
+                     "source_type": source_type,
+                     "tags": ["희망", "시", "미래"],
+                     "link": "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord=나짐히크메트",
+                     "image": ""
+                 }
+            ]

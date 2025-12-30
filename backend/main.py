@@ -27,6 +27,8 @@ app = FastAPI(lifespan=lifespan)
 # 허용할 출처 목록
 origins = [
     "http://localhost:5173",  # React 개발 서버 주소
+    "https://gen-lang-client-0121173096.web.app", # Firebase Hosting
+    "https://gen-lang-client-0121173096.web.app/", 
     "null",  # 로컬에서 직접 연 html 파일 (test.html)
 ]
 # CORS middleware
