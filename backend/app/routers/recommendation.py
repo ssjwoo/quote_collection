@@ -120,12 +120,15 @@ async def get_recommendations_by_source(
         ai_quotes_pool = await ai_service.get_recommendations(source_type, limit=15, user_context=user_context)
         
         if ai_quotes_pool:
+            print(f"DEBUG RECOM: Pool size from AI: {len(ai_quotes_pool)}, Requested Limit: {limit}")
             # Randomly select 'limit' (3) items from the pool
             # This ensures variety on every refresh
             if len(ai_quotes_pool) > limit:
                 ai_quotes = random.sample(ai_quotes_pool, limit)
             else:
                 ai_quotes = ai_quotes_pool
+            
+            print(f"DEBUG RECOM: Selected {len(ai_quotes)} quotes")
 
             # Shuffle again just in case (random.sample already does it but good practice)
             random.shuffle(ai_quotes)
