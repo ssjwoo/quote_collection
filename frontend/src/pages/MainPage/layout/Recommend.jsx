@@ -8,7 +8,7 @@ export const Recommend = ({ mode, recomQuote }) => {
     navigation('/quote/' + quote.id, {
       state: {
         mode: mode,
-        quote: quote // Pass the full quote object
+        quote: quote // Pass the full quote object ok
       }
     })
   }
