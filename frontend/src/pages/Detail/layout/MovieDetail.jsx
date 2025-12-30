@@ -8,7 +8,7 @@ import { useAuth } from "../../../hooks/useAuth";
 
 export const MovieDetail = ({ quote }) => {
   const navigation = useNavigate();
-  const { user , showAlert} = useAuth();
+  const { user, showAlert } = useAuth();
   const { toggleBookmark } = useBookmarks();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -20,6 +20,12 @@ export const MovieDetail = ({ quote }) => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
+    if (quote?.id <= 0) {
+      setWriter({ username: "시스템 추천" });
+      setSource({ title: quote.source.title, creator: quote.source.creator });
+      return;
+    }
+
     const getWriter = async () => {
       try {
         const writerData = await axios.get(`/users/${quote.user_id}`);
@@ -30,11 +36,11 @@ export const MovieDetail = ({ quote }) => {
     };
 
     if (quote?.user_id) getWriter();
-  }, [quote?.user_id]);
+  }, [quote?.user_id, quote?.id]);
 
   useEffect(() => {
     const fetchSource = async () => {
-      if (!quote?.source_id) return;
+      if (!quote?.source_id || quote?.id <= 0) return;
       try {
         const sourceData = await axios.get(`/source/${quote.source_id}`);
         setSource(sourceData.data);
@@ -43,7 +49,7 @@ export const MovieDetail = ({ quote }) => {
       }
     };
     fetchSource();
-  }, [quote?.source_id]);
+  }, [quote?.source_id, quote?.id]);
 
   useEffect(() => {
     const fetchBookmarkStatus = async () => {

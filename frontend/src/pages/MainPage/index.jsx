@@ -3,6 +3,7 @@ import { Search } from "../../components/Search";
 import { Popular } from "./layout/Popular";
 import { New } from "./layout/New";
 import { Recommend } from "./layout/Recommend";
+import { AIRecommend } from "./layout/AIRecommend";
 import axios from "../../api/axios";
 
 export const MainPage = ({ mode }) => {
@@ -13,12 +14,12 @@ export const MainPage = ({ mode }) => {
   /** mode에 맞게 데이터 불러오기 */
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    
+
     const fetchQuotes = async () => {
       const promises = [
         axios.get(`/quote/popular/today/${mode}`),
         axios.get(`/quote/latest?source_type=${mode}`),
-        axios.get(`/recommendations?source_type=${mode}&limit=3`),
+        axios.get(`/recommendations/?source_type=${mode}&limit=3`),
       ];
 
       const results = await Promise.allSettled(promises);
@@ -50,6 +51,8 @@ export const MainPage = ({ mode }) => {
         <Popular mode={mode} popularQuote={popularQuote} />
         <New mode={mode} newQuote={newQuote} />
         <Recommend mode={mode} recomQuote={recomQuote} />
+        {/* AI Recommendation Section */}
+        <AIRecommend />
       </div>
     </>
   );

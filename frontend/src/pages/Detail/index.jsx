@@ -10,7 +10,15 @@ export const Detail = () => {
   const { id } = useParams();
   const [quote, setQuote] = useState(null);
 
+  const location = useLocation();
+
   useEffect(() => {
+    // If quote is passed via state (e.g., from AI recommendations), use it directly
+    if (location.state && location.state.quote) {
+      setQuote(location.state.quote);
+      return;
+    }
+
     const fetchQuote = async () => {
       try {
         const response = await axios.get(`/quote/${id}`);
@@ -21,10 +29,10 @@ export const Detail = () => {
     };
 
     fetchQuote();
-  }, [id]);
+  }, [id, location.state]);
 
   if (!quote || !quote.source) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   const mode = quote.source.source_type;

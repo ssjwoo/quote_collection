@@ -6,3 +6,4 @@ class PopularQuoteResponse(BaseModel):
     title: str
     content: str
     creator: str
+    tags: list | None = None

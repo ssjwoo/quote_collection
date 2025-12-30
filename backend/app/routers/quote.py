@@ -15,6 +15,55 @@ from app.models.quote_tag import quote_tags
 router = APIRouter(prefix="/quote", tags=["Quote"])
 
 
+from app.core.config import settings
+import sys
+import os
+
+# Add llm folder to sys.path
+# Robust path addition
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# current_dir should be .../backend/app/routers
+backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+# backend_dir is .../backend (wait, dirname(dirname(routers)) -> backend/app -> backend)
+# Let's count: 
+# routers -> app (param 1)
+# app -> backend (param 2)
+# backend -> quote_collection (param 3)
+# So we need to go up 3 levels to get to quote_collection root if we want 'llm' from root.
+# c:\quote_collection\backend\app\routers\quote.py
+# 1. routers
+# 2. app
+# 3. backend
+# 4. quote_collection
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+llm_dir = os.path.join(root_dir, "llm")
+if os.path.exists(llm_dir):
+    sys.path.append(llm_dir)
+    print(f"DEBUG: Added {llm_dir} to sys.path")
+else:
+    print(f"DEBUG: Could not find llm dir at {llm_dir}")
+    # Fallback: assume running from backend root
+    sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "../llm")))
+
+# sys.path is already setup above
+AI_IMPORT_ERROR = None
+try:
+    from ai_service import AIService
+    print(f"DEBUG: Successfully imported AIService class from {AIService}")
+except Exception as e:
+    AI_IMPORT_ERROR = str(e)
+    print(f"DEBUG: Failed to import AIService in quote.py: {e}")
+    AIService = None
+
+# Initialize AIService
+print(f"DEBUG: Initializing AIService with Aladin Key: {settings.aladin_api_key[:5]}***")
+ai_service = AIService(
+    project_id=settings.google_project_id, 
+    location=settings.google_location,
+    aladin_api_key=settings.aladin_api_key
+) if AIService else None
+
+
 @router.get("/popular/today/{source_type}", response_model=PopularQuoteResponse)
 async def get_todays_popular_quote(
     source_type: str, db: AsyncSession = Depends(get_async_db)
@@ -22,9 +71,49 @@ async def get_todays_popular_quote(
     popular_quote = await quote_service.get_todays_most_popular_by_source_type(
         db, source_type=source_type
     )
-    if not popular_quote:
-        raise HTTPException(status_code=404, detail="No popular quote found")
-    return popular_quote
+    
+    if popular_quote:
+        print(f"DEBUG source={source_type}: Found DB quote: {popular_quote}")
+        return popular_quote
+
+    print(f"DEBUG source={source_type}: No DB quote found. Checking AI Service...")
+
+    # Fallback to AI if no popular quote found
+    if ai_service:
+        print(f"DEBUG: AI Service IS available.")
+        daily_quote_data = await ai_service.get_daily_quote(source_type)
+        print(f"DEBUG: AI Service returned: {daily_quote_data}")
+        if daily_quote_data:
+            tags_data = daily_quote_data.get("tags", [])
+            tag_list = []
+            if isinstance(tags_data, list):
+                 from app.schemas.tag import TagRead
+                 # TagRead requires id, name, created_at. We can use a simplified dict or obj.
+                 # Actually PopularQuoteResponse defines tags as list | None. 
+                 # Let's verify what the frontend expects. 
+                 # The frontend BookDetail expects quote.tags to be a list of objects with 'name' property.
+                 # So we can just pass a list of dicts or TagRead objects.
+                 # Let's pass list of dicts for simplicity if pydantic allows, or TagRead.
+                 # But TagRead structure is safer.
+                 from datetime import datetime
+                 for i, t in enumerate(tags_data):
+                     tag_list.append({
+                         "id": -1 * (i + 1),
+                         "name": str(t),
+                         "created_at": datetime.now()
+                     })
+
+            return PopularQuoteResponse(
+                id=0, # Placeholder ID
+                title=daily_quote_data.get("source_title", "Unknown Source"),
+                content=daily_quote_data.get("content", ""),
+                creator=daily_quote_data.get("author", "Unknown Author"),
+                tags=tag_list
+            )
+
+    print(f"DEBUG: AI Service not available or returned None. Import Error: {AI_IMPORT_ERROR}")
+    print(f"DEBUG: Current sys.path: {sys.path}")
+    raise HTTPException(status_code=404, detail=f"No popular quote found. AI Error: {AI_IMPORT_ERROR}")
 
 
 @router.get("/latest", response_model=list[QuoteRead])

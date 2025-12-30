@@ -4,9 +4,25 @@ export const Popular = ({ mode, popularQuote }) => {
   const navigation = useNavigate();
   // console.log(popularQuote);
   const onDetail = (id) => {
+    // Construct a quote object that matches the QuoteRead schema expected by Detail page
+    // because popularQuote has a flat structure (PopularQuoteResponse)
+    const formattedQuote = {
+      id: popularQuote.id,
+      content: popularQuote.content,
+      user_id: 0, // System
+      source_id: 0,
+      tags: popularQuote.tags || [],
+      source: {
+        title: popularQuote.title,
+        creator: popularQuote.creator,
+        source_type: mode
+      }
+    };
+
     navigation("/quote/" + id, {
       state: {
         mode: mode,
+        quote: formattedQuote
       },
     });
   };

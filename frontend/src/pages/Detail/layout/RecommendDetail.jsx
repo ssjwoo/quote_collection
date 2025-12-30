@@ -6,10 +6,11 @@ export const RecommendDetail = ({ mode }) => {
   const navigation = useNavigate();
   const [quotes, setQuotes] = useState([]);
 
-  const onDetail = (id) => {
-    navigation("/quote/" + id, {
+  const onDetail = (quote) => {
+    navigation("/quote/" + quote.id, {
       state: {
         mode: mode,
+        quote: quote,
       },
     });
   };
@@ -40,7 +41,7 @@ export const RecommendDetail = ({ mode }) => {
           <div
             key={quote.id}
             className="mt-5 cursor-pointer w-11/12 border-2 border-main-green h-full pt-5 pb-5 text-center rounded-lg shadow-lg hover:bg-mypage-menu"
-            onClick={() => onDetail(quote.id)}
+            onClick={() => onDetail(quote)}
           >
             <div>{quote.content}</div>
           </div>
