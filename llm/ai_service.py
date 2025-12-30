@@ -101,11 +101,12 @@ class AIService:
                                 "image": item.get("cover", ""),
                                 "link": item.get("link", "")
                             }
-                            # Use larger image if available (Aladin API often gives tiny thumbs)
-                            if result["image"] and "sum.jpg" in result["image"]:
-                                result["image"] = result["image"].replace("sum.jpg", "cover500.jpg")
-                            elif result["image"] and "ssum.jpg" in result["image"]:
-                                result["image"] = result["image"].replace("ssum.jpg", "cover500.jpg")
+                            if result["image"]:
+                                result["image"] = result["image"].replace("http://", "https://")
+                                if "sum.jpg" in result["image"]:
+                                    result["image"] = result["image"].replace("sum.jpg", "cover500.jpg")
+                                elif "ssum.jpg" in result["image"]:
+                                    result["image"] = result["image"].replace("ssum.jpg", "cover500.jpg")
                             
                             print(f"DEBUG Aladin: Found book - image: {result['image'][:50] if result['image'] else 'None'}, link: {result['link'][:50] if result['link'] else 'None'}")
                             return result
