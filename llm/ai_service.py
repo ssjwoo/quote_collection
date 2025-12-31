@@ -343,12 +343,14 @@ class AIService:
             return self._cache[cache_key]
 
         prompt = f"""
-        Recommend {pool_size} famous and inspiring quotes from different {source_type}s.
+        Recommend {pool_size} UNIQUE, DEEP, and INSPIRING quotes from different {source_type}s.
+        IMPORTANT: AVOID CLICHÉ OR OVERLY COMMON QUOTES (e.g., 'Failure is the mother of success'). 
+        Seek for "hidden gems" or powerful sentences from literature, philosophy, and history.
         
         User's Interest/Context:
-        {user_context or "General audience, popular and classic quotes."}
+        {user_context or "General audience, seeking meaningful and fresh insights."}
 
-        The quotes must be suitable for the user's interest if provided, otherwise general audience.
+        The quotes must be highly relevant to the user's interest if provided.
         Only Korean.
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
@@ -434,13 +436,9 @@ class AIService:
         You are a creative muse. The user is reading this quote:
         "{current_quote_content}"
         
-        Recommend {limit} NEW and DISTINCT quotes that are related to this one.
-        They can be:
-        1. Similar in theme (deepening the mood)
-        2. A counter-perspective (offering a different view)
-        3. From the same author or work (if famous)
-        
-        The goal is to let the user endlessly surf through interesting quotes.
+        Recommend {limit} NEW, DISTINCT, and PROVOCATIVE quotes related to the above.
+        AVOID generic or repetitive sayings. Choose sentences that have weight and poetic beauty.
+        The goal is to let the user endlessly surf through a high-quality quote library.
         Target Language: Korean (Must be in Korean).
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
