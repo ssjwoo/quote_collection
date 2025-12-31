@@ -33,30 +33,11 @@ async def create_bookmark(bookmark: BookmarkCreate, db: AsyncSession = Depends(g
             # Here we try to use the provided source info
             source_title = q_data.get('source_title', 'Unknown Source')
             source_type = q_data.get('source_type', 'book')
-            author = q_data.get('author', 'Unknown')
-            
-            # Simple check/create source (this logic might be complex depending on uniqueness constraints)
-            # For now, let's assume we create a new quote attached to a generic or new source
-            # Ideally, checks if source exists. To keep it simple, we trust quote_service or do a quick check
-            
-            # Let's create a full QuoteCreate object
-            # We need to map dict to schema
-            
-            # Handle Tags
-            tags_list = q_data.get('tags', [])
-            tag_objects = [] # Logic to find/create tags would go here, simplified below
-            
-            # Because creating a full quote with source relations correctly is complex in one go without proper service methods,
-            # we will assume quote_service.create_with_related (if exists) or build it manually.
-            # Simplified approach: Create Source -> Create Quote -> Add Tags
-            
-            # 1. Source
-            # Check if source exists by title? Or just create. 
-            # We'll stick to a simple creation specific for this use case.
+            author = q_data.get('author') or q_data.get('creator') or 'Unknown'
             
             new_source = await source_service.repository.create(db, obj_in=SourceCreate(
                 title=source_title,
-                actor=author, # Mapping author to actor/creator field
+                creator=author, 
                 source_type=source_type
             ))
             
@@ -91,10 +72,11 @@ async def toggle_bookmark(bookmark_in: BookmarkCreate, db: AsyncSession = Depend
             
             q_data = bookmark_in.quote_data
             
+            creator_name = q_data.get('author') or q_data.get('creator') or 'Unknown Author'
             # Create Source
             new_source = await source_service.repository.create(db, obj_in=SourceCreate(
                 title=q_data.get('source_title', 'Unknown Source'),
-                creator=q_data.get('author', 'Unknown'),
+                creator=creator_name,
                 source_type=q_data.get('source_type', 'book')
             ))
             

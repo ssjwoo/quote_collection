@@ -34,12 +34,22 @@ origins = [
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # ["*"] 대신 위에서 만든 origins 리스트를 사용
-    # allow_origins=["*"],  # frontend IP 로 추후 바꾸기
+    allow_origins=["*"],  # Temporarily allow all for production debugging
     allow_credentials=True,
-    allow_methods=["*"],  # 모든 method 허용
-    allow_headers=["*"],  # 모든 header 허용
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+from fastapi import Request
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
+@app.middleware("http")
+async def force_https_middleware(request: Request, call_next):
+    # For Cloud Run / Load Balancers that terminate HTTPS
+    if request.headers.get("x-forwarded-proto") == "http":
+        request.scope["scheme"] = "https"
+    return await call_next(request)
 
 
 # Force reload for AI debug - version 2

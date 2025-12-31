@@ -144,9 +144,10 @@ class AIService:
         if not hasattr(self, '_cache'):
             self._cache = {}
         
-        # Simple cache key based on context hash. 
-        # Since context can be long, we shouldn't use it as raw key if possible, but python dict handles strings fine.
-        cache_key = ("book_recommendations", user_context)
+        from datetime import datetime
+        # Use an hourly/daily window for cache to balance performance and variety
+        time_window = datetime.now().strftime("%Y-%m-%d-%H")
+        cache_key = ("book_recommendations", time_window, user_context[:200])
         
         if not bypass_cache and cache_key in self._cache:
             logger.info("Returning cached book recommendations")
@@ -195,6 +196,7 @@ class AIService:
 
         prompt = f"""
         You are a smart AI book curator. Recommend 5 books based on the user's interests and current weather in Seoul, Korea.
+        IMPORTANT: Provide UNIQUE, FRESH, and VARIED recommendations. Avoid repeating the same bestsellers.
         
         Step 1: Check current weather in Seoul, Korea.
         Step 2: Select 5 books that match the weather mood and user's interests.
@@ -405,15 +407,9 @@ class AIService:
              return base_mock
 
         from datetime import datetime
-        today = datetime.now().strftime("%Y-%m-%d")
-        
-        # Create a hash of user_context to keep cache key short but unique to context
-        import hashlib
-        context_hash = hashlib.md5(user_context.encode()).hexdigest() if user_context else "no_context"
-        
-        # Cache key includes context and date. 
-        # Note: We cache the POOL, not the final selection.
-        cache_key = ("recommendations_pool", source_type, today, context_hash)
+        # Include hour in cache key for hourly variety
+        time_window = datetime.now().strftime("%Y-%m-%d-%H")
+        cache_key = ("recommendations_pool", source_type, time_window, context_hash)
 
         # Initialize cache if missing (safety check)
         if not hasattr(self, '_cache'):
