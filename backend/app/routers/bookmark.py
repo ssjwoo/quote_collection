@@ -16,7 +16,7 @@ async def get_bookmarks_by_user(user_id: int, db: AsyncSession = Depends(get_asy
     return [bookmark.quote for bookmark in bookmarks]
 
 async def _ensure_ai_quote_exists(db: AsyncSession, bookmark_in: BookmarkCreate) -> int:
-    """AI 추천 문구가 DB에 없는 경우(id <= 0) 새로 생성하고 ID를 반환합니다.
+    """AI 추천 문구가 DB에 없는 경우(id <= 0) 새로 생성하거나 기존 것을 찾아 ID를 반환합니다.
     동일한 내용의 문구가 있으면 기존 ID를 반환하여 중복을 방지합니다.
     """
     if bookmark_in.quote_id > 0 or not bookmark_in.quote_data:
@@ -30,34 +30,45 @@ async def _ensure_ai_quote_exists(db: AsyncSession, bookmark_in: BookmarkCreate)
         
         q_data = bookmark_in.quote_data
         content = q_data.get('content')
+        title = q_data.get('source_title', 'Unknown Source')
+        author = q_data.get('author') or q_data.get('creator') or 'Unknown'
+        
         print(f"DEBUG: Ensuring AI quote exists: {content[:30]}...")
         
-        # 1. 이미 동일한 내용의 문구가 있는지 확인 (중복 생성 방지)
-        stmt = select(Quote).where(Quote.content == content)
+        # 1. 이미 동일한 내용의 문구가 있는지 확인 (가장 최신 것 하나 선택)
+        stmt = select(Quote).where(Quote.content == content).order_by(Quote.id.desc())
         result = await db.execute(stmt)
-        existing_quote = result.scalar_one_or_none()
+        existing_quote = result.scalars().first() # Use first() instead of scalar_one_or_none() to avoid 500 on duplicates
         if existing_quote:
             print(f"DEBUG: Existing quote found (ID: {existing_quote.id}). Reusing.")
             return existing_quote.id
 
-        # 2. Source 생성 전 source_type 보정 (Enum 준수)
-        raw_type = q_data.get('source_type', 'book').lower()
-        allowed_types = ["book", "movie", "drama", "tv", "speech", "other"]
-        source_type = raw_type if raw_type in allowed_types else "other"
+        # 2. Source 생성 전 기존 소스 확인 (중복 방지)
+        stmt_source = select(Source).filter(Source.title == title, Source.creator == author).order_by(Source.id.desc())
+        source_result = await db.execute(stmt_source)
+        existing_source = source_result.scalars().first()
         
-        # 3. Source 생성 또는 기존 Source 검색 (여기서는 간단히 생성)
-        author = q_data.get('author') or q_data.get('creator') or 'Unknown'
-        new_source = await source_service.repository.create(db, obj_in=SourceCreate(
-            title=q_data.get('source_title', 'Unknown Source'),
-            creator=author,
-            source_type=source_type
-        ))
-        await db.flush()
+        if existing_source:
+            source_id = existing_source.id
+            print(f"DEBUG: Existing source found (ID: {source_id}).")
+        else:
+            # Source 신규 생성
+            raw_type = q_data.get('source_type', 'book').lower()
+            allowed_types = ["book", "movie", "drama", "tv", "speech", "other"]
+            source_type = raw_type if raw_type in allowed_types else "other"
+            
+            new_source = await source_service.repository.create(db, obj_in=SourceCreate(
+                title=title,
+                creator=author,
+                source_type=source_type
+            ))
+            await db.flush()
+            source_id = new_source.id
         
         # 4. Quote 생성
         new_quote = await quote_service.repository.create(db, obj_in=QuoteCreate(
             content=content,
-            source_id=new_source.id,
+            source_id=source_id,
             user_id=bookmark_in.user_id
         ))
         await db.flush()
@@ -67,7 +78,7 @@ async def _ensure_ai_quote_exists(db: AsyncSession, bookmark_in: BookmarkCreate)
         import traceback
         traceback.print_exc()
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"AI 문구 저장 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI 문구 저장 실패: {str(e)}")
 
 # 북마크 추가
 @router.post("/", response_model=BookmarkRead)
