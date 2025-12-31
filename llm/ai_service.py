@@ -1,6 +1,13 @@
 import logging
 import os
 import sys
+import json
+import asyncio
+import hashlib
+import random
+import urllib.parse
+from datetime import datetime
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -72,19 +79,12 @@ class AIService:
             logger.error(f"Vertex AI initialization failed for all models: {e15}")
             return None
     
-    async def _fetch_aladin_book_info(self, title: str, author: str) -> dict:
-        """Fetch book info from Aladin API"""
-        print(f"DEBUG Aladin: Fetching book info for '{title}' by '{author}'")
-        print(f"DEBUG Aladin: API Key exists: {bool(self.aladin_api_key)}")
-        
+    async def _fetch_aladin_book_info(self, title: str, author: str, session: Any = None) -> dict:
+        """Fetch book cover and link from Aladin API"""
         if not self.aladin_api_key:
-            print("DEBUG Aladin: No API key, returning empty")
             return {"image": "", "link": ""}
         
         try:
-            import aiohttp
-            from urllib.parse import quote as url_quote
-            
             query = f"{title} {author}".strip()
             url = f"http://www.aladin.co.kr/ttb/api/ItemSearch.aspx"
             params = {
@@ -98,14 +98,10 @@ class AIService:
                 "Version": "20131101"
             }
             
-            print(f"DEBUG Aladin: Calling API with query: {query}")
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, params=params, timeout=5) as response:
-                    print(f"DEBUG Aladin: Response status: {response.status}")
+            async def _do_fetch(sess):
+                async with sess.get(url, params=params, timeout=5) as response:
                     if response.status == 200:
                         data = await response.json()
-                        print(f"DEBUG Aladin: Response data keys: {data.keys() if data else 'None'}")
                         if data.get("item") and len(data["item"]) > 0:
                             item = data["item"][0]
                             result = {
@@ -118,14 +114,17 @@ class AIService:
                                     result["image"] = result["image"].replace("sum.jpg", "cover500.jpg")
                                 elif "ssum.jpg" in result["image"]:
                                     result["image"] = result["image"].replace("ssum.jpg", "cover500.jpg")
-                            
-                            print(f"DEBUG Aladin: Found book - image: {result['image'][:50] if result['image'] else 'None'}, link: {result['link'][:50] if result['link'] else 'None'}")
                             return result
-                        else:
-                            print(f"DEBUG Aladin: No items in response")
-            return {"image": "", "link": ""}
+            
+            if session:
+                res = await _do_fetch(session)
+                return res if res else {"image": "", "link": ""}
+            else:
+                import aiohttp
+                async with aiohttp.ClientSession() as new_session:
+                    res = await _do_fetch(new_session)
+                    return res if res else {"image": "", "link": ""}
         except Exception as e:
-            print(f"DEBUG Aladin: Exception occurred: {e}")
             logger.warning(f"Failed to fetch Aladin book info: {e}")
             return {"image": "", "link": ""}
 
@@ -134,7 +133,6 @@ class AIService:
         if not hasattr(self, '_cache'):
             self._cache = {}
         
-        from datetime import datetime
         # Use an hourly/daily window for cache to balance performance and variety
         time_window = datetime.now().strftime("%Y-%m-%d-%H")
         cache_key = ("book_recommendations", time_window, user_context[:200])
@@ -203,7 +201,10 @@ class AIService:
                 
             response = await self.model.generate_content_async(
                 prompt,
-                **generate_kwargs
+                generation_config={
+                    "response_mime_type": "application/json",
+                    "temperature": 1.0,  # Balanced for variety and speed
+                }
             )
             
             text = response.text.strip()
@@ -220,30 +221,26 @@ class AIService:
             else:
                 logger.warning(f"Could not find JSON list in response: {text[:100]}...")
             
-            import json
-            from urllib.parse import quote as url_quote
             try:
                 books = json.loads(text)
                 if not isinstance(books, list):
-                    if isinstance(books, dict):
-                        books = [books]
-                    else:
-                        books = []
+                    books = [books] if isinstance(books, dict) else []
                 
-                for book in books:
-                    title = book.get('title', '')
-                    author = book.get('author', '')
-                    
-                    aladin_info = await self._fetch_aladin_book_info(title, author)
-                    if aladin_info["link"]:
-                        book['link'] = aladin_info["link"]
-                    else:
-                        search_query = f"{title} {author}".strip()
-                        book['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={url_quote(search_query)}"
-                    book['image'] = aladin_info["image"]
-                    
-                    book['image'] = aladin_info["image"]
-                    
+                if books:
+                    import aiohttp
+                    async with aiohttp.ClientSession() as session:
+                        # Fetch all Aladin info in parallel
+                        tasks = [self._fetch_aladin_book_info(b.get('title', ''), b.get('author', ''), session) for b in books]
+                        aladin_results = await asyncio.gather(*tasks)
+                        
+                        for book, aladin_info in zip(books, aladin_results):
+                            if aladin_info.get("link"):
+                                book['link'] = aladin_info["link"]
+                            else:
+                                search_query = f"{book.get('title', '')} {book.get('author', '')}".strip()
+                                book['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={url_quote(search_query)}"
+                            book['image'] = aladin_info.get("image", "")
+
                 self._cache[cache_key] = books
                 return books
             except json.JSONDecodeError:
@@ -325,15 +322,12 @@ class AIService:
             }
 
     async def get_recommendations(self, source_type: str, limit: int = 3, user_context: str = "") -> list[dict]:
-        pool_size = 15  # Request a larger pool for diversity
+        pool_size = 10  # Reduced pool size for faster AI generation
         
         if not self.model:
              logger.warning(f"AI service not initialized. Returning empty list for {source_type}")
              return []
 
-        from datetime import datetime
-        import hashlib
-        
         # Include hour in cache key for hourly variety
         time_window = datetime.now().strftime("%Y-%m-%d-%H")
         
@@ -368,7 +362,13 @@ class AIService:
         """
 
         try:
-            response = await self.model.generate_content_async(prompt)
+            response = await self.model.generate_content_async(
+                prompt,
+                generation_config={
+                    "response_mime_type": "application/json",
+                    "temperature": 1.0
+                }
+            )
             import json
             text = response.text.strip()
             if text.startswith("```json"):
@@ -385,7 +385,7 @@ class AIService:
                 final_data = [data]
             
             if final_data:
-                # Add fallback links to recommendation items if missing (similar to generate_book_recommendations)
+                # Add fallback links to items and enrich
                 for item in final_data:
                     if 'link' not in item or not item['link']:
                          import urllib.parse
@@ -395,8 +395,11 @@ class AIService:
                         item['image'] = ""
 
                 self._cache[cache_key] = final_data
+                
+                # Sample from pool for variety
+                return random.sample(final_data, min(len(final_data), limit))
             
-            return final_data
+            return []
         except Exception as e:
             logger.error(f"Error generating recommendations: {e}")
             # Fallback to mock data on error as well
