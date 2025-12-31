@@ -332,8 +332,13 @@ class AIService:
              return []
 
         from datetime import datetime
+        import hashlib
+        
         # Include hour in cache key for hourly variety
         time_window = datetime.now().strftime("%Y-%m-%d-%H")
+        
+        # Create a hash of user_context to keep cache key short but unique to context
+        context_hash = hashlib.md5(user_context.encode()).hexdigest() if user_context else "no_context"
         cache_key = ("recommendations_pool", source_type, time_window, context_hash)
 
         # Initialize cache if missing (safety check)
