@@ -10,7 +10,7 @@ class BookmarkRepository(BaseRepository[Bookmark]):
         user_id, quote_id = id
         statement = select(self.model).filter_by(user_id=user_id, quote_id=quote_id)
         result = await db.execute(statement)
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     async def remove(self, db: AsyncSession, *, id: Any) -> Bookmark | None:
         obj = await self.get(db, id)

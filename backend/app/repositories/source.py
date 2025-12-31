@@ -11,7 +11,7 @@ class SourceRepository(BaseRepository[Source]):
     async def get_by_title_and_creator(self, db: AsyncSession, *, title: str, creator: str) -> Source | None:
         statement = select(Source).filter(Source.title == title, Source.creator == creator)
         result = await db.execute(statement)
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     async def search(self, db: AsyncSession, query: str, source_type: str | None = None, limit: int = 10) -> list[Source]:
         book_alias = aliased(Book)
