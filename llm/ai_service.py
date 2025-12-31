@@ -353,8 +353,10 @@ class AIService:
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
         - content: The quote text (in Korean).
-        - source_title: The title of the {source_type} (in Korean).
+        - source_title: The title of the {source_type} (in Korean). 
+          If the source is unknown or a general proverb, use '속담', '격언', '전래동화', '미상' or a specific category.
         - author: The author or character who said it (in Korean).
+          If the author is anonymous or unknown, use '익명' or '미상'.
         - source_type: "{source_type}"
         - tags: A list of 1-3 keywords relevant to the quote (in Korean), reflecting the user's interest if applicable.
 
@@ -444,7 +446,9 @@ class AIService:
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
         - content: The quote text (in Korean).
         - source_title: The title of the work (in Korean).
+          If unknown, use '속담', '격언', '전래동화', '명언' or '미상'.
         - author: The author or character (in Korean).
+          If unknown or anonymous, use '익명' or '미상'.
         - source_type: "book" (or movie/drama if relevant).
         - tags: A list of 1-3 keywords.
 
