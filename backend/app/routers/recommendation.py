@@ -158,20 +158,12 @@ async def get_recommendations_by_source(
                             created_at=datetime.now()
                         ))
                 
-                # Construct dummy source with improved defaults
-                s_title = q.get("source_title", "")
-                if not s_title or s_title.lower() in ["unknown", "unknown source", "none"]:
-                    s_title = "미상" if source_type == "book" else "속담/격언"
-                
-                s_author = q.get("author", "")
-                if not s_author or s_author.lower() in ["unknown", "unknown author", "none", "anonymous"]:
-                    s_author = "익명"
-
+                # Construct dummy source - Expecting real data from AI now
                 source_read = SourceRead(
                     id=0,
-                    title=s_title,
+                    title=q.get("source_title", "Unknown"),
                     source_type=source_type,
-                    creator=s_author,
+                    creator=q.get("author", "Unknown"),
                     created_at=datetime.now()
                 )
                 
@@ -228,20 +220,12 @@ async def get_related_recommendations(
                     created_at=datetime.now()
                 ))
         
-        # Construct dummy source with improved defaults
-        s_title = q.get("source_title", "")
-        if not s_title or s_title.lower() in ["unknown", "unknown source", "none"]:
-            s_title = "미상"
-        
-        s_author = q.get("author", "")
-        if not s_author or s_author.lower() in ["unknown", "unknown author", "none", "anonymous"]:
-            s_author = "익명"
-
+        # Construct dummy source - Expecting real data from AI now
         source_read = SourceRead(
             id=0,
-            title=s_title,
+            title=q.get("source_title", "Unknown"),
             source_type=q.get("source_type", "book"),
-            creator=s_author,
+            creator=q.get("author", "Unknown"),
             created_at=datetime.now()
         )
         

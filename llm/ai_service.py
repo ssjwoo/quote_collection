@@ -343,14 +343,15 @@ class AIService:
             return self._cache[cache_key]
 
         prompt = f"""
-        Recommend {pool_size} UNIQUE, DEEP, and INSPIRING quotes from different {source_type}s.
-        IMPORTANT: AVOID CLICHÉ OR OVERLY COMMON QUOTES (e.g., 'Failure is the mother of success'). 
-        Seek for "hidden gems" or powerful sentences from literature, philosophy, and history.
+        Recommend {pool_size} POWERFUL and AUTHENTIC quotes exclusively from EXISTING BOOKS (Literature, Philosophy, History).
+        
+        CRITICAL RULES:
+        1. NO PROVERBS, NO GENERAL SAYINGS, NO ANONYMOUS ADAGES. (e.g., AVOID '속담', '격언', '명언')
+        2. EVERY quote MUST have a SPECIFIC and REAL BOOK TITLE and a KNOWN AUTHOR.
+        3. AVOID cliché or overly common sayings. Seek for deep, artistic sentences.
         
         User's Interest/Context:
-        {user_context or "General audience, seeking meaningful and fresh insights."}
-
-        The quotes must be highly relevant to the user's interest if provided.
+        {user_context or "General audience, seeking high-quality literary insights."}
         Only Korean.
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
@@ -436,9 +437,9 @@ class AIService:
         You are a creative muse. The user is reading this quote:
         "{current_quote_content}"
         
-        Recommend {limit} NEW, DISTINCT, and PROVOCATIVE quotes related to the above.
-        AVOID generic or repetitive sayings. Choose sentences that have weight and poetic beauty.
-        The goal is to let the user endlessly surf through a high-quality quote library.
+        Recommend {limit} NEW and DISTINCT quotes derived EXCLUSIVELY from REAL BOOKS or WORKS.
+        STRICTLY FORBIDDEN: Proverbs, folk sayings, or anonymous adages.
+        Each recommendation MUST include a verified Book Title and Author.
         Target Language: Korean (Must be in Korean).
         
         Please provide the response in valid JSON format as a LIST of objects with the following keys:
