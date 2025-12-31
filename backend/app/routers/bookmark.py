@@ -16,38 +16,58 @@ async def get_bookmarks_by_user(user_id: int, db: AsyncSession = Depends(get_asy
     return [bookmark.quote for bookmark in bookmarks]
 
 async def _ensure_ai_quote_exists(db: AsyncSession, bookmark_in: BookmarkCreate) -> int:
-    """AI 추천 문구가 DB에 없는 경우(id <= 0) 새로 생성하고 ID를 반환합니다."""
+    """AI 추천 문구가 DB에 없는 경우(id <= 0) 새로 생성하고 ID를 반환합니다.
+    동일한 내용의 문구가 있으면 기존 ID를 반환하여 중복을 방지합니다.
+    """
     if bookmark_in.quote_id > 0 or not bookmark_in.quote_data:
         return bookmark_in.quote_id
 
     try:
         from app.schemas import QuoteCreate, SourceCreate
         from app.services import source_service, quote_service
+        from sqlalchemy import select
+        from app.models import Quote, Source
         
         q_data = bookmark_in.quote_data
-        print(f"DEBUG: Creating new AI quote: {q_data.get('content')}")
+        content = q_data.get('content')
+        print(f"DEBUG: Ensuring AI quote exists: {content[:30]}...")
         
-        # 1. Source 생성 (중복 방지는 간단하게 이름 기반으로 하거나 매번 생성)
+        # 1. 이미 동일한 내용의 문구가 있는지 확인 (중복 생성 방지)
+        stmt = select(Quote).where(Quote.content == content)
+        result = await db.execute(stmt)
+        existing_quote = result.scalar_one_or_none()
+        if existing_quote:
+            print(f"DEBUG: Existing quote found (ID: {existing_quote.id}). Reusing.")
+            return existing_quote.id
+
+        # 2. Source 생성 전 source_type 보정 (Enum 준수)
+        raw_type = q_data.get('source_type', 'book').lower()
+        allowed_types = ["book", "movie", "drama", "tv", "speech", "other"]
+        source_type = raw_type if raw_type in allowed_types else "other"
+        
+        # 3. Source 생성 또는 기존 Source 검색 (여기서는 간단히 생성)
         author = q_data.get('author') or q_data.get('creator') or 'Unknown'
         new_source = await source_service.repository.create(db, obj_in=SourceCreate(
             title=q_data.get('source_title', 'Unknown Source'),
             creator=author,
-            source_type=q_data.get('source_type', 'book')
+            source_type=source_type
         ))
         await db.flush()
         
-        # 2. Quote 생성
+        # 4. Quote 생성
         new_quote = await quote_service.repository.create(db, obj_in=QuoteCreate(
-            content=q_data.get('content'),
+            content=content,
             source_id=new_source.id,
             user_id=bookmark_in.user_id
         ))
         await db.flush()
         return new_quote.id
     except Exception as e:
-        print(f"Error in _ensure_ai_quote_exists: {e}")
+        print(f"CRITICAL: Error in _ensure_ai_quote_exists: {e}")
+        import traceback
+        traceback.print_exc()
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"AI 문구 저장 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI 문구 저장 중 오류: {str(e)}")
 
 # 북마크 추가
 @router.post("/", response_model=BookmarkRead)
