@@ -69,8 +69,9 @@ async def get_todays_popular_quote(
     source_type: str, db: AsyncSession = Depends(get_async_db)
 ):
     print(f"DEBUG: get_todays_popular_quote called for {source_type}")
+    # Always use 'book' regardless of input
     popular_quote = await quote_service.get_todays_most_popular_by_source_type(
-        db, source_type=source_type
+        db, source_type="book"
     )
     
     if popular_quote:

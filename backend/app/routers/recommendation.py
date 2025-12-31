@@ -61,7 +61,7 @@ ai_service = AIService(
 @router.get("/", response_model=List[QuoteRead])
 async def get_recommendations_by_source(
     db: AsyncSession = Depends(get_async_db),
-    source_type: str = Query("book", enum=["book", "movie", "drama"]),
+    source_type: str = Query("book", enum=["book"]),
     limit: int = 3,
     current_user: UserResponse = Depends(get_current_user_optional),
 ):

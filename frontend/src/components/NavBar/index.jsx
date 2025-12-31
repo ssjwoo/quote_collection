@@ -2,8 +2,8 @@ import { NavLink } from "react-router-dom";
 
 const navItems = [
   { to: "/", label: "BOOK", color: "first", darkColor: "first" },
-  { to: "/movie", label: "MOVIE", color: "second", darkColor: "second" },
-  { to: "/drama", label: "DRAMA", color: "third", darkColor: "third" },
+  { to: "/mypage/bookmark", label: "BOOKMARK", color: "second", darkColor: "second" },
+  { to: "/trends", label: "TRENDS", color: "third", darkColor: "third" },
 ];
 
 const colorVariants = {
@@ -29,11 +29,10 @@ const NavBar = () => {
                 className={({ isActive }) => {
                   const variant = isActive
                     ? colorVariants[
-                        `active${
-                          item.darkColor.charAt(0).toUpperCase() +
-                          item.darkColor.slice(1)
-                        }`
-                      ]
+                    `active${item.darkColor.charAt(0).toUpperCase() +
+                    item.darkColor.slice(1)
+                    }`
+                    ]
                     : colorVariants[item.color];
                   return (
                     `relative block w-26 h-14 my-16 py-3 px-2 text-center font-bold shadow-lg transition-transform duration-200 ease-in-out rounded-lg ` +

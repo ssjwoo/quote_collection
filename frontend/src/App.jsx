@@ -72,8 +72,7 @@ const router = createBrowserRouter([
         element: <RootLayout />,
         children: [
           { index: true, element: <MainPage mode={"book"} /> },
-          { path: "/movie", element: <MainPage mode={"movie"} /> },
-          { path: "/drama", element: <MainPage mode={"drama"} /> },
+          { path: "/trends", element: <MainPage mode={"trends"} /> },
           { path: "/write", element: <Write /> },
           { path: "/mypage/:tab", element: <Mypage /> },
           { path: "/signup", element: <Signup /> },
