@@ -1,24 +1,26 @@
 import requests
 import json
 
-def test_endpoint():
-    print("Testing /recommendations endpoint...")
-    url = "http://127.0.0.1:8081/recommendations/?source_type=book&limit=3"
+def test():
+    url = "http://localhost:8081/recommendations/related"
+    payload = {
+        "current_quote_content": "어린왕자, 만일 네가 오후 4시에 온다면 나는 3시부터 행복해질 거야."
+    }
+    
+    print(f"Testing endpoint: {url}")
     try:
-        response = requests.get(url)
+        response = requests.post(url, json=payload)
         print(f"Status Code: {response.status_code}")
-        print("Raw Response Text:")
-        print(response.text)
-        
+        print(f"Raw Response: {response.text}")
         if response.status_code == 200:
             data = response.json()
-            print(f"Parsed JSON (Type: {type(data)}):")
-            print(json.dumps(data, indent=2, ensure_ascii=False))
+            print("Response Data Items:")
+            for item in data:
+                print(f"- {item['content']} ({item['source']['title']})")
         else:
-            print("Request failed.")
-            
+            print(f"Error: {response.text}")
     except Exception as e:
-        print(f"Error testing endpoint: {e}")
+        print(f"Connection Error: {e}")
 
 if __name__ == "__main__":
-    test_endpoint()
+    test()

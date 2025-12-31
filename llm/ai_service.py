@@ -30,13 +30,23 @@ def _ensure_vertex_libs():
         return _VERTEX_LIBS_READY
     except Exception as e:
         logger.error(f"Failed to load Vertex AI libraries: {e}")
+        from datetime import datetime
+        import traceback
+        try:
+            with open("ai_error.log", "a", encoding="utf-8") as f:
+                f.write(f"--- Library Load Error at {datetime.now()} ---\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write(traceback.format_exc())
+                f.write("\n")
+        except:
+            pass
         _VERTEX_LIBS_READY = False
         return False
 
 class AIService:
     def __init__(self, project_id: str, location: str = "us-central1", aladin_api_key: str = ""):
         self.project_id = project_id
-        self.location = location
+        self.location = "us-central1" # Force us-central1 for Gemini 2.0 stability
         self.aladin_api_key = aladin_api_key or os.getenv("ALADIN_API_KEY", "")
         self._model = None
         self._cache = {}
@@ -59,6 +69,17 @@ class AIService:
             return self._model
         except Exception as e:
             logger.error(f"Vertex AI Init failed: {e}")
+            from datetime import datetime
+            import traceback
+            try:
+                with open("ai_error.log", "a", encoding="utf-8") as f:
+                    f.write(f"--- Vertex AI Init Error at {datetime.now()} ---\n")
+                    f.write(f"Model: gemini-2.0-flash, Region: {self.location}\n")
+                    f.write(f"Error: {str(e)}\n")
+                    f.write(traceback.format_exc())
+                    f.write("\n")
+            except:
+                pass
             return None
     
     async def _fetch_aladin_book_info(self, title: str, author: str) -> dict:
@@ -475,22 +496,31 @@ class AIService:
         Infinite exploration enabled by context-aware prompting.
         """
         if not self.model:
-            logger.warning("AI service not initialized. Returning mock related quotes.")
+            logger.warning("AI service not initialized. Returning standard quotes.")
             return [
                  {
-                     "content": "비슷한 분위기의 추천 명언입니다. (AI 연결 필요)",
-                     "source_title": "AI 미연결",
-                     "author": "시스템",
+                     "content": "가장 훌륭한 시는 아직 쓰여지지 않았다.",
+                     "source_title": "진정한 여행",
+                     "author": "나짐 히크메트",
                      "source_type": "book",
-                     "tags": ["추천", "기본"]
+                     "tags": ["희망", "미래"]
+                 },
+                 {
+                     "content": "중요한 것은 눈에 보이지 않아. 마음으로 보아야 잘 보여.",
+                     "source_title": "어린왕자",
+                     "author": "생텍쥐페리",
+                     "source_type": "book",
+                     "tags": ["본질", "진실"]
+                 },
+                 {
+                     "content": "별을 노래하는 마음으로 모든 죽어가는 것을 사랑해야지.",
+                     "source_title": "서시",
+                     "author": "윤동주",
+                     "source_type": "book",
+                     "tags": ["사랑", "서정"]
                  }
-            ] * limit
+            ][:limit]
 
-        # No caching logic here because we want "infinite" variety based on subtle context shifts
-        # If we cache solely on content, the chain might loop. 
-        # But for strictly same content input, distinct results are hard without randomness.
-        # We'll use a high temperature.
-        
         prompt = f"""
         You are a creative muse. The user is reading this quote:
         "{current_quote_content}"

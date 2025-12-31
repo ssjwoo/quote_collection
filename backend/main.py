@@ -28,7 +28,7 @@ app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost:5173",  # React 개발 서버 주소
     "https://gen-lang-client-0121173096.web.app", # Firebase Hosting
-    "https://gen-lang-client-0121173096.web.app/", 
+    "https://gen-lang-client-0121173096.firebaseapp.com", # Firebase Secondary Domain
     "null",  # 로컬에서 직접 연 html 파일 (test.html)
 ]
 # CORS middleware
@@ -42,6 +42,7 @@ app.add_middleware(
 )
 
 
+# Force reload for AI debug - version 2
 app.include_router(api_router)
 
 

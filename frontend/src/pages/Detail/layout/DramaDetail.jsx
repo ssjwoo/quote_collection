@@ -136,7 +136,7 @@ export const DramaDetail = ({ quote }) => {
         </div>
 
         <div className="flex items-end mt-3">
-          <label className="w-1/12 text-sm text-end pb-3 ">드라마제목</label>
+          <label className="w-1/12 text-sm text-end pb-3">드라마 제목 </label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
             <span
               className="cursor-pointer"

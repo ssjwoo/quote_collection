@@ -16,8 +16,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 try:
     from ai_service import AIService
-except ImportError:
+except ImportError as e:
     # Fallback or error handling if path is wrong
+    with open("import_error.log", "a", encoding="utf-8") as f:
+        import traceback
+        f.write(f"ImportError in recommendation.py: {e}\n")
+        f.write(traceback.format_exc())
     print("Could not import AIService from llm folder")
     AIService = None
 
@@ -45,10 +49,11 @@ router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
 
 # Initialize AIService globally or lazily
 # We pass settings here
-print(f"DEBUG RECOM: Initializing AIService with Aladin Key: {settings.aladin_api_key[:5]}***")
+# Initialize AIService globally or lazily
+# We pass settings here
 ai_service = AIService(
     project_id=settings.google_project_id, 
-    location=settings.google_location,
+    location="us-central1", # Force us-central1
     aladin_api_key=settings.aladin_api_key
 ) if AIService else None
 
@@ -176,7 +181,6 @@ async def get_recommendations_by_source(
                 recommendations.append(quote_read)
             return recommendations
             
-
 @router.post("/related", response_model=List[QuoteRead])
 async def get_related_recommendations(
     current_quote_content: str = Body(..., embed=True),

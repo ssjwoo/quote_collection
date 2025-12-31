@@ -94,7 +94,7 @@ async def toggle_bookmark(bookmark_in: BookmarkCreate, db: AsyncSession = Depend
             # Create Source
             new_source = await source_service.repository.create(db, obj_in=SourceCreate(
                 title=q_data.get('source_title', 'Unknown Source'),
-                actor=q_data.get('author', 'Unknown'),
+                creator=q_data.get('author', 'Unknown'),
                 source_type=q_data.get('source_type', 'book')
             ))
             

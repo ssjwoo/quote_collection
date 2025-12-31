@@ -114,7 +114,7 @@ export const MovieDetail = ({ quote }) => {
         <div className="text-3xl mb-5">MOVIE MOMENT</div>
         <div className="text-end">
           <label className="text-xs text-end font-semibold text-gray-600">
-            작성자 : <span> {writer.username} </span>
+            작성자 : <span> {writer.username}</span>
           </label>
           {user && user.id === writer.id && (
             <>

@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const baseURL = isLocal
+  ? "http://localhost:8081"
+  : "https://quote-collection-220491377226.us-central1.run.app";
+
 const instance = axios.create({
-  baseURL: "https://quote-collection-220491377226.us-central1.run.app",
+  baseURL: baseURL,
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
