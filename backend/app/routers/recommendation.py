@@ -164,8 +164,7 @@ async def get_recommendations_by_source(
                     title=q.get("source_title", "Unknown Source"),
                     source_type=source_type,
                     creator=q.get("author", "Unknown Author"),
-                    created_at=datetime.now(),
-                    updated_at=datetime.now()
+                    created_at=datetime.now()
                 )
                 
                 # Construct dummy quote
@@ -180,6 +179,8 @@ async def get_recommendations_by_source(
                 )
                 recommendations.append(quote_read)
             return recommendations
+    
+    return []
             
 @router.post("/related", response_model=List[QuoteRead])
 async def get_related_recommendations(
@@ -225,8 +226,7 @@ async def get_related_recommendations(
             title=q.get("source_title", "Unknown Source"),
             source_type=q.get("source_type", "book"),
             creator=q.get("author", "Unknown Author"),
-            created_at=datetime.now(),
-            updated_at=datetime.now()
+            created_at=datetime.now()
         )
         
         # Construct dummy quote

@@ -17,7 +17,8 @@ def _ensure_vertex_libs():
         import vertexai
         from vertexai.generative_models import GenerativeModel, Tool
         try:
-            from vertexai.generative_models import grounding
+            from vertexai.generative_models import GoogleSearchRetrieval
+            grounding = GoogleSearchRetrieval
         except ImportError:
             grounding = None
         
@@ -152,7 +153,7 @@ class AIService:
 
         try:
             if grounding:
-                tool = Tool.from_google_search_retrieval(grounding.GoogleSearchRetrieval())
+                tool = Tool.from_google_search_retrieval(grounding())
             else:
                 tool = None
         except Exception as e:
