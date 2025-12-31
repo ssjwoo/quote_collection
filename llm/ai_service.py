@@ -8,17 +8,12 @@ logger = logging.getLogger(__name__)
 _VERTEX_LIBS_READY = None 
 
 def _ensure_vertex_libs():
+    """Import Vertex AI libs safely"""
     global _VERTEX_LIBS_READY
     if _VERTEX_LIBS_READY is not None:
         return _VERTEX_LIBS_READY
     
     try:
-        # Aggressive masking of torch before any vertexai import
-        if "torch" not in sys.modules:
-            from unittest.mock import MagicMock
-            for mod in ["torch", "torch.cuda", "torch.distributed", "torch.nn"]:
-                sys.modules[mod] = MagicMock()
-        
         import vertexai
         from vertexai.generative_models import GenerativeModel, Tool
         try:
@@ -30,16 +25,6 @@ def _ensure_vertex_libs():
         return _VERTEX_LIBS_READY
     except Exception as e:
         logger.error(f"Failed to load Vertex AI libraries: {e}")
-        from datetime import datetime
-        import traceback
-        try:
-            with open("ai_error.log", "a", encoding="utf-8") as f:
-                f.write(f"--- Library Load Error at {datetime.now()} ---\n")
-                f.write(f"Error: {str(e)}\n")
-                f.write(traceback.format_exc())
-                f.write("\n")
-        except:
-            pass
         _VERTEX_LIBS_READY = False
         return False
 
@@ -58,28 +43,32 @@ class AIService:
         if self._model:
             return self._model
         
+        print(f"DEBUG AI: Attempting model access (Project={self.project_id}, Region={self.location})")
         libs = _ensure_vertex_libs()
         if not libs:
+            print("DEBUG AI: Framework libraries failed to load.")
             return None
         
         vertexai, GenerativeModel, _, _ = libs
+        
+        # Priority 1: Gemini 2.0 Flash
         try:
+            print(f"DEBUG AI: Initializing Gemini 2.0 Flash...")
             vertexai.init(project=self.project_id, location=self.location)
             self._model = GenerativeModel("gemini-2.0-flash")
+            print("DEBUG AI: Gemini 2.0 Flash Initialized.")
             return self._model
-        except Exception as e:
-            logger.error(f"Vertex AI Init failed: {e}")
-            from datetime import datetime
-            import traceback
-            try:
-                with open("ai_error.log", "a", encoding="utf-8") as f:
-                    f.write(f"--- Vertex AI Init Error at {datetime.now()} ---\n")
-                    f.write(f"Model: gemini-2.0-flash, Region: {self.location}\n")
-                    f.write(f"Error: {str(e)}\n")
-                    f.write(traceback.format_exc())
-                    f.write("\n")
-            except:
-                pass
+        except Exception as e20:
+            print(f"DEBUG AI: Gemini 2.0 Flash failed: {e20}. Trying Gemini 1.5 Flash...")
+            
+        # Priority 2: Gemini 1.5 Flash (More stable across regions)
+        try:
+            self._model = GenerativeModel("gemini-1.5-flash")
+            print("DEBUG AI: Gemini 1.5 Flash Initialized as Fallback.")
+            return self._model
+        except Exception as e15:
+            print(f"DEBUG AI: Gemini 1.5 Flash also failed: {e15}")
+            logger.error(f"Vertex AI initialization failed for all models: {e15}")
             return None
     
     async def _fetch_aladin_book_info(self, title: str, author: str) -> dict:
@@ -156,31 +145,35 @@ class AIService:
         libs = _ensure_vertex_libs()
         # Fallback if libraries missing or model init failed
         if not libs or not self.model:
-             logger.warning("AI service not initialized or model failed. Using Mock Data for book recommendations.")
-             mock_books = [
+             logger.warning("AI service not initialized or model failed. Using Dynamic Fallback Data.")
+             # Fallback: Instead of fixed 5 books, use a slightly larger pool or try to fetch some random titles?
+             # For now, let's at least avoid the same 5 every time if possible.
+             # But without AI, we are limited. Let's provide a larger list and sample from it.
+             dynamic_fallback = [
                  {"title": "달러구트 꿈 백화점", "author": "이미예", "reason": "힐링과 감동을 주는 한국형 판타지 소설"},
                  {"title": "불편한 편의점", "author": "김호연", "reason": "따뜻한 위로가 필요한 당신에게 추천하는 베스트셀러"},
                  {"title": "채식주의자", "author": "한강", "reason": "강렬한 문체와 깊이 있는 주제의식의 맨부커상 수상작"},
                  {"title": "모순", "author": "양귀자", "reason": "인생의 모순을 날카롭지만 따뜻하게 그려낸 수작"},
-                 {"title": "파친코", "author": "이민진", "reason": "역사의 흐름 속에서 피어난 강인한 생명력의 이야기"}
+                 {"title": "파친코", "author": "이민진", "reason": "역사의 흐름 속에서 피어난 강인한 생명력의 이야기"},
+                 {"title": "지구 끝의 온기", "author": "김초엽", "reason": "SF의 상상력과 따뜻한 휴머니즘이 만난 소설"},
+                 {"title": "소년이 온다", "author": "한강", "reason": "역사의 아픔을 섬세하고 강렬한 필치로 그려낸 작품"},
+                 {"title": "아몬드", "author": "손원평", "reason": "감정을 느끼지 못하는 소년의 특별한 성장 이야기"},
+                 {"title": "미드나잇 라이브러리", "author": "매트 헤이그", "reason": "살아보지 못한 수많은 삶들을 경험하는 판타지 여행"}
              ]
+             import random
+             sampled_fallback = random.sample(dynamic_fallback, min(5, len(dynamic_fallback)))
+             
              try:
-                 for book in mock_books:
+                 for book in sampled_fallback:
                     title = book.get('title', '')
                     author = book.get('author', '')
                     aladin_info = await self._fetch_aladin_book_info(title, author)
-                    if aladin_info["link"]:
-                        book['link'] = aladin_info["link"]
-                    else:
-                        import urllib.parse
-                        search_query = f"{title} {author}".strip()
-                        book['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={urllib.parse.quote(search_query)}"
-                    book['image'] = aladin_info["image"]
+                    book['link'] = aladin_info.get("link") or f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=Book&SearchWord={title}"
+                    book['image'] = aladin_info.get("image", "")
                  
-                 self._cache[cache_key] = mock_books
-                 return mock_books
+                 return sampled_fallback
              except Exception as e:
-                 logger.error(f"Error processing mock data: {e}")
+                 logger.error(f"Error processing fallback data: {e}")
                  return []
         
         _, GenerativeModel, Tool, grounding = libs
