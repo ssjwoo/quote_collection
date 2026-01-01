@@ -19,7 +19,7 @@ class BookmarkRepository(BaseRepository[Bookmark]):
             await db.commit()
         return obj
 
-    async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> list[Bookmark]:
+    async def get_by_user_id(self, db: AsyncSession, *, user_id: int, skip: int = 0, limit: int = 10) -> list[Bookmark]:
         statement = (
             select(self.model)
             .options(
@@ -27,9 +27,18 @@ class BookmarkRepository(BaseRepository[Bookmark]):
                 selectinload(self.model.quote).selectinload(Quote.tags)
             )
             .filter(self.model.user_id == user_id)
+            .order_by(self.model.created_at.desc()) # 최신순 기본 정합성
+            .offset(skip)
+            .limit(limit)
         )
         result = await db.execute(statement)
         return result.scalars().all()
+
+    async def count_by_user_id(self, db: AsyncSession, *, user_id: int) -> int:
+        from sqlalchemy import func
+        statement = select(func.count()).select_from(self.model).filter(self.model.user_id == user_id)
+        result = await db.execute(statement)
+        return result.scalar() or 0
 
 
 bookmark_repository = BookmarkRepository(Bookmark)

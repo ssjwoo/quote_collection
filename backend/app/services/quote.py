@@ -10,8 +10,11 @@ class QuoteService(BaseService[QuoteRepository]):
     async def get_most_bookmarked(self, db: AsyncSession, limit: int = 10):
         return await self.repository.get_most_bookmarked(db, limit=limit)
 
-    async def get_by_user_id(self, db: AsyncSession, user_id: int):
-        return await self.repository.get_by_user_id(db, user_id=user_id)
+    async def get_by_user_id_paginated(self, db: AsyncSession, user_id: int, page: int = 1, size: int = 10):
+        skip = (page - 1) * size
+        items = await self.repository.get_by_user_id(db, user_id=user_id, skip=skip, limit=size)
+        total = await self.repository.count_by_user_id(db, user_id=user_id)
+        return items, total
 
     async def get_latest_by_source_type(
         self, db: AsyncSession, source_type: str, limit: int = 10

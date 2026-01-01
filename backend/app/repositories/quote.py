@@ -39,14 +39,22 @@ class QuoteRepository(BaseRepository[Quote]):
         result = await db.execute(statement)
         return result.scalars().all()
 
-    async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> list[Quote]:
+    async def get_by_user_id(self, db: AsyncSession, *, user_id: int, skip: int = 0, limit: int = 10) -> list[Quote]:
         statement = (
             select(self.model)
             .options(selectinload(self.model.source), selectinload(self.model.tags))
             .filter(self.model.user_id == user_id)
+            .order_by(self.model.created_at.desc()) # 최신순
+            .offset(skip)
+            .limit(limit)
         )
         result = await db.execute(statement)
         return result.scalars().all()
+
+    async def count_by_user_id(self, db: AsyncSession, *, user_id: int) -> int:
+        statement = select(func.count()).select_from(self.model).filter(self.model.user_id == user_id)
+        result = await db.execute(statement)
+        return result.scalar() or 0
 
     async def get_by_source_id(self, db: AsyncSession, *, source_id: int) -> list[Quote]:
         statement = (

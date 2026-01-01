@@ -3,17 +3,32 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_async_db
 from app.schemas import BookmarkCreate, BookmarkRead, QuoteRead
+from app.schemas.pagination import PaginatedResponse
 from app.services import bookmark_service
+import math
 from app.models import Bookmark
 from app.services import quote_service  # Need quote service to create new quotes
 
 router = APIRouter(prefix="/bookmark", tags=["Bookmark"])
 
-# 유저의 북마크 조회
-@router.get("/user/{user_id}", response_model=list[QuoteRead])
-async def get_bookmarks_by_user(user_id: int, db: AsyncSession = Depends(get_async_db)):
-    bookmarks = await bookmark_service.repository.get_by_user_id(db, user_id=user_id)
-    return [bookmark.quote for bookmark in bookmarks]
+# 유저의 북마크 조회 (Paging 지원)
+@router.get("/user/{user_id}", response_model=PaginatedResponse[QuoteRead])
+async def get_bookmarks_by_user(
+    user_id: int, 
+    page: int = 1, 
+    size: int = 10, 
+    db: AsyncSession = Depends(get_async_db)
+):
+    items, total = await bookmark_service.get_by_user_id_paginated(db, user_id=user_id, page=page, size=size)
+    total_pages = math.ceil(total / size) if total > 0 else 0
+    
+    return PaginatedResponse(
+        items=[bookmark.quote for bookmark in items],
+        total=total,
+        page=page,
+        size=size,
+        total_pages=total_pages
+    )
 
 async def _ensure_ai_quote_exists(db: AsyncSession, bookmark_in: BookmarkCreate) -> int:
     """AI 추천 문구가 DB에 없는 경우(id <= 0) 새로 생성하거나 기존 것을 찾아 ID를 반환합니다.

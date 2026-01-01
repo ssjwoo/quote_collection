@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from app.schemas.pagination import PaginatedResponse
+import math
 
 from app.database import get_async_db
 from app.schemas.quote import QuoteCreate, QuoteRead, QuoteUpdate, QuoteBase
@@ -175,9 +177,23 @@ async def get_quote(quote_id: int, db: AsyncSession = Depends(get_async_db)):
     return quote
 
 
-@router.get("/user/{user_id}", response_model=list[QuoteRead])
-async def get_quotes_by_user(user_id: int, db: AsyncSession = Depends(get_async_db)):
-    return await quote_service.get_by_user_id(db, user_id=user_id)
+@router.get("/user/{user_id}", response_model=PaginatedResponse[QuoteRead])
+async def get_quotes_by_user(
+    user_id: int, 
+    page: int = 1, 
+    size: int = 10, 
+    db: AsyncSession = Depends(get_async_db)
+):
+    items, total = await quote_service.get_by_user_id_paginated(db, user_id=user_id, page=page, size=size)
+    total_pages = math.ceil(total / size) if total > 0 else 0
+    
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+        total_pages=total_pages
+    )
 
 
 @router.put("/{quote_id}", response_model=QuoteRead)

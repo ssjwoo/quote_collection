@@ -51,11 +51,19 @@ class VertexAIClient:
         try:
             vertexai_lib.init(project=self.project_id, location=self.location)
             logger.info(f"Vertex AI Init: project={self.project_id}, location={self.location}, model={model_name}")
-            model = GenerativeModel(model_name)
+            
+            # Add Google Search Grounding if available
+            tools = []
+            if libs[3]: # grounding (GoogleSearchRetrieval)
+                from vertexai.generative_models import Tool
+                tools = [Tool.from_google_search_retrieval(libs[3]())]
+                logger.info("Google Search Grounding Tool enabled.")
+            
+            model = GenerativeModel(model_name, tools=tools)
             self._model_cache[cache_key] = model
             return model
         except Exception as e:
-            logger.error(f"Failed to initialize Vertex AI model {model_name}: {e}")
+            logger.error(f"Failed to initialize Vertex AI model {model_name} with tools: {e}")
             return None
 
     async def generate_content(self, prompt: str, model_name: str = "gemini-2.0-flash", **kwargs) -> Optional[str]:
