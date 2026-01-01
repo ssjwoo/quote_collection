@@ -153,7 +153,7 @@ export const BookDetail = ({ quote }) => {
         </div>
 
         <div className="flex items-end mt-3">
-          <label className="w-1/12 text-sm text-end pb-3">책 제목 </label>
+          <label className="text-sm text-end pb-3 whitespace-nowrap flex-shrink-0 min-w-[80px]">책 제목 </label>
           <div className="w-4/6 text-start text-xl rounded-lg p-2 pl-4 ml-3">
             <span
               className="cursor-pointer"
@@ -183,7 +183,7 @@ export const BookDetail = ({ quote }) => {
         </div>
 
         <div className="flex items-end mt-3">
-          <label className="w-1/12 text-end pb-3 text-sm">저자 </label>
+          <label className="text-end pb-3 text-sm whitespace-nowrap flex-shrink-0 min-w-[80px]">저자 </label>
           <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
             <span
               className="cursor-pointer"
@@ -197,7 +197,7 @@ export const BookDetail = ({ quote }) => {
         {publisher.name && (
           <>
             <div className="flex items-end mt-3">
-              <label className="w-1/12 text-end pb-3 text-sm">출판사 </label>
+              <label className="text-end pb-3 text-sm whitespace-nowrap flex-shrink-0 min-w-[80px]">출판사 </label>
               <div className="w-4/6 text-start rounded-lg p-2 pl-4 ml-3 text-sm pb-3">
                 {publisher.name}
               </div>
@@ -207,7 +207,7 @@ export const BookDetail = ({ quote }) => {
 
         {quote.tags && (
           <div className="flex items-end mt-3">
-            <label className="w-1/12 text-end text-sm pb-3">TAGS </label>
+            <label className="text-end text-sm pb-3 whitespace-nowrap flex-shrink-0 min-w-[80px]">TAGS </label>
             <div className="w-4/6 text-start rounded-lg p-2 pl-4 ">
               {quote.tags.map((t) => (
                 <span

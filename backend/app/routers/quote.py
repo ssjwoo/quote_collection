@@ -15,51 +15,21 @@ from app.models.quote_tag import quote_tags
 router = APIRouter(prefix="/quote", tags=["Quote"])
 
 
-from app.core.config import settings
 import sys
 import os
+from app.core.config import settings
+# Add project root to sys.path for llm import
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../llm")))
 
-# Add llm folder to sys.path
-# Robust path addition
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# current_dir should be .../backend/app/routers
-backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-# backend_dir is .../backend (wait, dirname(dirname(routers)) -> backend/app -> backend)
-# Let's count: 
-# routers -> app (param 1)
-# app -> backend (param 2)
-# backend -> quote_collection (param 3)
-# So we need to go up 3 levels to get to quote_collection root if we want 'llm' from root.
-# c:\quote_collection\backend\app\routers\quote.py
-# 1. routers
-# 2. app
-# 3. backend
-# 4. quote_collection
-root_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-llm_dir = os.path.join(root_dir, "llm")
-if os.path.exists(llm_dir):
-    sys.path.append(llm_dir)
-    print(f"DEBUG: Added {llm_dir} to sys.path")
-else:
-    print(f"DEBUG: Could not find llm dir at {llm_dir}")
-    # Fallback: assume running from backend root
-    sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "../llm")))
-
-# sys.path is already setup above
-AI_IMPORT_ERROR = None
 try:
     from ai_service import AIService
-    print(f"DEBUG: Successfully imported AIService class from {AIService}")
-except Exception as e:
-    AI_IMPORT_ERROR = str(e)
-    print(f"DEBUG: Failed to import AIService in quote.py: {e}")
+except ImportError:
     AIService = None
 
 # Initialize AIService
-print(f"DEBUG: Initializing AIService with Aladin Key: {settings.aladin_api_key[:5]}***")
 ai_service = AIService(
     project_id=settings.google_project_id, 
-    location=settings.google_location,
+    location="us-central1",
     aladin_api_key=settings.aladin_api_key
 ) if AIService else None
 

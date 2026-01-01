@@ -9,17 +9,19 @@
   --color-second-menu-thick: #9ac7c1;
   --color-third-menu-dim: #d1dcbc;
   --color-third-menu-thick: #aec18e;
+  --color-fourth-menu-dim: #e0e7ff;
+  --color-fourth-menu-thick: #818cf8;
   --color-main-white: #fdfdfb;
-  --color-main-beige :#E3E0CF;
-  --color-new-bg:#E2E8C9;
+  --color-main-beige: #E3E0CF;
+  --color-new-bg: #E2E8C9;
   --color-main-beige: #e3e0cf;
-  --color-main-beige2 :#E5E8E1;
-  --color-sub-darkbeidge :#ECEEE9;
-  --color-main-pink : #D6B8AD;
-  --color-sub-darkgreen:#A4AA9E;
-  --color-mypage-menu :#CDC4B9;
-  --color-upload-hover:#E4DCD1;
-  --color-search-btn:#F2F3F0;
+  --color-main-beige2: #E5E8E1;
+  --color-sub-darkbeidge: #ECEEE9;
+  --color-main-pink: #D6B8AD;
+  --color-sub-darkgreen: #A4AA9E;
+  --color-mypage-menu: #CDC4B9;
+  --color-upload-hover: #E4DCD1;
+  --color-search-btn: #F2F3F0;
 
   /* 연한 녹색 */
   --color-custom-div: #e5e8e1;

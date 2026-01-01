@@ -41,20 +41,26 @@ const RootLayout = () => {
   }, [location]);
 
   return (
-    <div className="relative flex flex-nowrap">
-      <div className="min-h-screen relative justify-center justify-items-center bg-main-green">
-        <div className="relative">
+    <div className="relative flex flex-nowrap justify-center bg-main-green min-h-screen">
+      <div className="relative w-full flex justify-center">
+        <div className="relative w-full max-w-6xl">
           <NavBar />
-          <div className="relative z-10 w-[60vw] min-h-[90vh] mt-11 bg-main-beige2 shadow-2xl rounded-lg">
+          <div className="relative z-10 w-full md:w-[75vw] lg:w-[65vw] mx-auto min-h-[100vh] md:min-h-[90vh] md:mt-11 bg-main-beige2 shadow-none md:shadow-2xl rounded-none md:rounded-xl overflow-hidden">
             {isOpen && (
-              <div className=" fixed inset-0 flex justify-center items-center">
+              <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/50 backdrop-blur-sm p-4">
                 <LoginModal setIsOpen={setIsOpen} />
               </div>
             )}
             <MyNavBar isLogIn={isAuthenticated} setIsOpen={setIsOpen} />
-            <main className="p-8 md:p-12 text-center text-black">
+            <main className="p-4 sm:p-6 md:p-12 text-center text-black pb-24 md:pb-12">
               <Logo />
-              {isLoading ? <div>Loading...</div> : <Outlet />}
+              {isLoading ? (
+                <div className="flex justify-center items-center min-h-[40vh]">
+                  <div className="animate-pulse text-gray-500 font-medium">로딩 중...</div>
+                </div>
+              ) : (
+                <Outlet />
+              )}
             </main>
           </div>
         </div>
@@ -72,6 +78,7 @@ const router = createBrowserRouter([
         element: <RootLayout />,
         children: [
           { index: true, element: <MainPage mode={"book"} /> },
+          { path: "/ai-pick", element: <MainPage mode={"ai-pick"} /> },
           { path: "/trends", element: <MainPage mode={"trends"} /> },
           { path: "/write", element: <Write /> },
           { path: "/mypage/:tab", element: <Mypage /> },

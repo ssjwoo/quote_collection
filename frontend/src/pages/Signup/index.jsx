@@ -139,11 +139,11 @@ export const Signup = () => {
           <div className="mb-10 text-custom-basic-font text-3xl">Signup</div>
 
           <form
-            className="flex flex-col items-center w-full max-w-md mx-auto"
+            className="flex flex-col items-center w-full max-w-md mx-auto space-y-2"
             onSubmit={handlesubmit}
           >
-            <div className="flex flex-col w-full px-4 mb-4">
-              <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col w-full px-2 sm:px-4">
+              <div className="w-full">
                 <SigninInput
                   title="name"
                   type="text"
@@ -153,24 +153,25 @@ export const Signup = () => {
                   onChange={handleChange}
                   className={getUsernameInputClass()}
                 />
-                <button
-                  type="button"
-                  className="flex-shrink-0 p-0.5 pl-1 pr-1 text-xs border rounded-sm border-main-green hover:ring-1 hover:ring-main-green
-                  disabled:border-gray-400 disabled:text-gray-400 disabled:hover:ring-0 ml-2"
-                  onClick={checkUsernameAvailability}
-                  disabled={usernameStatus === 'checking' || !form.username.trim()}
-                >
-                  중복 확인
-                </button>
+                <div className="flex justify-end -mt-2 mb-2 pr-1">
+                  <button
+                    type="button"
+                    className="px-4 py-1.5 text-xs font-bold border-2 rounded-full border-main-green bg-white text-main-green hover:bg-main-green hover:text-white transition-all active:scale-95 disabled:border-gray-300 disabled:text-gray-300 shadow-sm"
+                    onClick={checkUsernameAvailability}
+                    disabled={usernameStatus === 'checking' || !form.username.trim()}
+                  >
+                    중복 확인
+                  </button>
+                </div>
               </div>
               {(error.name || usernameStatus !== 'idle') && (
-                <p className={`text-sm mt-1 text-center ${getUsernameFeedbackColorClass()}`}>
+                <p className={`text-xs mt-0 text-right pr-2 mb-2 ${getUsernameFeedbackColorClass()}`}>
                   {error.name || getUsernameFeedbackMessage()}
                 </p>
               )}
             </div>
 
-            <div className="flex flex-col w-full px-4 mb-4">
+            <div className="flex flex-col w-full px-2 sm:px-4">
               <SigninInput
                 title="email"
                 type="email"
@@ -180,11 +181,11 @@ export const Signup = () => {
                 onChange={handleChange}
               />
               {error.email && (
-                <p className="text-red-500 text-sm mt-1 text-center">{error.email}</p>
+                <p className="text-red-500 text-xs mt-1 text-right pr-2">{error.email}</p>
               )}
             </div>
 
-            <div className="flex flex-col w-full px-4 mb-4">
+            <div className="flex flex-col w-full px-2 sm:px-4">
               <SigninInput
                 title="pw"
                 type="password"
@@ -194,11 +195,11 @@ export const Signup = () => {
                 onChange={handleChange}
               />
               {error.password && (
-                <p className="text-red-500 text-sm mt-1 text-center">{error.password}</p>
+                <p className="text-red-500 text-xs mt-1 text-right pr-2">{error.password}</p>
               )}
             </div>
 
-            <div className="flex flex-col w-full px-4 mb-4">
+            <div className="flex flex-col w-full px-2 sm:px-4">
               <SigninInput
                 title="pw confirm"
                 type="password"
@@ -208,23 +209,23 @@ export const Signup = () => {
                 onChange={handleChange}
               />
               {error.passwordConfirm && (
-                <p className="text-red-500 text-sm mt-1 text-center">
+                <p className="text-red-500 text-xs mt-1 text-right pr-2">
                   {error.passwordConfirm}
                 </p>
               )}
             </div>
 
-            <div className="mt-5 flex justify-center w-full px-4">
+            <div className="mt-8 flex justify-center w-full px-4 space-x-4">
               <button
                 onClick={() => navigation("/")}
                 type="button"
-                className="bg-main-beige mr-3 w-[80px] h-[30px] rounded-lg"
+                className="bg-gray-200 text-gray-700 w-full sm:w-[120px] h-[45px] sm:h-[35px] rounded-lg font-medium active:scale-95 transition-transform"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-mypage-menu w-[80px] h-[30px] rounded-lg"
+                className="bg-main-green text-white w-full sm:w-[120px] h-[45px] sm:h-[35px] rounded-lg font-medium active:scale-95 transition-transform shadow-md"
               >
                 Confirm
               </button>

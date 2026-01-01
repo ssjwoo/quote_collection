@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export const MyNavBar = ({ setIsOpen, isLogIn }) => {
   const navigation = useNavigate();
-  const { logout ,setError,showAlert} = useAuth();
+  const { logout, setError, showAlert } = useAuth();
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -30,30 +30,35 @@ export const MyNavBar = ({ setIsOpen, isLogIn }) => {
 
   return (
     <>
-      <nav className="float-right relative flex flex-row justify-items-end mr-1 mt-3 text-sm z-20">
-        <div className="px-1 mr-1 cursor-pointer" onClick={onBookmark}>
+      <nav className="relative flex flex-row items-center justify-end w-full pr-4 md:pr-6 mt-4 md:mt-6 text-[12px] sm:text-sm z-20 text-gray-600 font-medium">
+        <div className="px-2 md:px-2 cursor-pointer hover:text-gray-900 transition-colors py-1" onClick={onBookmark}>
           bookmark
-        </div> |
-        <div className="px-1 mr-1 cursor-pointer" onClick={onWrite}>
+        </div>
+        <span className="text-gray-300 opacity-50">|</span>
+        <div className="px-2 md:px-2 cursor-pointer hover:text-gray-900 transition-colors py-1" onClick={onWrite}>
           write
-        </div> |
+        </div>
+        <span className="text-gray-300 opacity-50">|</span>
         {isLogIn ? (
           <>
-            <NavLink className="mr-1 px-1 cursor-pointer" to="/mypage/memberinfo">
+            <NavLink className="px-2 md:px-2 cursor-pointer hover:text-gray-900 transition-colors py-1" to="/mypage/memberinfo">
               mypage
-            </NavLink> 
-            <span className="mr-2 ml-1.5 px-2 cursor-pointer border rounded-3xl" onClick={handleLogout}>
+            </NavLink>
+            <button
+              className="ml-3 px-4 py-1.5 md:py-1 cursor-pointer border border-gray-400 rounded-full hover:bg-gray-100 transition-all active:scale-95 bg-white shadow-sm"
+              onClick={handleLogout}
+            >
               logout
-            </span>
+            </button>
           </>
         ) : (
           <>
-            <span
-              className="mr-3 px-1 cursor-pointer"
-              onClick={() => {setIsOpen(true); setError(false);}}
+            <button
+              className="ml-3 px-5 py-1.5 md:py-1 cursor-pointer bg-main-green text-white rounded-full hover:opacity-90 transition-all active:scale-95 shadow-md"
+              onClick={() => { setIsOpen(true); setError(false); }}
             >
               login
-            </span>
+            </button>
           </>
         )}
       </nav>

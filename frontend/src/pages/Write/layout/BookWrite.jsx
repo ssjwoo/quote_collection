@@ -9,7 +9,7 @@ export const BookWrite = () => {
   const [author, setAuthor] = useState("");
   const [publisher, setPublisher] = useState("");
   const [content, setContent] = useState("");
-  const [user,setUser] =useState({});
+  const [user, setUser] = useState({});
 
   const tags = [
     "사랑",
@@ -41,7 +41,7 @@ export const BookWrite = () => {
   const [error, setError] = useState("");
   const [charNum, setCharNum] = useState(0);
 
-  const {showAlert} = useAuth();
+  const { showAlert } = useAuth();
 
   /** tag 선택, 미선택 스타일 변경 */
   const style = [
@@ -49,17 +49,17 @@ export const BookWrite = () => {
     "rounded-xl p-2 bg-mypage-menu text-xs ml-1 mr-1 mb-1 border-main-green border",
   ];
 
-  useEffect(()=>{
-    const fetchUser =async ()=>{
-      try{
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
         const userData = await axios.get(`/auth/me`);
         setUser(userData.data);
-      }catch(e){
+      } catch (e) {
         console.log("Failed to fetch user", e);
       }
     }
     fetchUser();
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (selectedTags.length < 5) setError("");
@@ -109,7 +109,7 @@ export const BookWrite = () => {
       await axios.post("/quote/", {
         content: content,
         source_id: sourceData.id,
-        user_id: user?.id, 
+        user_id: user?.id,
         tags: selectedTags,
       });
 
@@ -127,7 +127,7 @@ export const BookWrite = () => {
       <Form className="flex flex-col mt-10">
         <div className="text-3xl mb-5">New Book Write</div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-2">
+          <label className="w-1/5 sm:w-auto sm:min-w-[100px] text-end pb-2 whitespace-nowrap flex-shrink-0">
             책 제목 <span className="text-red-700">*</span>
           </label>
           <input
@@ -139,7 +139,7 @@ export const BookWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-2">
+          <label className="w-1/5 sm:w-auto sm:min-w-[100px] text-end pb-2 whitespace-nowrap flex-shrink-0">
             저자 <span className="text-red-700">*</span>
           </label>
           <input
@@ -151,7 +151,7 @@ export const BookWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pr-2 pb-2">출판사</label>
+          <label className="w-1/5 sm:w-auto sm:min-w-[100px] text-end pr-2 pb-2 whitespace-nowrap flex-shrink-0">출판사</label>
           <input
             type="text"
             className="w-4/6 outline-1 rounded-lg p-2 pl-4 shadow-lg ml-3 shadow-gray-400 outline-main-green"
@@ -161,7 +161,7 @@ export const BookWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-20">
+          <label className="w-1/5 sm:w-auto sm:min-w-[100px] text-end pb-20 whitespace-nowrap flex-shrink-0">
             기록 하고싶은 문장 <span className="text-red-700">*</span>
             <div className="text-xs mr-4 text-gray-700">{charNum}/1000</div>
           </label>
@@ -177,7 +177,7 @@ export const BookWrite = () => {
           />
         </div>
         <div className="flex items-end mt-3">
-          <label className="w-1/5 text-end pb-24 pr-2">태그 <span className="text-red-700">*</span></label>
+          <label className="w-1/5 sm:w-auto sm:min-w-[100px] text-end pb-24 pr-2 whitespace-nowrap flex-shrink-0">태그 <span className="text-red-700">*</span></label>
           <div className="w-4/6 border rounded-lg p-2 shadow-lg shadow-gray-400 ml-3 border-main-green">
             {tags.map((id) => (
               <button

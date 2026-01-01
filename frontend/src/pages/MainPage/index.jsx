@@ -49,20 +49,27 @@ export const MainPage = ({ mode }) => {
     setNewQuote([]);
     setRecomQuote([]);
 
-    fetchLatest();
-    fetchRecom();
+    if (mode !== "ai-pick") {
+      fetchLatest();
+      fetchRecom();
+    }
   }, [mode]);
   return (
     <>
-      <div className="flex justify-center">
-        <Search source_type={mode} />
-      </div>
+      {mode !== "ai-pick" && (
+        <div className="flex justify-center">
+          <Search source_type={mode} />
+        </div>
+      )}
       <div className="mt-12">
-
-        <New mode={mode} newQuote={newQuote} />
-        <Recommend mode={mode} recomQuote={recomQuote} />
-        {/* AI Recommendation Section */}
-        <AIRecommend />
+        {mode === "ai-pick" ? (
+          <AIRecommend />
+        ) : (
+          <>
+            <New mode={mode} newQuote={newQuote} />
+            <Recommend mode={mode} recomQuote={recomQuote} />
+          </>
+        )}
       </div>
     </>
   );
