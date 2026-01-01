@@ -18,7 +18,7 @@ export const AIRecommend = () => {
                             onClick={() => fetchRecommendations()}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform active:scale-95 transition-all duration-200"
                         >
-                            내 취향 분석하여 책 추천받기
+                            AI에게 책 추천받기
                         </button>
                     </div>
                 )}
@@ -26,7 +26,7 @@ export const AIRecommend = () => {
                 {loading && (
                     <div className="mt-10 flex flex-col items-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                        <p className="text-gray-500 font-medium">AI가 당신의 취향을 깊게 분석하고 있습니다...</p>
+                        <p className="text-gray-500 font-medium">AI가 당신의 취향을 분석하고 있습니다...</p>
                     </div>
                 )}
 
@@ -47,7 +47,7 @@ export const AIRecommend = () => {
                                 onClick={() => fetchRecommendations(true)}
                                 className="text-sm font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-6 py-2 rounded-full transition-colors duration-200 border border-blue-100"
                             >
-                                추천 도서 다시 받기
+                                AI에게 다른 책 추천받기
                             </button>
                         </div>
                     </div>

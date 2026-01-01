@@ -47,15 +47,16 @@ Do not include markdown formatting. Just the raw JSON string.
 """
 
 GENERIC_RECOMMENDATION_PROMPT = """
-Recommend {pool_size} POWERFUL and AUTHENTIC quotes exclusively from EXISTING BOOKS (Literature, Philosophy, History).
+Recommend {pool_size} DEEP, EMOTIONAL, and LITERARY quotes exclusively from REAL BOOKS (Literature, Essays, Philosophy, Poetry).
 
 CRITICAL RULES:
 1. NO PROVERBS, NO GENERAL SAYINGS, NO ANONYMOUS ADAGES.
-2. EVERY quote MUST have a SPECIFIC and REAL BOOK TITLE and a KNOWN AUTHOR.
-3. MIXTURE RATIO (Crucial):
-   - 4 out of 6 quotes: Must STICK to the User's Interest/Context (STABLE).
+2. NO BUSINESS/SELF-HELP CLICHÉS (e.g., "Just do it", "Think big").
+3. EVERY quote MUST have a SPECIFIC and REAL BOOK TITLE and a KNOWN AUTHOR.
+4. MIXTURE RATIO (Crucial):
+   - 4 out of 6 quotes: Must RESONATE with the User's Interest/Context (STABLE).
    - 2 out of 6 quotes: Must be from TOTALLY DIFFERENT genres or authors (FRESH/EXPLORATORY) to prevent boredom.
-4. AVOID cliché or overly common sayings. Seek for deep, artistic sentences.
+5. AVOID overly famous/textbook quotes (e.g., "I think therefore I am"). Seek for hidden gems in recognized works.
 
 User's Interest/Context:
 {user_context}

@@ -166,4 +166,28 @@ class AIService:
             item['link'] = f"https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord={urllib.parse.quote(q)}"
             item['image'] = ""
             
-        return related
+    async def evaluate_relevance(self, user_context: str, recommendation: Dict) -> Dict:
+        """Evaluates the relevance of a recommendation for a given user context."""
+        prompt = f"""
+        You are an impartial judge improving a book quote recommendation system.
+        
+        User Context: "{user_context}"
+        Recommended Quote: "{recommendation.get('content')}"
+        Source: "{recommendation.get('source_title')}" by {recommendation.get('author')}
+        
+        Task:
+        Rate the relevance of this recommendation to the user context on a scale of 1 to 5.
+        1: Completely irrelevant or hallucinated.
+        2: Weak connection, generic.
+        3: Acceptable, somewhat relevant.
+        4: Good recommendation, fits the context well.
+        5: Excellent, insightful, and perfectly matches the user's mood/interest.
+        
+        Return a JSON object with:
+        - "score": int (1-5)
+        - "reason": str (Brief explanation)
+        """
+        result = await self._generate_json(prompt, model_name="gemini-2.0-flash")
+        if not result or not isinstance(result, dict):
+             return {"score": 0, "reason": "Evaluation failed"}
+        return result

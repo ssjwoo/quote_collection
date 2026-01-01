@@ -1,0 +1,133 @@
+{
+    "timestamp": "2026-01-01T19:14:08.876109",
+    "summary": {
+        "total_scenarios": 4,
+        "average_latency_ms": 4348.77,
+        "average_relevance_score": 4,
+        "score_distribution": {
+            "1": 0,
+            "2": 0,
+            "3": 1,
+            "4": 10,
+            "5": 1
+        }
+    },
+    "details": [
+        {
+            "scenario_id": "persona_a",
+            "description": "Exhausted office worker, raining evening",
+            "latency_ms": 8383.94,
+            "avg_score": 4.333333333333333,
+            "recommendations": [
+                {
+                    "quote": "나는 자주 내가 길을 잃었다고 느꼈다. 그러나 나는 또한 길을 잃은 것이 탐험의 시작이라는 것을 깨달았다.",
+                    "source": "여행의 기술",
+                    "author": "알랭 드 보통",
+                    "score": 4,
+                    "reason": "The quote speaks to feeling lost, which resonates with feeling tired and stressed. The idea of exploration as a result of being lost provides a calming, positive perspective that fits the user's desire for comfort and calmness. Alain de Botton's essays are known for their philosophical and comforting nature, fitting the user's liking for essays."
+                },
+                {
+                    "quote": "괴로움은 돌이킬 수 없는 과거에 대한 후회에서 오는 것이 아니라, 불확실한 미래에 대한 두려움에서 비롯된다.",
+                    "source": "페스트",
+                    "author": "알베르 카뮈",
+                    "score": 4,
+                    "reason": "The quote addresses anxieties about the future, which resonates with the user's feelings of stress. The source, an essay by Camus, also aligns with the user's preference for essays. The quote is comforting by suggesting the source of suffering is internal and addressable."
+                },
+                {
+                    "quote": "모든 것이 지나가리라. 이 또한 지나가리라.",
+                    "source": "반지",
+                    "author": "법정 스님",
+                    "score": 5,
+                    "reason": "The quote, meaning 'This too shall pass,' is perfectly aligned with the user's desire for comfort and calmness during a stressful and tiring time. The source, a Buddhist monk's book ('반지' by 법정 스님), further reinforces the theme of impermanence and finding peace in difficult situations, which is very relevant to the user's context."
+                }
+            ]
+        },
+        {
+            "scenario_id": "persona_b",
+            "description": "Passionate dreamer, sunny morning",
+            "latency_ms": 2295.82,
+            "avg_score": 4,
+            "recommendations": [
+                {
+                    "quote": "넘어지지 않고는 앞으로 나아갈 수 없다는 것을 잊지 마세요. 고통은 성장의 씨앗입니다.",
+                    "source": "데미안",
+                    "author": "헤르만 헤세",
+                    "score": 4,
+                    "reason": "The quote emphasizes the necessity of overcoming obstacles for growth, aligning with the user's desire for motivation and courage. While the book isn't strictly biography or self-growth, its themes resonate with the user's interest in personal development. The reference to 'growth' directly connects to the user's preferences."
+                },
+                {
+                    "quote": "매일 아침, 우리는 다시 태어난다. 오늘 우리가 하는 일이 가장 중요하다.",
+                    "source": "붓다의 말씀",
+                    "author": "고타마 붓다",
+                    "score": 4,
+                    "reason": "The quote speaks directly to motivation and the importance of the present, aligning with the user's desire for motivation and courage. The connection to self-growth is also present. While the 'sunny weather' aspect isn't directly addressed, the overall relevance is strong."
+                },
+                {
+                    "quote": "인간은 자신의 운명의 주인이다. 모든 것은 자신의 선택에 달려 있다.",
+                    "source": "햄릿",
+                    "author": "윌리엄 셰익스피어",
+                    "score": 4,
+                    "reason": "The quote emphasizes self-determination and agency, which aligns well with the user's desire for motivation and courage. The user's interest in self-growth also connects to the theme of taking control of one's destiny. While the connection to sunny weather is absent, the core message strongly resonates with the user's other preferences."
+                }
+            ]
+        },
+        {
+            "scenario_id": "persona_c",
+            "description": "Philosophical student, midnight",
+            "latency_ms": 4437.86,
+            "avg_score": 3.6666666666666665,
+            "recommendations": [
+                {
+                    "quote": "나는 꿈속에서 나 자신이 아닌 다른 존재가 되기도 한다. 그렇다면, 누가 나 자신인지 어떻게 확신할 수 있겠는가?",
+                    "source": "장자",
+                    "author": "장자",
+                    "score": 4,
+                    "reason": "The quote, inquiring about the certainty of self and identity within dreams, strongly resonates with existential themes and the user's interest in philosophers like Nietzsche and Kafka, who explored similar themes of identity and the nature of reality. The midnight solitude aspect also aligns well with philosophical introspection."
+                },
+                {
+                    "quote": "밤은 모든 것을 덮고, 낮의 모든 색깔을 삼켜버린다. 그러나 어둠 속에서, 진정한 빛은 더욱 선명하게 빛난다.",
+                    "source": "데미안",
+                    "author": "헤르만 헤세",
+                    "score": 4,
+                    "reason": "The quote speaks to darkness and inner light, resonating with themes of solitude, existentialism, and self-discovery, which aligns well with the user's interest in Nietzsche, Kafka, and deep thinking."
+                },
+                {
+                    "quote": "우리의 삶은 우리가 만들어낸 생각의 결과이다. 그러므로 생각을 잘 지켜라.",
+                    "source": "법구경",
+                    "author": "고타마 붓다",
+                    "score": 3,
+                    "reason": "The quote touches on the impact of thoughts on life, which aligns with deep thinking and introspection. However, the Buddhist source might not be a primary interest for someone focused on Nietzsche and Kafka, hence the moderate score."
+                }
+            ]
+        },
+        {
+            "scenario_id": "persona_d",
+            "description": "Happy traveler, weekend",
+            "latency_ms": 2277.44,
+            "avg_score": 4,
+            "recommendations": [
+                {
+                    "quote": "모든 여행은 나 자신의 내부로 들어가는 여행이다.",
+                    "source": "데미안",
+                    "author": "헤르만 헤세",
+                    "score": 4,
+                    "reason": "The quote about travel being a journey inward aligns well with someone planning a trip and interested in travelogues. It suggests a deeper, more reflective aspect of travel, fitting the user's interest."
+                },
+                {
+                    "quote": "세상이란 한 권의 책이고, 여행하지 않는 자는 그 책의 단 한 페이지만 읽는 것과 같다.",
+                    "source": "성 아우구스티누스의 생애",
+                    "author": "성 아우구스티누스",
+                    "score": 4,
+                    "reason": "The quote emphasizes travel as a valuable experience, fitting well with the user's excitement about an upcoming trip. The mention of a 'book' aligns with their preference for light fiction, and the overall sentiment is positive, matching the user's sunny weekend mood."
+                },
+                {
+                    "quote": "우리는 여행을 통해 우리가 누구인지 다시 발견한다.",
+                    "source": "잃어버린 시간을 찾아서",
+                    "author": "마르셀 프루스트",
+                    "score": 4,
+                    "reason": "The quote about rediscovering oneself through travel aligns well with the user's excitement about planning a trip and their interest in travelogues. The mention of 'light fiction' suggests the user is open to reflective themes that can be present in travelogues."
+                }
+            ]
+        }
+    ]
+}
